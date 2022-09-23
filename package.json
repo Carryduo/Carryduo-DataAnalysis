@@ -1,0 +1,25 @@
+{
+    "name": "riot-api-test",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "summonerId": "node ./riotAPI/summoner/getSummonerId.js",
+        "puuId": "node ./riotAPI/summoner/getPuuId.js",
+        "matchId": "node ./riotAPI/summoner/getMatchId.js",
+        "match": "node ./riotAPI/summoner/getMatch.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.27.2",
+        "dotenv": "^16.0.2",
+        "express": "^4.18.1",
+        "mongoose": "^6.6.1",
+        "mongoose-sequence": "^5.3.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.20"
+    }
+}
