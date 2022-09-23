@@ -4,7 +4,7 @@ const autoIdSetter = require("./autoidsetter")
 const matchData = mongoose.Schema(
     {
         data: {
-            type: String,
+            type: Object,
         },
     },
     { timestamps: true }
