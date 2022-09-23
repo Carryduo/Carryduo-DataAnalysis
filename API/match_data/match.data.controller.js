@@ -25,9 +25,7 @@ exports.analyzeCombination = async (req, res, next) => {
     for (let z = 0; z < data.length; z++) {
         console.log(z, data[z].data.info.gameMode)
         if (data[z].data.info.gameMode !== 'CLASSIC') continue
-        const game = []
-        let winTeam = []
-        let loseTeam = []
+        if (data[z].data.info.queueId !== 420) continue
         let winjungle, winmiddle, wintop, winbottom, winutility
         let losejungle, losemiddle, losetop, losebottom, loseutility
         for (let i = 0; i < data[z].data.info.participants.length; i++) {
