@@ -20,17 +20,19 @@ exports.getMatchId = async (req, res, next) => {
 
         async function getMatchId(puuIdList, num) {
             try {
+
                 let matchId = []
                 console.log("getMatchId 실행")
                 const targetUsersApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuIdList[num]}/ids?start=0&count=1&api_key=${process.env.KEY}`
                 const response = await axios.get(targetUsersApiUrl)
+
                 if (!matchId.includes(...response.data)) {
                     matchId.push(...response.data)
-                    matchId.map(async (value) => {
-                        await saveMatchId(value)
-                    })
-                    console.log(num + " 번째 데이터 완료")
                 }
+                matchId.map(async (value) => {
+                    await saveMatchId(value)
+                })
+                console.log(num + " 번째 데이터 완료")
                 key++
             } catch (err) {
                 console.log(err)
@@ -56,12 +58,12 @@ exports.getMatchId = async (req, res, next) => {
         }
 
         async function startGetMatchId() {
-            while (key !== puuIdList.length - 1) {
-                console.log(key)
+            while (key !== puuIdList.length + 1) {
+                console.log(key + `번째`)
                 await getMatchId(testPuuIdList, key)
             }
         }
         startGetMatchId()
         res.status(200).json({ result: "SUCCESS" })
-    } catch (err) {}
+    } catch (err) { }
 }

@@ -47,11 +47,11 @@ exports.getPuuId = async (req, res, next) => {
     }
 
     async function startGetPuuId() {
-        while (key !== summonerIdList.length) {
+        while (key !== summonerIdList.length + 1) {
             await getPuuId(summonerIdList, key)
         }
     }
-    // startGetPuuId()
+    startGetPuuId()
 
     res.status(200).json({ result: "SUCCESS", summonerIdList })
 }
