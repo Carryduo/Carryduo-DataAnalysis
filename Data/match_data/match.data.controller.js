@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, getMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, addbanCnt, getChampBanCnt, getMatchData, saveCombinationData, checkCombinationData, updateCombinationData, getData } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData } = require("./match.data.service")
 
 let key = 0
 let status
@@ -29,7 +29,6 @@ exports.Rate = async (req, res, next) => {
     pickRate = pickRate.toFixed(2)
     let banRate = (champ.ban / result) * 100
     banRate = banRate.toFixed(2)
-    ban()
 
     return res.status(200).json({ winRate, pickRate, banRate })
 }

@@ -19,6 +19,10 @@ exports.saveMatchData = async (data) => {
     return await MatchData.create({ data })
 }
 
+exports.getData = async (type) => {
+    return await Combination.find({ type }).sort("-sampleNum").limit(5)
+}
+
 exports.checkCombinationData = async (mainChamp, subChamp) => {
     return await Combination.find({ mainChampId: mainChamp.champId, subChampId: subChamp.champId })
 }
