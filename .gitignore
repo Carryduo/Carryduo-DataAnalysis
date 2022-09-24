@@ -1,6 +1,8 @@
 #text
 /text
 
+*.json
+
 # Logs
 logs
 *.log

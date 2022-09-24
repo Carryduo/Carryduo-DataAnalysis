@@ -1,5 +1,5 @@
 const router = require("express").Router()
-const champIdController = require("./champIdController")
+const champIdController = require("./champId.controller")
 
 router.get("/", champIdController.getChampId)
 

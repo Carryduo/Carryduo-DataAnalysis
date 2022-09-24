@@ -1,5 +1,5 @@
 const axios = require("axios")
-const { saveChampId } = require("./champIdService")
+const { saveChampId } = require("./champId.service")
 
 exports.getChampId = async (req, res, next) => {
     try {
