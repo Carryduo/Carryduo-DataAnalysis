@@ -1,12 +1,13 @@
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { saveSummonerId } = require("./summonerId.service")
+const { saveSummonerId, test } = require("./summonerId.service")
 require("dotenv").config()
 
-exports.summonerId = async (req, res, next) => {
+exports.summonerId = (req, res, next) => {
     try {
+        startGetSummonerId()
         res.status(200).json({ result: "SUCCESS" })
-    } catch (err) {}
+    } catch (err) { }
 }
 
 let summonerIds = []
@@ -20,10 +21,15 @@ async function startGetSummonerId() {
     }
 }
 
+exports.test = async (req, res, next) => {
+    const data = await test()
+    res.status(200).send({ success: true, data })
+}
+
 async function getSummonerId(summonerIds, num) {
     console.log("getSummonerId 실행")
 
-    const tier = "PLATINUM"
+    const tier = "SILVER"
     const tierDivisionList = ["I", "II", "III", "IV"]
 
     for (let division of tierDivisionList) {

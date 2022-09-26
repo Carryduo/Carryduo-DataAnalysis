@@ -233,13 +233,6 @@ exports.analyzeCombination = async (req, res, next) => {
         } else {
             await updateCombinationData(losebottom, loseutility, "lose")
         }
-        //     TODO: 랭크게임만 추출하기: gameMode = CLASSIC
-        //     승리팀, 패배팀 나누기
-        // 게임마다 탑 - 정글 / 미드 - 정글 / 원딜 - 서폿으로 묶기
-
-        // db에 있는 데이터인지 체크하기
-        // 있는 데이터면 승리 / 실패 / 표본수 카운트 update 하기
-        // 없는 데이터면 새로 생성하기
     }
 
     res.status(200).json({ result })
