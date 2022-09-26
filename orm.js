@@ -9,7 +9,7 @@ const dataSource = new typeorm.DataSource({
     database: process.env.DATABASE,
     synchronize: true,
     logging: true,
-    entities: [require("./entity/summoner.id"), require("./entity/puuid"), require("./entity/match.id"), require("./entity/match.data")],
+    entities: [require("./entity/summoner.id"), require("./entity/puuid"), require("./entity/match.id"), require("./entity/match.data"), require('./entity/combination.data'), require('./entity/champ.info.data')],
 })
 
 module.exports = {
