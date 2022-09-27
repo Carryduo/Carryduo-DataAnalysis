@@ -3,10 +3,10 @@ const { sleep } = require("../../timer")
 const { saveSummonerId, test } = require("./summonerId.service")
 require("dotenv").config()
 
-exports.summonerId = (req, res, next) => {
+exports.summonerId = async (req, res, next) => {
     try {
-        startGetSummonerId()
-        res.status(200).json({ result: "SUCCESS" })
+        const result = await startGetSummonerId()
+        res.status(200).json({ result })
     } catch (err) { }
 }
 
@@ -15,15 +15,11 @@ let page = 1
 let errStatus = 0
 
 async function startGetSummonerId() {
-    while (page !== 6) {
+    while (page !== 4) {
         console.log("while문 진입", "status: " + page)
         await getSummonerId(summonerIds, page)
     }
-}
-
-exports.test = async (req, res, next) => {
-    const data = await test()
-    res.status(200).send({ success: true, data })
+    return 'success'
 }
 
 async function getSummonerId(summonerIds, num) {
@@ -58,7 +54,7 @@ async function getSummonerId(summonerIds, num) {
             for (let value of targetUsersData) {
                 if (!summonerIds.includes(value.summonerId)) {
                     summonerIds.push(value.summonerId)
-                    await saveSummonerId(value.summonerId)
+                    await saveSummonerId(value.summonerId, tier, division)
                 }
             }
         } else {

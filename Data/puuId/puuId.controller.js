@@ -1,43 +1,41 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { savePuuId } = require("./puuId.service")
-const { findSummonerId } = require("./puuId.service")
+const { findSummonerId, savePuuId } = require("./puuId.service")
 
 exports.puuId = async (req, res, next) => {
-    res.status(200).json({ result: "SUCCESS", summonerIdList })
+    const result = await startGetPuuId()
+    res.status(200).json({ result })
 }
 
 let key = 0
 
 async function startGetPuuId() {
     const summonerIds = await findSummonerId()
-    let summonerIdList = []
-    for (let i of summonerIds) {
-        summonerIdList.push(i.summonerId)
+    while (key !== summonerIds.length) {
+        await getPuuId(summonerIds, key)
+        key++
     }
-    while (key !== summonerIdList.length + 1) {
-        await getPuuId(summonerIdList, key)
-    }
+    return 'success'
 }
 
-async function getPuuId(summonerIdList, num) {
+async function getPuuId(summonerIds, key) {
     try {
         let puuIds = []
         console.log("getPuuId 실행")
-        const targetUsersApiUrl = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/${summonerIdList[num]}?api_key=${process.env.KEY}`
+        const targetUsersApiUrl = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/${summonerIds[key].summonerId}?api_key=${process.env.KEY}`
         const response = await axios.get(targetUsersApiUrl)
         const targetUsersPuuId = response.data.puuid
         if (!puuIds.includes(targetUsersPuuId)) {
             puuIds.push(targetUsersPuuId)
-            await savePuuId(targetUsersPuuId)
-            console.log(num + " 번째 데이터 완료")
+            console.log(targetUsersPuuId)
+            savePuuId(targetUsersPuuId, summonerIds[key].tier, summonerIds[key].division, summonerIds[key].summonerId)
+            console.log(key + " 번째 데이터 완료")
         }
-        key++
     } catch (err) {
         if (!err.response) {
             console.log("err.response가 없다! " + err)
-            console.log(num + " 번째 부터 오류!")
+            console.log(key + " 번째 부터 오류!")
             return
         }
         if (err.response.status === 429) {

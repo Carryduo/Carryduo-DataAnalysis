@@ -7,8 +7,8 @@ const dataSource = new typeorm.DataSource({
     username: process.env.USER_NAME,
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
-    synchronize: true,
-    logging: true,
+    synchronize: false,
+    logging: false,
     entities: [require("./entity/summoner.id"), require("./entity/puuid"), require("./entity/match.id"), require("./entity/match.data"), require('./entity/combination.data'), require('./entity/champ.info.data')],
 })
 

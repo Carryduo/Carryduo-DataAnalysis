@@ -14,12 +14,15 @@ module.exports = new EntitySchema({
         summonerId: {
             type: "varchar",
             require: true,
+        },
+        matchId: {
+            type: "varchar",
+            require: true,
             unique: true
         },
         puuid: {
             type: "varchar",
             require: true,
-            unique: true
         },
         tier: {
             type: "varchar",

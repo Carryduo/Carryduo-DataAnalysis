@@ -1,12 +1,11 @@
-const SummonerId = require("../../schemas/summonerId")
 const { dataSource } = require('../../orm')
-const summonerId = dataSource.getRepository('summonerid')
-exports.saveSummonerId = async (summonerId) => {
-    return await SummonerId.create({ summonerId })
-}
+const SummonerId = dataSource.getRepository('summonerid')
 
-exports.test = async () => {
-    const data = await summonerId.createQueryBuilder().select().getMany()
-    console.log(data)
-    return data
+
+exports.saveSummonerId = (summonerId, tier, division) => {
+    SummonerId.createQueryBuilder().insert().values({
+        tier, summonerId, division
+    }).execute()
+    return
+
 }
