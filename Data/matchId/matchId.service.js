@@ -20,7 +20,3 @@ exports.saveMatchId = (matchId, tier, division, summonerId, puuid) => {
         })
     return data
 }
-
-exports.findMatchId = async () => {
-    return await MatchId.createQueryBuilder().select().getMany()
-}

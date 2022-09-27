@@ -31,6 +31,11 @@ module.exports = new EntitySchema({
         division: {
             type: "varchar",
             require: true
+        },
+        analyzed: {
+            type: "boolean",
+            require: true,
+            default: false
         }
     },
 })

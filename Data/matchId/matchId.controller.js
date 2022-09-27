@@ -18,7 +18,7 @@ async function startGetMatchId() {
     const puuIds = await findPuuId()
 
     console.log(puuIds.length)
-    while (key !== puuIds.length) {
+    while (key !== puuIds.length + 1) {
         console.log(key + `번째`)
         await getMatchId(puuIds, key)
     }
@@ -46,29 +46,25 @@ async function getMatchId(puuIds, num) {
             } else {
                 console.log(data)
             }
-
             return
         })
         console.log(num + " 번째 데이터 완료")
-        key++
+        return key++
     } catch (err) {
         if (!err.response) {
             console.log("err.response가 없다! " + err.message)
             console.log(num + " 번째 부터 오류!")
-            return
         }
         if (err.response.status === 429) {
             console.log("라이엇 요청 제한 경고!")
             console.log(key + " 번째 부터 오류!")
             await sleep(125)
-            return
         } else if (err.response.status === 403) {
             console.log(key + " 번째 부터 오류!")
             console.log("api키 갱신 필요!")
-            return
         } else {
             console.log(err.response.status, err.response.statusText)
-            return
         }
+        return key++
     }
 }

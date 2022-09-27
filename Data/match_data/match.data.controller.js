@@ -8,14 +8,15 @@ let status
 
 exports.saveMatchData = async (req, res, next) => {
     const matchIdList = await getMatchIdList()
+    console.log(matchIdList.length)
     while (key !== matchIdList.length + 1) {
-        if (status !== 404) {
-            await saveMatchDataFunction()
-        } else {
-            break
+        if (status !== undefined) {
+            status = undefined
+            continue
         }
+        await saveMatchDataFunction(matchIdList)
     }
-    res.status(200).send({ result: "success" })
+    res.status(200).send({ result: 'success' })
 }
 exports.Rate = async (req, res, next) => {
     const { champId } = req.params
@@ -265,14 +266,16 @@ async function ban(result) {
     }
 }
 
-async function saveMatchDataFunction() {
-    const matchIdList = await getMatchIdList()
+async function saveMatchDataFunction(matchIdList) {
     try {
-        const matchId = matchIdList[key]
+        const matchId = matchIdList[key].matchId
+        const tier = matchIdList[key].tier
+        const division = matchIdList[key].division
         console.log(`${key}번째 데이터 분석 시작`, matchId)
         const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${process.env.KEY}`
         const response = await axios.get(matchDataApiUrl)
-        await saveMatchData(response.data)
+        const result = await saveMatchData(response.data, tier, division, matchId)
+        console.log(result)
     } catch (err) {
         if (!err.response) {
             console.log("err.response가 없다! " + err)
@@ -290,7 +293,7 @@ async function saveMatchDataFunction() {
         } else {
             console.log(err.response.status, err.response.statusText)
             status = err.response.status
-            return
+            return key++
         }
     }
     console.log(`${key}번째 데이터 분석 끝`)
@@ -299,8 +302,8 @@ async function saveMatchDataFunction() {
 
 async function getMatchIdList() {
     const data = await getMatchId()
-    const result = data.map((value) => {
-        return (value = value.matchId)
-    })
-    return result
+    // const result = data.map((value) => {
+    //     return (value = value.matchId)
+    // })
+    return data
 }

@@ -1,22 +1,53 @@
-const MatchId = require("../../schemas/matchId")
-const MatchData = require("../../schemas/matchData")
-const ChampInfo = require("../../schemas/champInfo")
-const Combination = require("../../schemas/combination.stat")
+const { dataSource } = require('../../orm')
+const MatchId = dataSource.getRepository('matchid')
+const MatchData = dataSource.getRepository('matchdata')
+const matchdata = require('../../entity/match.data')
+const matchid = require('../../entity/match.id')
 
 exports.getMatchId = async () => {
-    return await MatchId.find({}, { _id: false, matchId: true })
+    return await MatchId.createQueryBuilder().select().where('matchid.analyzed = :analyzed', { analyzed: false }).getMany()
 }
 
 exports.getMatchData = async () => {
-    return await MatchData.find({}, { _id: false, data: true })
+    return await MatchData.createQueryBuilder().select(['matchdata.matchData']).getMany()
 }
 
 exports.getMatchDataCnt = async () => {
     return await MatchData.find({}, { _id: false, data: true }).count()
 }
 
-exports.saveMatchData = async (data) => {
-    return await MatchData.create({ data })
+exports.saveMatchData = async (matchData, tier, division, matchId) => {
+    console.log(tier, division, matchId)
+    let data
+    let dbupdate
+    // matchId 분석 완료 시, matchId 테이블에서 분석 상태값 변경
+    await dataSource.transaction(async (transactionEntityManager) => {
+        await transactionEntityManager.createQueryBuilder().insert().into(matchdata).values({
+            matchData, tier, division, matchId
+        }).execute()
+            .then(() => {
+                data = { code: 200, message: '정상' }
+                return
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.errno === 1062) {
+                    data = { code: 1062, message: '중복값 에러' }
+                    return
+                }
+            })
+        await transactionEntityManager.createQueryBuilder().update(matchid).set({ analyzed: true }).where('matchid.matchId = :matchId', { matchId }).execute()
+            .then(() => {
+                dbupdate = { message: 'matchId 분석 완료' }
+                return
+            })
+            .catch((error) => {
+                console.log(error)
+                dbupdate = { message: 'matchId 분석 실패' }
+                return
+            })
+    })
+    return { data, dbupdate }
 }
 
 exports.getData = async (type) => {
