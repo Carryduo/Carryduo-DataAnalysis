@@ -1,6 +1,6 @@
 const { dataSource } = require('../../orm')
 const SummonerId = dataSource.getRepository('summonerid')
-
+const test = dataSource.getRepository('test')
 
 exports.saveSummonerId = (summonerId, tier, division) => {
     SummonerId.createQueryBuilder().insert().values({
@@ -8,4 +8,11 @@ exports.saveSummonerId = (summonerId, tier, division) => {
     }).execute()
     return
 
+}
+
+exports.test = (tier, division) => {
+    test.createQueryBuilder().insert().values({
+        tier,
+        division
+    }).execute()
 }

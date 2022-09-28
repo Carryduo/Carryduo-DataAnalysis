@@ -10,11 +10,27 @@ module.exports = new EntitySchema({
             primary: true,
             generated: 'uuid',
         },
+        createdAt: {
+            type: 'timestamp',
+            require: true,
+            default: () => { return `NOW()` }
+        },
+        updatedAt: {
+            type: 'timestamp',
+            require: true,
+            default: () => { return `NOW()` }
+        },
+        tier: {
+            type: "varchar"
+        },
+        division: {
+            type: "varchar",
+        },
         champId: {
             type: "int",
             require: true
         },
-        champNaME: {
+        champName: {
             type: "varchar",
             require: true
         },

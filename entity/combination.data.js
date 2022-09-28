@@ -10,6 +10,16 @@ module.exports = new EntitySchema({
             primary: true,
             generated: 'uuid',
         },
+        createdAt: {
+            type: 'timestamp',
+            require: true,
+            default: () => { return `NOW()` }
+        },
+        updatedAt: {
+            type: 'timestamp',
+            require: true,
+            default: () => { return `NOW()` }
+        },
         matchId: {
             type: "varchar",
             require: true

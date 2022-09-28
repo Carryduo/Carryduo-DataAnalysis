@@ -5,7 +5,8 @@ require("dotenv").config()
 
 exports.summonerId = async (req, res, next) => {
     try {
-        const result = await startGetSummonerId()
+        // const result = await startGetSummonerId()
+        const result = test('1', '2')
         res.status(200).json({ result })
     } catch (err) { }
 }
