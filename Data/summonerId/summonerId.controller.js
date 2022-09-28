@@ -1,12 +1,13 @@
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { saveSummonerId } = require("./summonerId.service")
+const { saveSummonerId, test } = require("./summonerId.service")
 require("dotenv").config()
 
 exports.summonerId = async (req, res, next) => {
     try {
-        res.status(200).json({ result: "SUCCESS" })
-    } catch (err) {}
+        const result = await startGetSummonerId()
+        res.status(200).json({ result })
+    } catch (err) { }
 }
 
 let summonerIds = []
@@ -14,16 +15,17 @@ let page = 1
 let errStatus = 0
 
 async function startGetSummonerId() {
-    while (page !== 6) {
+    while (page !== 4) {
         console.log("while문 진입", "status: " + page)
         await getSummonerId(summonerIds, page)
     }
+    return 'success'
 }
 
 async function getSummonerId(summonerIds, num) {
     console.log("getSummonerId 실행")
 
-    const tier = "PLATINUM"
+    const tier = "SILVER"
     const tierDivisionList = ["I", "II", "III", "IV"]
 
     for (let division of tierDivisionList) {
@@ -52,7 +54,7 @@ async function getSummonerId(summonerIds, num) {
             for (let value of targetUsersData) {
                 if (!summonerIds.includes(value.summonerId)) {
                     summonerIds.push(value.summonerId)
-                    await saveSummonerId(value.summonerId)
+                    await saveSummonerId(value.summonerId, tier, division)
                 }
             }
         } else {

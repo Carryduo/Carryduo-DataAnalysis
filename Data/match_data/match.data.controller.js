@@ -84,14 +84,15 @@ let key = 0
 let status
 exports.saveMatchData = async (req, res, next) => {
     const matchIdList = await getMatchIdList()
+    console.log(matchIdList.length)
     while (key !== matchIdList.length + 1) {
-        if (status !== 404) {
-            await saveMatchDataFunction()
-        } else {
-            break
+        if (status !== undefined) {
+            status = undefined
+            continue
         }
+        await saveMatchDataFunction(matchIdList)
     }
-    res.status(200).send({ result: "success" })
+    res.status(200).send({ result: 'success' })
 }
 exports.Rate = async (req, res, next) => {
     const { champId } = req.params
@@ -309,13 +310,6 @@ exports.analyzeCombination = async (req, res, next) => {
         } else {
             await updateCombinationData(losebottom, loseutility, "lose")
         }
-        //     TODO: 랭크게임만 추출하기: gameMode = CLASSIC
-        //     승리팀, 패배팀 나누기
-        // 게임마다 탑 - 정글 / 미드 - 정글 / 원딜 - 서폿으로 묶기
-
-        // db에 있는 데이터인지 체크하기
-        // 있는 데이터면 승리 / 실패 / 표본수 카운트 update 하기
-        // 없는 데이터면 새로 생성하기
     }
 
     res.status(200).json({ result })
@@ -348,14 +342,16 @@ async function ban(result) {
     }
 }
 
-async function saveMatchDataFunction() {
-    const matchIdList = await getMatchIdList()
+async function saveMatchDataFunction(matchIdList) {
     try {
-        const matchId = matchIdList[key]
+        const matchId = matchIdList[key].matchId
+        const tier = matchIdList[key].tier
+        const division = matchIdList[key].division
         console.log(`${key}번째 데이터 분석 시작`, matchId)
         const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${process.env.KEY}`
         const response = await axios.get(matchDataApiUrl)
-        await saveMatchData(response.data)
+        const result = await saveMatchData(response.data, tier, division, matchId)
+        console.log(result)
     } catch (err) {
         if (!err.response) {
             console.log("err.response가 없다! " + err)
@@ -373,7 +369,7 @@ async function saveMatchDataFunction() {
         } else {
             console.log(err.response.status, err.response.statusText)
             status = err.response.status
-            return
+            return key++
         }
     }
     console.log(`${key}번째 데이터 분석 끝`)
@@ -382,8 +378,8 @@ async function saveMatchDataFunction() {
 
 async function getMatchIdList() {
     const data = await getMatchId()
-    const result = data.map((value) => {
-        return (value = value.matchId)
-    })
-    return result
+    // const result = data.map((value) => {
+    //     return (value = value.matchId)
+    // })
+    return data
 }
