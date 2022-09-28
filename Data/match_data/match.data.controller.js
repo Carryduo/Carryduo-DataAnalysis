@@ -3,9 +3,85 @@ const axios = require("axios")
 const { sleep } = require("../../timer")
 const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData } = require("./match.data.service")
 
+exports.userRecord = async (req, res, next) => {
+    let matchArr = ["KR_6110923066", "KR_6110902608", "KR_6110889472", "KR_6110878033", "KR_6110797680", "KR_6110873891", "KR_6110802405", "KR_6110776161", "KR_6110772273", "KR_6110374163", "KR_6110137952", "KR_6109399977", "KR_6108595057", "KR_6108570762", "KR_6108494112", "KR_6087703551", "KR_6087648041", "KR_6086632875", "KR_6086570513", "KR_6086507114"]
+    const summonerName = "할배탈"
+    const result = []
+    const userRecord = []
+    for (let i of matchArr) {
+        const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${i}?api_key=${process.env.KEY}`
+        const response = await axios.get(matchDataApiUrl)
+        result.push(response.data.info)
+    }
+    for (let r of result) {
+        if (r.gameMode === "CLASSIC") {
+            for (let p of r.participants) {
+                if (p.summonerName === summonerName) {
+                    userRecord.push({ kills: p.kills, deaths: p.deaths, assists: p.assists, championName: p.championName, lane: p.lane, win: p.win })
+                }
+            }
+        }
+    }
+    let win = 0
+    let lose = 0
+    let kill = []
+    let death = []
+    let assi = []
+    const champNameArr = []
+    const champNameResult = {}
+    let sortable = []
+    for (let u of userRecord) {
+        if (u.win === true) {
+            win++
+        } else {
+            lose++
+        }
+        kill.push(u.kills)
+        death.push(u.deaths)
+        assi.push(u.assists)
+        champNameArr.push(u.championName)
+    }
+    for (let k of kill) {
+    }
+    console.log({ win, lose, kill, death, assi })
+
+    champNameArr.map((x) => {
+        champNameResult[x] = (champNameResult[x] || 0) + 1
+    })
+
+    for (let cnr in champNameResult) {
+        sortable.push([cnr, champNameResult[cnr]])
+    }
+
+    sortable.sort(function (a, b) {
+        return b[1] - a[1]
+    })
+    let sortableSlice = sortable.slice(0, 3)
+    let sortResult = []
+    sortableSlice.map((v) => {
+        sortResult.push(...v)
+    })
+
+    let topChampList = []
+    for (let i = 0; i < sortResult.length; i++) {
+        if (i % 2 === 0) {
+            topChampList.push(sortResult[i])
+        }
+    }
+    const champWinRate = [] //[ 'Samira', 5, 'Amumu', 2, 'Blitzcrank', 2 ]
+
+    for (let u2 of userRecord) {
+        for (let tcl of topChampList) {
+            if (u2.championName === tcl) {
+                console.log({ champ: u2.championName, win: u2.win, kill: u2.kills, death: u2.deaths, assi: u2.assists, aver: (u2.kills + u2.assists) / u2.deaths })
+            }
+        }
+    }
+    res.status(200).send({ result: "success" })
+}
+
 let key = 0
 let status
-
 exports.saveMatchData = async (req, res, next) => {
     const matchIdList = await getMatchIdList()
     while (key !== matchIdList.length + 1) {
