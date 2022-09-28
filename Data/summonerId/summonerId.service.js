@@ -9,10 +9,3 @@ exports.saveSummonerId = (summonerId, tier, division) => {
     return
 
 }
-
-exports.test = (tier, division) => {
-    test.createQueryBuilder().insert().values({
-        tier,
-        division
-    }).execute()
-}
