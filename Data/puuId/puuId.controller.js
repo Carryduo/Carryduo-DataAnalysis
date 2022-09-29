@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { findSummonerId, savePuuId } = require("./puuId.service")
+const { findSummonerId, savePuuId, disconnect } = require("./puuId.service")
 
 exports.puuId = async (req, res, next) => {
     const result = await startGetPuuId()
@@ -16,21 +16,28 @@ async function startGetPuuId() {
         await getPuuId(summonerIds, key)
         key++
     }
+    await disconnect()
     return 'success'
 }
 
 async function getPuuId(summonerIds, key) {
     try {
         let puuIds = []
-        console.log("getPuuId 실행")
+        console.log(`${key} 번째 getPuuId 실행`)
         const targetUsersApiUrl = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/${summonerIds[key].summonerId}?api_key=${process.env.KEY}`
         const response = await axios.get(targetUsersApiUrl)
         const targetUsersPuuId = response.data.puuid
         if (!puuIds.includes(targetUsersPuuId)) {
             puuIds.push(targetUsersPuuId)
-            console.log(targetUsersPuuId)
-            savePuuId(targetUsersPuuId, summonerIds[key].tier, summonerIds[key].division, summonerIds[key].summonerId)
-            console.log(key + " 번째 데이터 완료")
+            const data = await savePuuId(targetUsersPuuId, summonerIds[key].tier, summonerIds[key].division, summonerIds[key].summonerId)
+            console.log(data)
+            if (data.code === 1062) {
+                console.log('중복이야')
+                console.log(key + " 번째 부터 오류!")
+                return
+            } else {
+                console.log(key + " 번째 데이터 완료")
+            }
         }
     } catch (err) {
         if (!err.response) {
