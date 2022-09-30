@@ -4,11 +4,15 @@ const MatchData = dataSource.getRepository("matchdata")
 const matchdata = require("../../entity/match.data")
 const matchid = require("../../entity/match.id")
 const queryRunner = dataSource.createQueryRunner()
-const { Brackets } = require("typeorm")
-const Combination = dataSource.getRepository("combination")
-const combination = require("../../entity/combination.data")
-const { query } = require("express")
 
+const { Brackets, MoreThan } = require('typeorm')
+const Combination = dataSource.getRepository('combination')
+const combination = require('../../entity/combination.data')
+const { query } = require('express')
+const combinationServiceData = require('../../entity/combination.service.data')
+
+
+// 매치 아이디 가져오기
 exports.getMatchId = async () => {
     return await MatchId.createQueryBuilder()
         .select()
@@ -27,6 +31,7 @@ exports.getMatchId = async () => {
         .getMany()
 }
 
+// 매치 RAW DATA 관련
 exports.getMatchData = async () => {
     return await MatchData.createQueryBuilder()
         .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId"])
@@ -98,6 +103,29 @@ exports.getData = async (type) => {
         .getMany()
 }
 
+// 챔피언 승/밴/픽 관련
+exports.getChampBanCnt = async (id) => {
+    return await ChampInfo.findOne({ id }, { _id: false, ban: true })
+}
+
+exports.getChampInfo = async (id) => {
+    return ChampInfo.findOne({ id })
+}
+
+exports.saveChampInfo = async (id, name, win, game) => {
+    return ChampInfo.create({ id, name, win, game })
+}
+
+exports.addWinCnt = async (id, winCnt) => {
+    return ChampInfo.updateOne({ id }, { $set: { win: winCnt + 1 } })
+}
+exports.addGameCnt = async (id, gameCnt) => {
+    return ChampInfo.updateOne({ id }, { $set: { game: gameCnt + 1 } })
+}
+exports.addbanCnt = async (id, banCnt) => {
+    return ChampInfo.updateOne({ id }, { $set: { ban: banCnt + 1 } })
+}
+
 exports.checkCombinationData = async (mainChamp, subChamp) => {
     return await Combination.createQueryBuilder()
         .select()
@@ -106,6 +134,7 @@ exports.checkCombinationData = async (mainChamp, subChamp) => {
         .getMany()
 }
 
+// 챔피언 조합 승률 관련 
 exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, category) => {
     // TODO: 트랜젝션, matchId 업데이트
     console.log("update", mainChamp, subChamp)
@@ -237,27 +266,25 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
     }
 }
 
-exports.getChampBanCnt = async (id) => {
-    return await ChampInfo.findOne({ id }, { _id: false, ban: true })
+exports.updateWinRate = async () => {
+    let data = await queryRunner.manager.getRepository(combination)
+        .createQueryBuilder()
+        .select()
+        .getMany()
+
+    data = data.map((value) => {
+        value = {
+            winrate: value.win / value.sampleNum,
+            mainChampId: value.mainChampId,
+            subChampId: value.subChampId,
+            category: value.category,
+            sampleNum: value.sampleNum
+        }
+        return value
+    })
+    return data
 }
 
-exports.getChampInfo = async (id) => {
-    return ChampInfo.findOne({ id })
-}
-
-exports.saveChampInfo = async (id, name, win, game) => {
-    return ChampInfo.create({ id, name, win, game })
-}
-
-exports.addWinCnt = async (id, winCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { win: winCnt + 1 } })
-}
-exports.addGameCnt = async (id, gameCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { game: gameCnt + 1 } })
-}
-exports.addbanCnt = async (id, banCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { ban: banCnt + 1 } })
-}
 
 exports.disconnect = async () => {
     await queryRunner.release()
