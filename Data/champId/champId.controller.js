@@ -11,7 +11,7 @@ exports.getChampId = async (req, res, next) => {
         champName.push(...Object.keys(champData))
 
         for (let i of champName) {
-            await saveChampId(response.data.data[i].key)
+            await saveChampId(i, response.data.data[i].key)
         }
 
         res.status(200).json({ result: "SUCCESS" })

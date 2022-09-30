@@ -1,29 +1,30 @@
-const { dataSource } = require('../../orm')
-const MatchId = dataSource.getRepository('matchid')
-const MatchData = dataSource.getRepository('matchdata')
-const matchdata = require('../../entity/match.data')
-const matchid = require('../../entity/match.id')
+const { dataSource } = require("../../orm")
+const MatchId = dataSource.getRepository("matchid")
+const MatchData = dataSource.getRepository("matchdata")
+const matchdata = require("../../entity/match.data")
+const matchid = require("../../entity/match.id")
 const queryRunner = dataSource.createQueryRunner()
+
 const { Brackets, MoreThan } = require('typeorm')
 const Combination = dataSource.getRepository('combination')
 const combination = require('../../entity/combination.data')
 const { query } = require('express')
 const combinationServiceData = require('../../entity/combination.service.data')
 
+
 // 매치 아이디 가져오기
 exports.getMatchId = async () => {
-    return await MatchId.createQueryBuilder().select().where(
-        new Brackets((qb) => {
-            qb.where('matchid.tier = :tier', {
-                tier: 'PLATINUM',
+    return await MatchId.createQueryBuilder()
+        .select()
+        .where(
+            new Brackets((qb) => {
+                qb.where("matchid.tier = :tier", {
+                    tier: "PLATINUM",
+                }).orWhere("matchid.tier = :tier2", {
+                    tier2: "DIAMOND",
+                })
             })
-                .orWhere('matchid.tier = :tier2', {
-                    tier2: 'DIAMOND'
-                });
-
-
-        })
-    )
+        )
         // .andWhere('matchid.analyzed = :analyzed', {
         //     analyzed: false,
         // })
@@ -32,8 +33,11 @@ exports.getMatchId = async () => {
 
 // 매치 RAW DATA 관련
 exports.getMatchData = async () => {
-    return await MatchData.createQueryBuilder().select(['matchdata.matchData', 'matchdata.id', 'matchdata.matchId']).
-        where('matchdata.tier = :tier', { tier: 'DIAMOND' }).orWhere('matchdata.tier = :tier2', { tier2: 'PLATINUM' }).getMany()
+    return await MatchData.createQueryBuilder()
+        .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId"])
+        .where("matchdata.tier = :tier", { tier: "DIAMOND" })
+        .orWhere("matchdata.tier = :tier2", { tier2: "PLATINUM" })
+        .getMany()
 }
 
 exports.getMatchDataCnt = async () => {
@@ -50,27 +54,40 @@ exports.saveMatchData = async (matchData, tier, division, matchId) => {
     // matchId 분석 완료 시, matchId 테이블에서 분석 상태값 변경
 
     try {
-        await queryRunner.manager.createQueryBuilder().insert().into(matchdata).values({
-            matchData, tier, division, matchId
-        }).execute()
+        await queryRunner.manager
+            .createQueryBuilder()
+            .insert()
+            .into(matchdata)
+            .values({
+                matchData,
+                tier,
+                division,
+                matchId,
+            })
+            .execute()
             .then(() => {
-                data = { code: 200, message: '정상' }
+                data = { code: 200, message: "정상" }
                 return
             })
 
-        await queryRunner.manager.createQueryBuilder().update(matchid).set({ analyzed: true }).where('matchid.matchId = :matchId', { matchId }).execute()
+        await queryRunner.manager
+            .createQueryBuilder()
+            .update(matchid)
+            .set({ analyzed: true })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
             .then(() => {
-                dbupdate = { message: 'matchId 분석 완료' }
+                dbupdate = { message: "matchId 분석 완료" }
                 return
             })
         await queryRunner.commitTransaction()
     } catch (error) {
         console.log(error)
         if (error.errno === 1062) {
-            data = { code: 1062, message: '중복값 에러' }
+            data = { code: 1062, message: "중복값 에러" }
         }
 
-        dbupdate = { message: 'matchId 분석 실패' }
+        dbupdate = { message: "matchId 분석 실패" }
         await queryRunner.rollbackTransaction()
     } finally {
         return { data, dbupdate }
@@ -78,7 +95,12 @@ exports.saveMatchData = async (matchData, tier, division, matchId) => {
 }
 
 exports.getData = async (type) => {
-    return await Combination.createQueryBuilder().select().where('combination.category = :category', { category: type }).orderBy({ 'combination.sampleNum': 'DESC' }).limit(10).getMany()
+    return await Combination.createQueryBuilder()
+        .select()
+        .where("combination.category = :category", { category: type })
+        .orderBy({ "combination.sampleNum": "DESC" })
+        .limit(10)
+        .getMany()
 }
 
 // 챔피언 승/밴/픽 관련
@@ -105,7 +127,11 @@ exports.addbanCnt = async (id, banCnt) => {
 }
 
 exports.checkCombinationData = async (mainChamp, subChamp) => {
-    return await Combination.createQueryBuilder().select().where('combination.mainChampId = :mainChampId', { mainChampId: mainChamp.champId }).andWhere('combination.subChampId = :subChampId', { subChampId: subChamp.champId }).getMany()
+    return await Combination.createQueryBuilder()
+        .select()
+        .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
+        .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+        .getMany()
 }
 
 // 챔피언 조합 승률 관련 
@@ -118,31 +144,43 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
     await queryRunner.startTransaction()
     try {
         if (category === "win") {
-            await queryRunner.manager.createQueryBuilder().update(combination).set({
-                win: () => "win + 1",
-                sampleNum: () => "sampleNum + 1"
-            })
-                .where('combination.mainChampId = :mainChampId', { mainChampId: mainChamp.champId })
-                .andWhere('combination.subChampId = :subChampId', { subChampId: subChamp.champId })
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(combination)
+                .set({
+                    win: () => "win + 1",
+                    sampleNum: () => "sampleNum + 1",
+                })
+                .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
+                .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
-            await queryRunner.manager.createQueryBuilder().update(matchdata)
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(matchdata)
                 .set({ analyzed: true })
-                .where('matchdata.id = :id', { id }).execute()
+                .where("matchdata.id = :id", { id })
+                .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await queryRunner.manager.createQueryBuilder().update(combination).set({
-                lose: () => "lose + 1",
-                sampleNum: () => "sampleNum + 1"
-            })
-                .where('combination.mainChampId = :mainChampId', { mainChampId: mainChamp.champId })
-                .andWhere('combination.subChampId = :subChampId', { subChampId: subChamp.champId })
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(combination)
+                .set({
+                    lose: () => "lose + 1",
+                    sampleNum: () => "sampleNum + 1",
+                })
+                .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
+                .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
 
-            await queryRunner.manager.createQueryBuilder().update(matchdata)
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(matchdata)
                 .set({ analyzed: true })
-                .where('matchdata.id = :id', { id }).execute()
+                .where("matchdata.id = :id", { id })
+                .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
@@ -166,38 +204,54 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
     await queryRunner.startTransaction()
     try {
         if (category === "win") {
-            await queryRunner.manager.createQueryBuilder().insert().into(combination).values({
-                matchId,
-                mainChampId: mainChamp.champId,
-                mainChampName: mainChamp.champName,
-                subChampId: subChamp.champId,
-                subChampName: subChamp.champName,
-                win: 1,
-                lose: 0,
-                sampleNum: 1,
-                category: type,
-            }).execute()
-            await queryRunner.manager.createQueryBuilder().update(matchdata)
+            await queryRunner.manager
+                .createQueryBuilder()
+                .insert()
+                .into(combination)
+                .values({
+                    matchId,
+                    mainChampId: mainChamp.champId,
+                    mainChampName: mainChamp.champName,
+                    subChampId: subChamp.champId,
+                    subChampName: subChamp.champName,
+                    win: 1,
+                    lose: 0,
+                    sampleNum: 1,
+                    category: type,
+                })
+                .execute()
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(matchdata)
                 .set({ analyzed: true })
-                .where('matchdata.id = :id', { id }).execute()
+                .where("matchdata.id = :id", { id })
+                .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await queryRunner.manager.createQueryBuilder().insert().into(combination).values({
-                matchId,
-                mainChampId: mainChamp.champId,
-                mainChampName: mainChamp.champName,
-                subChampId: subChamp.champId,
-                subChampName: subChamp.champName,
-                win: 0,
-                lose: 1,
-                sampleNum: 1,
-                category: type,
-            }).execute()
-            await queryRunner.manager.createQueryBuilder().update(matchdata)
+            await queryRunner.manager
+                .createQueryBuilder()
+                .insert()
+                .into(combination)
+                .values({
+                    matchId,
+                    mainChampId: mainChamp.champId,
+                    mainChampName: mainChamp.champName,
+                    subChampId: subChamp.champId,
+                    subChampName: subChamp.champName,
+                    win: 0,
+                    lose: 1,
+                    sampleNum: 1,
+                    category: type,
+                })
+                .execute()
+            await queryRunner.manager
+                .createQueryBuilder()
+                .update(matchdata)
                 .set({ analyzed: true })
-                .where('matchdata.id = :id', { id }).execute()
+                .where("matchdata.id = :id", { id })
+                .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })

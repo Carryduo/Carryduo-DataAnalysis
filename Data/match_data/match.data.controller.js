@@ -3,6 +3,7 @@ const axios = require("axios")
 const { sleep } = require("../../timer")
 const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate } = require("./match.data.service")
 
+
 let key = 0
 let status
 
@@ -17,7 +18,7 @@ exports.saveMatchData = async (req, res, next) => {
         await saveMatchDataFunction(matchIdList)
     }
     await disconnect()
-    res.status(200).send({ result: 'success' })
+    res.status(200).send({ result: "success" })
 }
 
 
@@ -185,7 +186,18 @@ exports.analyzeCombination = async (req, res, next) => {
                 }
             }
         }
-        if (!wintop || !winjungle || !winmiddle || !winbottom || !winutility || !losetop || !losejungle || !losebottom || !losemiddle || !loseutility) {
+        if (
+            !wintop ||
+            !winjungle ||
+            !winmiddle ||
+            !winbottom ||
+            !winutility ||
+            !losetop ||
+            !losejungle ||
+            !losebottom ||
+            !losemiddle ||
+            !loseutility
+        ) {
             console.log("@@@@@@@@@@@@@@@@@여기서 멈췄어")
             continue
         }
@@ -244,7 +256,7 @@ exports.analyzeCombination = async (req, res, next) => {
         }
     }
 
-    res.status(200).json({ result: 'success' })
+    res.status(200).json({ result: "success" })
 }
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
