@@ -95,11 +95,16 @@ exports.saveMatchData = async (matchData, tier, division, matchId) => {
 }
 
 exports.getData = async (type) => {
-    return await Combination.createQueryBuilder()
+    return await Combination_Service.createQueryBuilder()
         .select()
-        .where("combination.category = :category", { category: type })
-        .orderBy({ "combination.sampleNum": "DESC" })
-        .limit(10)
+        .where("combination_service.category = :category", { category: type })
+        .andWhere(new Brackets(qb3 => {
+            qb3.where({
+                sample_num: MoreThan(9)
+            })
+        }))
+        .orderBy({ "combination_service.rank_in_category": "ASC" })
+        .limit(30)
         .getMany()
 }
 
@@ -306,6 +311,34 @@ exports.updateWinRate = async (value) => {
     }
 }
 
+
+exports.findCombinationCleansedData = async () => {
+    const category0 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 0 })
+        .select()
+        .getMany()
+    const category1 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 1 })
+        .select()
+        .getMany()
+    const category2 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 2 })
+        .select()
+        .getMany()
+    return { category0, category1, category2 }
+}
+
+exports.updateCombinationTier = async (value) => {
+    await Combination_Service.createQueryBuilder()
+        .update()
+        .set(value)
+        .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+        .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+        .execute()
+}
 
 
 exports.disconnect = async () => {

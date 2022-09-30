@@ -8,7 +8,7 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [
         require("./entity/summoner.id"),
         require("./entity/puuid"),
