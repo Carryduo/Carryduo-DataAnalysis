@@ -8,8 +8,8 @@ const queryRunner = dataSource.createQueryRunner()
 const { Brackets, MoreThan } = require('typeorm')
 const Combination = dataSource.getRepository('combination')
 const combination = require('../../entity/combination.data')
-const { query } = require('express')
 const combinationServiceData = require('../../entity/combination.service.data')
+const Combination_Service = dataSource.getRepository('combination_service')
 
 
 // 매치 아이디 가져오기
@@ -266,24 +266,46 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
     }
 }
 
-exports.updateWinRate = async () => {
+exports.findRawCombinationData = async () => {
     let data = await queryRunner.manager.getRepository(combination)
         .createQueryBuilder()
         .select()
         .getMany()
-
-    data = data.map((value) => {
-        value = {
-            winrate: value.win / value.sampleNum,
-            mainChampId: value.mainChampId,
-            subChampId: value.subChampId,
-            category: value.category,
-            sampleNum: value.sampleNum
-        }
-        return value
-    })
     return data
 }
+
+exports.updateWinRate = async (value) => {
+    console.log(value)
+    let type
+    try {
+        const existData = await Combination_Service.createQueryBuilder().select()
+            .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+            .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId }).getOne()
+
+        if (!existData) {
+            await Combination_Service.createQueryBuilder().insert()
+                .values(
+                    value
+                ).execute()
+            type = 'save'
+        } else {
+            await Combination_Service.createQueryBuilder().update()
+                .set(
+                    value
+                )
+                .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+                .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+                .execute()
+            type = 'update'
+        }
+
+        return { type, success: true }
+    } catch (error) {
+        console.log(error)
+        return { type, success: fals }
+    }
+}
+
 
 
 exports.disconnect = async () => {

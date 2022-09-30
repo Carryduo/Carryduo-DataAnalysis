@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData } = require("./match.data.service")
 
 
 let key = 0
@@ -260,8 +260,24 @@ exports.analyzeCombination = async (req, res, next) => {
 }
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
-    const data = await updateWinRate()
-    res.status(200).json({ data })
+    let data = await findRawCombinationData()
+    console.log(data.length)
+    data = data.map((value) => {
+        value = {
+            winrate: value.win / value.sampleNum,
+            mainChampId: value.mainChampId,
+            subChampId: value.subChampId,
+            category: value.category,
+            sample_num: value.sampleNum
+        }
+        return value
+    })
+    for (let i = 0; i < data.length; i++) {
+        const result = await updateWinRate(data[i])
+        console.log(`${i}번째`, result)
+    }
+
+    res.status(200).json({ success: true })
 }
 
 // 챔피언 승/밴/픽 관련
