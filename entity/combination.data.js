@@ -25,7 +25,7 @@ module.exports = new EntitySchema({
             require: true
         },
         mainChampId: {
-            type: "int",
+            type: "varchar",
             require: true
         },
         mainChampName: {

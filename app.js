@@ -8,7 +8,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use("/", Router)
 const db = require('./orm')
-// db.connect()
+db.connect()
 db.connectService()
 
 module.exports = app

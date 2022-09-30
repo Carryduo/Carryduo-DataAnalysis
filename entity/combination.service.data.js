@@ -2,8 +2,8 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "COMBINATION_STAT", // Will use table name `category` as default behaviour.
-    tableName: "COMBINATION_STAT", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "combination_service", // Will use table name `category` as default behaviour.
+    tableName: "combination_service", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: 'varchar',
@@ -20,14 +20,10 @@ module.exports = new EntitySchema({
             require: true,
             default: () => { return `NOW()` }
         },
-        deleted_at: {
-            type: 'timestamp',
-            require: false,
-            default: null
-        },
         tier: {
             type: 'int',
-            require: true,
+            requre: true,
+            default: 0
         },
         category: {
             type: 'int',
@@ -36,6 +32,7 @@ module.exports = new EntitySchema({
         rank_in_category: {
             type: 'int',
             require: true,
+            default: 0
         },
         winrate: {
             type: 'decimal',

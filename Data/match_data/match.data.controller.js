@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate } = require("./match.data.service")
 
 let key = 0
 let status
@@ -19,6 +19,9 @@ exports.saveMatchData = async (req, res, next) => {
     await disconnect()
     res.status(200).send({ result: 'success' })
 }
+
+
+// 챔피언 승/밴/픽 관련
 exports.Rate = async (req, res, next) => {
     const { champId } = req.params
 
@@ -78,6 +81,7 @@ exports.champAnalysis = async (req, res, next) => {
     }
 }
 
+// 챔피언 조합승률 관련
 exports.getAnalysis = async (req, res, next) => {
     const { type } = req.params
     console.log(type)
@@ -243,6 +247,12 @@ exports.analyzeCombination = async (req, res, next) => {
     res.status(200).json({ result: 'success' })
 }
 
+exports.uploadCombinationWinRate = async (req, res, next) => {
+    const data = await updateWinRate()
+    res.status(200).json({ data })
+}
+
+// 챔피언 승/밴/픽 관련
 //벤 저장 할 때 한게임에서 중복되는 벤 제거 할지...
 async function ban(result) {
     let banId = []
@@ -270,6 +280,7 @@ async function ban(result) {
     }
 }
 
+// 매치 RAW DATA 관련
 async function saveMatchDataFunction(matchIdList) {
     try {
         const matchId = matchIdList[key].matchId
