@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config()
 const typeorm = require("typeorm")
 const dataSource = new typeorm.DataSource({
     type: "mysql",
@@ -8,9 +8,15 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: false,
-    entities: [require("./entity/summoner.id"), require("./entity/puuid"), require("./entity/match.id"), require("./entity/match.data"), require('./entity/combination.data'),
-    require('./entity/champ.info.data')],
+    logging: true,
+    entities: [
+        require("./entity/summoner.id"),
+        require("./entity/puuid"),
+        require("./entity/match.id"),
+        require("./entity/match.data"),
+        require("./entity/combination.data"),
+        require("./entity/champ.info.data"),
+    ],
 })
 
 const dataSource_service = new typeorm.DataSource({
@@ -22,7 +28,7 @@ const dataSource_service = new typeorm.DataSource({
     database: process.env.SERVICE_DB_NAME,
     synchronize: false,
     logging: true,
-    entities: [require("./service.entity/champ"), require('./service.entity/combination.stat')],
+    entities: [require("./service.entity/champ"), require("./service.entity/combination.stat")],
 })
 
 module.exports = {
@@ -30,20 +36,22 @@ module.exports = {
         dataSource
             .initialize()
             .then(function () {
-                console.log('분석용 연결 완료')
+                console.log("분석용 연결 완료")
             })
             .catch(function (error) {
                 console.log("Error: ", error)
             })
-    }
-    , connectService() {
+    },
+    connectService() {
         dataSource_service
             .initialize()
             .then(function () {
-                console.log('서비스용 연결 완료')
+                console.log("서비스용 연결 완료")
             })
             .catch(function (error) {
                 console.log("Error: ", error)
             })
-    }, dataSource, dataSource_service
-} 
+    },
+    dataSource,
+    dataSource_service,
+}
