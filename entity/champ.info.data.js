@@ -1,4 +1,3 @@
-
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
@@ -6,48 +5,53 @@ module.exports = new EntitySchema({
     tableName: "champinfo", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
-            type: 'varchar',
+            type: "varchar",
             primary: true,
-            generated: 'uuid',
+            generated: "uuid",
         },
         createdAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         updatedAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         tier: {
-            type: "varchar"
+            type: "varchar",
         },
         division: {
             type: "varchar",
         },
         champId: {
             type: "int",
-            require: true
+            require: true,
         },
         champName: {
             type: "varchar",
-            require: true
+            require: true,
         },
         win: {
             type: "int",
-            require: true,
-            default: 0
+            default: 0,
         },
         lose: {
             type: "int",
-            require: true,
-            default: 0
+            default: 0,
         },
         sampleNum: {
             type: "int",
-            require: true,
-            default: 0
+            default: 0,
+        },
+        banCount: {
+            type: "int",
+            default: 0,
         },
     },
 })
