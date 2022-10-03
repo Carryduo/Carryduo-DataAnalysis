@@ -6,4 +6,5 @@ router.get("/combination", matchDataController.analyzeCombination)
 router.get("/combination/preview/:type", matchDataController.getAnalysis)
 router.get('/combination/update-winrate', matchDataController.uploadCombinationWinRate)
 router.get('/combination/update-tier-rank', matchDataController.updateCombinationTierAndRank)
+router.get('/combination/transfer', matchDataController.transferCombinationStatToServiceDB)
 module.exports = router

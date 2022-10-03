@@ -1,4 +1,6 @@
-const { dataSource } = require("../../orm")
+// 데이터분석 DB
+
+const { dataSource, dataSource_service } = require("../../orm")
 const MatchId = dataSource.getRepository("matchid")
 const MatchData = dataSource.getRepository("matchdata")
 const matchdata = require("../../entity/match.data")
@@ -11,6 +13,8 @@ const combination = require('../../entity/combination.data')
 const combinationServiceData = require('../../entity/combination.service.data')
 const Combination_Service = dataSource.getRepository('combination_service')
 
+// 서비스 DB
+const combination_stat = dataSource_service.getRepository('COMBINATION_STAT')
 
 // 매치 아이디 가져오기
 exports.getMatchId = async () => {
@@ -340,6 +344,39 @@ exports.updateCombinationTier = async (value) => {
         .execute()
 }
 
+exports.getCombinationData = async () => {
+    return Combination_Service.createQueryBuilder().select(['combination_service.tier', 'combination_service.category', 'combination_service.rank_in_category', 'combination_service.winrate', 'combination_service.sample_num', "combination_service.mainChampId", 'combination_service.subChampId']).getMany()
+}
+
+exports.transferToService = async (data) => {
+    console.log(data)
+    let result = { type: 'none', success: 'none' }
+    try {
+        result.type = 'save'
+        result.success = await combination_stat.createQueryBuilder().insert().values(data).execute()
+            .then(() => {
+                return { success: true }
+            }).catch((error) => {
+                console.log(error)
+                return { success: false }
+            })
+    } catch (error) {
+        console.log(error)
+        result.type = 'update'
+        result.success = await combination_stat.createQueryBuilder().update().set(data)
+            .where('COMBINATION_STAT.mainChampId = :mainChampId', { mainChampId: data.mainChampId })
+            .andWhere('COMBINATION_STAT.subChampId = :subChampId', { subChampId: data.subChampId })
+            .execute()
+            .then(() => {
+                return { success: true }
+            }).catch((error) => {
+                console.log(error)
+                return { success: false }
+            })
+    }
+    return result
+
+}
 
 exports.disconnect = async () => {
     await queryRunner.release()

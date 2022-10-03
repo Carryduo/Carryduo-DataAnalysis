@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier, getCombinationData, transferToService } = require("./match.data.service")
 
 
 let key = 0
@@ -322,7 +322,16 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
     // sort된 것에 순서에 따라 랭크 넣어주기
     // 1-3등까지 1티어 4-10등까지 2티어 11-20등까지 3티어, 21등 -27등까지 4티어, 28-30등 5티어
     res.status(200).json({ success: true })
+}
 
+exports.transferCombinationStatToServiceDB = async (req, res, next) => {
+    const dataList = await getCombinationData()
+    let result
+    for (let data of dataList) {
+        result = await transferToService(data)
+        console.log(result)
+    }
+    res.status(200).json({ success: true })
 }
 
 // 챔피언 승/밴/픽 관련
