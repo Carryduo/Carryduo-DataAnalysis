@@ -8,6 +8,7 @@ const {
     getMatchDataCnt,
     getChampList,
     ServiceSaveRate,
+    champCnt,
 } = require("./rate.service")
 
 exports.Rate = async (req, res, next) => {
