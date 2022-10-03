@@ -16,6 +16,7 @@ const dataSource = new typeorm.DataSource({
         require("./entity/match.data"),
         require("./entity/combination.data"),
         require("./entity/champ.info.data"),
+        require('./entity/combination.service.data')
     ],
 })
 
@@ -27,7 +28,7 @@ const dataSource_service = new typeorm.DataSource({
     password: process.env.SERVICE_DB_PASSWORD,
     database: process.env.SERVICE_DB_NAME,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [require("./service.entity/champ"), require("./service.entity/combination.stat")],
 })
 

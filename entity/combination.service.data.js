@@ -36,6 +36,8 @@ module.exports = new EntitySchema({
         },
         winrate: {
             type: 'decimal',
+            precision: 5,
+            scale: 2,
             require: true
         },
         sample_num: {

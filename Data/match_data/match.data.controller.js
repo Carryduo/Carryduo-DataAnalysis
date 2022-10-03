@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier, getCombinationData, transferToService } = require("./match.data.service")
 
 
 let key = 0
@@ -260,8 +260,78 @@ exports.analyzeCombination = async (req, res, next) => {
 }
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
-    const data = await updateWinRate()
-    res.status(200).json({ data })
+    let data = await findRawCombinationData()
+    console.log(data.length)
+    data = data.map((value) => {
+        value = {
+            winrate: value.win / value.sampleNum,
+            mainChampId: value.mainChampId,
+            subChampId: value.subChampId,
+            category: value.category,
+            sample_num: value.sampleNum
+        }
+        return value
+    })
+    for (let i = 0; i < data.length; i++) {
+        const result = await updateWinRate(data[i])
+        console.log(`${i}번째`, result)
+    }
+
+    res.status(200).json({ success: true })
+}
+
+exports.updateCombinationTierAndRank = async (req, res, next) => {
+    let { category0, category1, category2 } = await findCombinationCleansedData()
+    // 표본 5 미만인 것은 rank 0으로 맞추기
+    const categories = [category0, category1, category2]
+    let rankList = []
+    for (let category of categories) {
+        for (let i = 0; i < category.length; i++) {
+            if (category[i].sample_num < 10) {
+                category[i].rank_in_category = 0
+            } else {
+                // 표본 5 이상인 것은 새로운 배열로 만들어서, 승률로 sort하기
+                rankList.push(category[i])
+            }
+        }
+        rankList.sort((a, b) => { return b.winrate - a.winrate })
+        for (let j = 0; j < rankList.length; j++) {
+            rankList[j].rank_in_category = j + 1
+        }
+        rankList.map((value) => {
+            if (value.rank_in_category < 4) {
+                value.tier = 1
+            } else if (4 <= value.rank_in_category && value.rank_in_category < 11) {
+                value.tier = 2
+            } else if (11 <= value.rank_in_category && value.rank_in_category < 21) {
+                value.tier = 3
+            } else if (21 <= value.rank_in_category && value.rank_in_category < 28) {
+                value.tier = 4
+            } else if (28 <= value.rank_in_category) {
+                value.tier = 5
+            }
+            return value
+        })
+
+        for (let k = 0; k < rankList.length; k++) {
+            await updateCombinationTier(rankList[k])
+        }
+        // rankList 카테고리 초기화
+        rankList = []
+    }
+    // sort된 것에 순서에 따라 랭크 넣어주기
+    // 1-3등까지 1티어 4-10등까지 2티어 11-20등까지 3티어, 21등 -27등까지 4티어, 28-30등 5티어
+    res.status(200).json({ success: true })
+}
+
+exports.transferCombinationStatToServiceDB = async (req, res, next) => {
+    const dataList = await getCombinationData()
+    let result
+    for (let data of dataList) {
+        result = await transferToService(data)
+        console.log(result)
+    }
+    res.status(200).json({ success: true })
 }
 
 // 챔피언 승/밴/픽 관련

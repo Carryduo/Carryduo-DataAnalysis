@@ -1,4 +1,6 @@
-const { dataSource } = require("../../orm")
+// 데이터분석 DB
+
+const { dataSource, dataSource_service } = require("../../orm")
 const MatchId = dataSource.getRepository("matchid")
 const MatchData = dataSource.getRepository("matchdata")
 const matchdata = require("../../entity/match.data")
@@ -8,9 +10,11 @@ const queryRunner = dataSource.createQueryRunner()
 const { Brackets, MoreThan } = require('typeorm')
 const Combination = dataSource.getRepository('combination')
 const combination = require('../../entity/combination.data')
-const { query } = require('express')
 const combinationServiceData = require('../../entity/combination.service.data')
+const Combination_Service = dataSource.getRepository('combination_service')
 
+// 서비스 DB
+const combination_stat = dataSource_service.getRepository('COMBINATION_STAT')
 
 // 매치 아이디 가져오기
 exports.getMatchId = async () => {
@@ -95,11 +99,16 @@ exports.saveMatchData = async (matchData, tier, division, matchId) => {
 }
 
 exports.getData = async (type) => {
-    return await Combination.createQueryBuilder()
+    return await Combination_Service.createQueryBuilder()
         .select()
-        .where("combination.category = :category", { category: type })
-        .orderBy({ "combination.sampleNum": "DESC" })
-        .limit(10)
+        .where("combination_service.category = :category", { category: type })
+        .andWhere(new Brackets(qb3 => {
+            qb3.where({
+                sample_num: MoreThan(9)
+            })
+        }))
+        .orderBy({ "combination_service.rank_in_category": "ASC" })
+        .limit(30)
         .getMany()
 }
 
@@ -266,25 +275,108 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
     }
 }
 
-exports.updateWinRate = async () => {
+exports.findRawCombinationData = async () => {
     let data = await queryRunner.manager.getRepository(combination)
         .createQueryBuilder()
         .select()
         .getMany()
-
-    data = data.map((value) => {
-        value = {
-            winrate: value.win / value.sampleNum,
-            mainChampId: value.mainChampId,
-            subChampId: value.subChampId,
-            category: value.category,
-            sampleNum: value.sampleNum
-        }
-        return value
-    })
     return data
 }
 
+exports.updateWinRate = async (value) => {
+    console.log(value)
+    let type
+    try {
+        const existData = await Combination_Service.createQueryBuilder().select()
+            .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+            .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId }).getOne()
+
+        if (!existData) {
+            await Combination_Service.createQueryBuilder().insert()
+                .values(
+                    value
+                ).execute()
+            type = 'save'
+        } else {
+            await Combination_Service.createQueryBuilder().update()
+                .set(
+                    value
+                )
+                .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+                .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+                .execute()
+            type = 'update'
+        }
+
+        return { type, success: true }
+    } catch (error) {
+        console.log(error)
+        return { type, success: fals }
+    }
+}
+
+
+exports.findCombinationCleansedData = async () => {
+    const category0 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 0 })
+        .select()
+        .getMany()
+    const category1 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 1 })
+        .select()
+        .getMany()
+    const category2 = await queryRunner.manager.getRepository(combinationServiceData)
+        .createQueryBuilder()
+        .where('combination_service.category = :category', { category: 2 })
+        .select()
+        .getMany()
+    return { category0, category1, category2 }
+}
+
+exports.updateCombinationTier = async (value) => {
+    await Combination_Service.createQueryBuilder()
+        .update()
+        .set(value)
+        .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
+        .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+        .execute()
+}
+
+exports.getCombinationData = async () => {
+    return Combination_Service.createQueryBuilder().select(['combination_service.tier', 'combination_service.category', 'combination_service.rank_in_category', 'combination_service.winrate', 'combination_service.sample_num', "combination_service.mainChampId", 'combination_service.subChampId']).getMany()
+}
+
+exports.transferToService = async (data) => {
+    console.log(data)
+    let result = { type: 'none', success: 'none' }
+    try {
+        result.type = 'save'
+        result.success = await combination_stat.createQueryBuilder().insert().values(data).execute()
+            .then(() => {
+                return { success: true }
+            }).catch((error) => {
+                console.log(error)
+                return { success: false }
+            })
+    } catch (error) {
+        console.log(error)
+        result.type = 'update'
+        result.success = await combination_stat.createQueryBuilder().update().set(data)
+            .where('COMBINATION_STAT.mainChampId = :mainChampId', { mainChampId: data.mainChampId })
+            .andWhere('COMBINATION_STAT.subChampId = :subChampId', { subChampId: data.subChampId })
+            .execute()
+            .then(() => {
+                return { success: true }
+            }).catch((error) => {
+                console.log(error)
+                return { success: false }
+            })
+    }
+    return result
+
+}
 
 exports.disconnect = async () => {
     await queryRunner.release()
