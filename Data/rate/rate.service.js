@@ -71,10 +71,45 @@ exports.addBanCnt = async (champId) => {
         .execute()
 }
 
-exports.ServiceSaveRate = async (champId, winRate, pickRate, banRate) => {
+exports.addPositionCnt = async (champId, option) => {
+    console.log(option)
+    return ChampInfo.createQueryBuilder()
+        .update(ChampInfo)
+        .set(option.set)
+        .where("champId = :champId", { champId })
+        .execute()
+}
+
+exports.positionInfo = async (champId) => {
+    return ChampInfo.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .select(["top", "jungle", "mid", "ad", "support"])
+        .getRawMany()
+}
+
+exports.ServiceSaveRate = async (
+    champId,
+    winRate,
+    pickRate,
+    banRate,
+    topRate,
+    jungleRate,
+    midRate,
+    adRate,
+    supportRate
+) => {
     return Champ.createQueryBuilder()
         .update(Champ)
-        .set({ win_rate: winRate, pick_rate: pickRate, ban_rate: banRate })
+        .set({
+            win_rate: winRate,
+            pick_rate: pickRate,
+            ban_rate: banRate,
+            top_rate: topRate,
+            jungle_rate: jungleRate,
+            mid_rate: midRate,
+            ad_rate: adRate,
+            support_rate: supportRate,
+        })
         .where("champId = :champId", { champId })
         .execute()
 }
