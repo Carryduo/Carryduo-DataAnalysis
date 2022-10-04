@@ -1,10 +1,7 @@
 const axios = require("axios")
-const { set } = require("mongoose")
-const { Brackets } = require("typeorm")
-const { getMatchData } = require("../match_data/match.data.service")
 const {
-    addWinCnt,
-    addLoseCnt,
+    getMatchData,
+    updateRate,
     saveChampId,
     addBanCnt,
     getMatchDataCnt,
@@ -13,19 +10,30 @@ const {
     champCnt,
     addPositionCnt,
     positionInfo,
+    findSpellInfoData,
+    updateChampSpellInfo,
+    saveChampSpellInfo,
 } = require("./rate.service")
 
 exports.Rate = async (req, res, next) => {
-    // const champs = await champCnt()
-    // if (!champs) {
-    //     await getChampId()
-    //     await rateAnalysis()
-    //     await serviceSaveRate()
-    // } else {
-    //     await rateAnalysis()
-    await serviceSaveRate()
-    // }
-
+    const start = performance.now()
+    const champs = await champCnt()
+    if (!champs) {
+        await getChampId()
+        await rateAnalysis()
+        // await serviceSaveRate()
+    } else {
+        await rateAnalysis()
+        // await serviceSaveRate()
+    }
+    const end = performance.now()
+    const runningTime = end - start
+    const ConversionRunningTime = (runningTime / 1000) % 60
+    console.log(
+        `==========================${ConversionRunningTime}분 소요==========================
+         ===================================================================================        
+        `
+    )
     return res.status(200).json({})
 }
 
@@ -88,58 +96,85 @@ async function rateAnalysis() {
         const data = await getMatchData()
 
         for (let i of data) {
-            console.log(`${cnt}번`)
+            console.log(
+                `============================================${cnt}번============================================`
+            )
+            const matchId = i.matchData.metadata.matchId
             if (i.matchData.info.gameMode === "CLASSIC" && i.matchData.info.queueId === 420) {
                 const participants = i.matchData.info.participants
 
+                // 챔피언 스펠 정보 관련
                 for (let v of participants) {
-                    if (v.win) {
-                        await addWinCnt(v.championId)
-                    } else {
-                        await addLoseCnt(v.championId)
+                    const champId = v.championId
+                    const champName = v.championName
+                    const spell1 = v.summoner1Casts
+                    const spell2 = v.summoner2Casts
+
+                    const spellData = await findSpellInfoData(champId, spell1, spell2)
+
+                    if (!spellData) {
+                        await saveChampSpellInfo(champId, champName, spell1, spell2, matchId)
+                    } else if (spellData) {
+                        await updateChampSpellInfo(champId, spell1, spell2, matchId)
                     }
 
-                    let option
-                    console.log(v.teamPosition, v.championName)
+                    // 챔피언 승/패 관련
+                    let optionWinRate
+                    if (v.win) {
+                        optionWinRate = {
+                            set: { win: () => "win+1", sampleNum: () => "sampleNum+1" },
+                        }
+                    } else {
+                        optionWinRate = {
+                            set: { lose: () => "lose+1", sampleNum: () => "sampleNum+1" },
+                        }
+                    }
+
+                    await updateRate(champId, optionWinRate, matchId)
+
+                    //챔피언 포지션 비율 관련
+                    let optionPosition
                     if (!v.teamPosition) {
                         continue
                     }
                     switch (v.teamPosition) {
                         case "TOP":
-                            option = {
+                            optionPosition = {
                                 set: { top: () => "top+1" },
                             }
                             break
                         case "JUNGLE":
-                            option = {
+                            optionPosition = {
                                 set: { jungle: () => "jungle+1" },
                             }
                             break
                         case "MIDDLE":
-                            option = {
+                            optionPosition = {
                                 set: { mid: () => "mid+1" },
                             }
                             break
                         case "BOTTOM":
-                            option = {
+                            optionPosition = {
                                 set: { ad: () => "ad+1" },
                             }
                             break
                         case "UTILITY":
-                            option = {
+                            optionPosition = {
                                 set: { support: () => "support+1" },
                             }
                             break
                     }
-                    await addPositionCnt(v.championId, option)
+                    await addPositionCnt(champId, optionPosition, matchId)
                 }
 
+                //챔피언 밴률 관련
                 const teams = i.matchData.info.teams
                 for (let t of teams) {
                     const ban = t.bans
                     for (let b of ban) {
+                        const champId = b.championId
                         if (b.chmapionId === -1) continue
-                        await addBanCnt(b.championId)
+                        await addBanCnt(champId, matchId)
                     }
                 }
             }

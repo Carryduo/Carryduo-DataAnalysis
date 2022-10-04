@@ -1,63 +1,46 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "matchdata", // Will use table name `category` as default behaviour.
-    tableName: "matchdata", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "champspell_service", // Will use table name `category` as default behaviour.
+    tableName: "champspell_service", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: "varchar",
             primary: true,
             generated: "uuid",
         },
-        createdAt: {
+        created_at: {
             type: "timestamp",
             require: true,
             default: () => {
                 return `NOW()`
             },
         },
-        updatedAt: {
+        updated_at: {
             type: "timestamp",
             require: true,
             default: () => {
                 return `NOW()`
             },
         },
-        tier: {
-            type: "varchar",
-        },
-        division: {
-            type: "varchar",
-        },
-        matchId: {
+        spell1: {
             type: "varchar",
             require: true,
         },
-        matchData: {
-            type: "json",
+        spell2: {
+            type: "varchar",
             require: true,
         },
-        analyzed: {
+        champId: {
+            type: "varchar",
+            require: true,
+        },
+        pickRate: {
             type: "int",
             require: true,
             default: 0,
         },
-        rateAnalyzed: {
-            type: "int",
-            require: true,
-            default: 0,
-        },
-        banAnalyzed: {
-            type: "int",
-            require: true,
-            default: 0,
-        },
-        positionAnalyzed: {
-            type: "int",
-            require: true,
-            default: 0,
-        },
-        spellAnalyzed: {
+        sampleNum: {
             type: "int",
             require: true,
             default: 0,
