@@ -13,24 +13,21 @@ const {
     findSpellInfoData,
     updateChampSpellInfo,
     saveChampSpellInfo,
+    spellTotalCnt,
+    findSpellData,
+    ServiceSaveSpell,
+    spellTest,
 } = require("./rate.service")
 
 exports.Rate = async (req, res, next) => {
     const start = performance.now()
-    const champs = await champCnt()
-    if (!champs) {
-        await getChampId()
-        await rateAnalysis()
-        // await serviceSaveRate()
-    } else {
-        await rateAnalysis()
-        // await serviceSaveRate()
-    }
+    await champDataAnalysis()
+    // await serviceSaveRate()
     const end = performance.now()
     const runningTime = end - start
     const ConversionRunningTime = (runningTime / 1000) % 60
     console.log(
-        `==========================${ConversionRunningTime}분 소요==========================
+        `==========================${ConversionRunningTime}초 소요==========================
          ===================================================================================        
         `
     )
@@ -39,19 +36,22 @@ exports.Rate = async (req, res, next) => {
 
 async function serviceSaveRate() {
     const champList = await getChampList()
+
+    //분석한 match data의 총 카운트
     const totalCnt = await getMatchDataCnt()
 
     for (let c of champList) {
         const champId = c.champ_champId
+        const champName = c.champ_champName
         const champPosition = await positionInfo(champId)
-
+        // 해당 챔피언의 모든 포지션 카운트를 더해 총 카운트를 찾는다.
         const totalRate =
             champPosition[0].top +
             champPosition[0].jungle +
             champPosition[0].mid +
             champPosition[0].ad +
             champPosition[0].support
-
+        //챔피언 포지션 비율 연산
         let topRate = (champPosition[0].top / totalRate) * 100
         topRate = topRate.toFixed(2)
 
@@ -67,6 +67,7 @@ async function serviceSaveRate() {
         let supportRate = (champPosition[0].support / totalRate) * 100
         supportRate = supportRate.toFixed(2)
 
+        //챔피언 승, 픽, 밴 연산
         let winRate = (c.champ_win / c.champ_sampleNum) * 100
         winRate = winRate.toFixed(2)
 
@@ -76,28 +77,79 @@ async function serviceSaveRate() {
         let banRate = (c.champ_banCount / totalCnt) * 100
         banRate = banRate.toFixed(2)
 
-        await ServiceSaveRate(
-            champId,
-            winRate,
-            pickRate,
-            banRate,
-            topRate,
-            jungleRate,
-            midRate,
-            adRate,
-            supportRate
-        )
+        //==========================================================================================================//
+        //챔프 스펠 정보 연산 후 서비스 DB로 저장
+        // const spellData = await findSpellData()
+
+        // for (let s of spellData) {
+        //     const spell1 = s.champspell_spell1
+        //     const spell2 = s.champspell_spell2
+        //     const champId = s.champspell_champId
+        //     const sampleNum = s.champspell_sampleNum
+        //     const spellTotal = await spellTotalCnt(champId)
+
+        //     let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
+        //     pickRate = pickRate.toFixed(2)
+        //     await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum) //실제 서비스로 바로 이동 고려
+        // }
+        //==========================================================================================================//
+
+        // await ServiceSaveRate(
+        //     champId,
+        //     winRate,
+        //     pickRate,
+        //     banRate,
+        //     topRate,
+        //     jungleRate,
+        //     midRate,
+        //     adRate,
+        //     supportRate
+        // )
+        console.log(champId, champName, winRate, pickRate, banRate)
+    }
+}
+//==========================================================================================================//
+//챔프 데이터 1차 분석후 데이터베이스에 저장
+async function champDataAnalysis() {
+    const data = await getMatchData()
+    const champs = await champCnt()
+    if (!champs) {
+        await saveChampInfo()
+        await Promise.all([champSpellCnt(data), champPositionCnt(data), winLoseBanCnt(data)])
+    } else {
+        await Promise.all([champSpellCnt(data), champPositionCnt(data), winLoseBanCnt(data)])
     }
 }
 
-async function rateAnalysis() {
+//==========================================================================================================//
+//챔프 스펠 정보 연산 후 서비스 DB로 저장
+async function saveSpellInfo() {
+    const spellData = await findSpellData()
+
+    for (let s of spellData) {
+        const spell1 = s.champspell_spell1
+        const spell2 = s.champspell_spell2
+        const champId = s.champspell_champId
+        const sampleNum = s.champspell_sampleNum
+        const spellTotal = await spellTotalCnt(champId)
+
+        let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
+        pickRate = pickRate.toFixed(2)
+        await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum) //실제 서비스로 바로 이동 고려
+    }
+    const spell = await spellTest(526) //스펠 불러오는 로직 테스트
+    console.log(spell)
+}
+
+//==========================================================================================================//
+//챔프 스펠 정보 저장
+async function champSpellCnt(data) {
     try {
         let cnt = 1
-        const data = await getMatchData()
 
         for (let i of data) {
             console.log(
-                `============================================${cnt}번============================================`
+                `============================================쳄프 스펠 저장 ${cnt}번============================================`
             )
             const matchId = i.matchData.metadata.matchId
             if (i.matchData.info.gameMode === "CLASSIC" && i.matchData.info.queueId === 420) {
@@ -107,8 +159,8 @@ async function rateAnalysis() {
                 for (let v of participants) {
                     const champId = v.championId
                     const champName = v.championName
-                    const spell1 = v.summoner1Casts
-                    const spell2 = v.summoner2Casts
+                    const spell1 = v.summoner1Id
+                    const spell2 = v.summoner2Id
 
                     const spellData = await findSpellInfoData(champId, spell1, spell2)
 
@@ -117,22 +169,34 @@ async function rateAnalysis() {
                     } else if (spellData) {
                         await updateChampSpellInfo(champId, spell1, spell2, matchId)
                     }
+                }
+            }
+            cnt++
+        }
+        console.log("완료!")
+        return
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-                    // 챔피언 승/패 관련
-                    let optionWinRate
-                    if (v.win) {
-                        optionWinRate = {
-                            set: { win: () => "win+1", sampleNum: () => "sampleNum+1" },
-                        }
-                    } else {
-                        optionWinRate = {
-                            set: { lose: () => "lose+1", sampleNum: () => "sampleNum+1" },
-                        }
-                    }
+//==========================================================================================================//
+//챔프 포지션 카운팅
+async function champPositionCnt(data) {
+    try {
+        let cnt = 1
 
-                    await updateRate(champId, optionWinRate, matchId)
+        for (let i of data) {
+            console.log(
+                `============================================챔프 포지션 카운팅 ${cnt}번============================================`
+            )
+            const matchId = i.matchData.metadata.matchId
+            if (i.matchData.info.gameMode === "CLASSIC" && i.matchData.info.queueId === 420) {
+                const participants = i.matchData.info.participants
 
-                    //챔피언 포지션 비율 관련
+                for (let v of participants) {
+                    const champId = v.championId
+
                     let optionPosition
                     if (!v.teamPosition) {
                         continue
@@ -166,17 +230,6 @@ async function rateAnalysis() {
                     }
                     await addPositionCnt(champId, optionPosition, matchId)
                 }
-
-                //챔피언 밴률 관련
-                const teams = i.matchData.info.teams
-                for (let t of teams) {
-                    const ban = t.bans
-                    for (let b of ban) {
-                        const champId = b.championId
-                        if (b.chmapionId === -1) continue
-                        await addBanCnt(champId, matchId)
-                    }
-                }
             }
             cnt++
         }
@@ -184,10 +237,59 @@ async function rateAnalysis() {
         return
     } catch (err) {
         console.log(err)
+        return err
     }
 }
 
-async function getChampId() {
+//==========================================================================================================//
+//챔피언 win, lose, ban 카운팅
+async function winLoseBanCnt(data) {
+    let cnt = 1
+
+    for (let i of data) {
+        console.log(
+            `============================================승/패/밴 카운팅 ${cnt}번============================================`
+        )
+        const matchId = i.matchData.metadata.matchId
+
+        if (i.matchData.info.gameMode === "CLASSIC" && i.matchData.info.queueId === 420) {
+            const participants = i.matchData.info.participants
+
+            //win, lose 카운팅
+            for (let v of participants) {
+                const champId = v.championId
+                let optionWinRate
+                if (v.win) {
+                    optionWinRate = {
+                        set: { win: () => "win+1", sampleNum: () => "sampleNum+1" },
+                    }
+                } else {
+                    optionWinRate = {
+                        set: { lose: () => "lose+1", sampleNum: () => "sampleNum+1" },
+                    }
+                }
+
+                await updateRate(champId, optionWinRate, matchId)
+            }
+        }
+
+        //ban 카운팅
+        const teams = i.matchData.info.teams
+        for (let t of teams) {
+            const ban = t.bans
+            for (let b of ban) {
+                const champId = b.championId
+                if (b.chmapionId === -1) continue
+                await addBanCnt(champId, matchId)
+            }
+        }
+        cnt++
+    }
+}
+
+//==========================================================================================================//
+//챔피언 id, name 저장
+async function saveChampInfo() {
     try {
         let champName = []
 

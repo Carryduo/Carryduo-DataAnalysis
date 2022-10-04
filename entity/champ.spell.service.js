@@ -36,9 +36,10 @@ module.exports = new EntitySchema({
             require: true,
         },
         pickRate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
             require: true,
-            default: 0,
         },
         sampleNum: {
             type: "int",

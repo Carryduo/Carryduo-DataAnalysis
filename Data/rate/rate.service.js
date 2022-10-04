@@ -1,6 +1,7 @@
 const { dataSource } = require("../../orm")
 const ChampInfo = dataSource.getRepository("champinfo")
 const ChampSpell = dataSource.getRepository("champspell")
+const ChampSpellServiceDev = dataSource.getRepository("champspell_service")
 const MatchData = dataSource.getRepository("matchdata")
 
 const matchdata = require("../../entity/match.data")
@@ -66,95 +67,119 @@ exports.targetChamp = async (champId) => {
         .getOneOrFail()
 }
 
-exports.updateRate = async (champId, optionWinRate, matchId) => {
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    let dbupdate
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(champinfo)
-            .set(optionWinRate.set)
-            .where("champId = :champId", { champId })
-            .execute()
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchdata)
-            .set({ rateAnalyzed: true })
-            .where("matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: `${matchId} 분석 성공` }
-            })
-        await queryRunner.commitTransaction()
-    } catch (err) {
-        console.log(err)
-        dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return dbupdate
-    }
+exports.updateRate = async (champId, optionWinRate) => {
+    return ChampInfo.createQueryBuilder()
+        .update(ChampInfo)
+        .set(optionWinRate.set)
+        .where("champId = :champId", { champId })
+        .execute()
 }
 
-exports.addBanCnt = async (champId, matchId) => {
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    let dbupdate
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(champinfo)
-            .set({ banCount: () => "banCount+1" })
-            .where("champId = :champId", { champId })
-            .execute()
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchdata)
-            .set({ banAnalyzed: true })
-            .where("matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: `${matchId} 분석 성공` }
-            })
-        await queryRunner.commitTransaction()
-    } catch (err) {
-        console.log(err)
-        dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return dbupdate
-    }
+// exports.updateRate = async (champId, optionWinRate, matchId) => {
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     let dbupdate
+//     try {
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(champinfo)
+//             .set(optionWinRate.set)
+//             .where("champId = :champId", { champId })
+//             .execute()
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(matchdata)
+//             .set({ rateAnalyzed: true })
+//             .where("matchId = :matchId", { matchId })
+//             .execute()
+//             .then(() => {
+//                 dbupdate = { message: `${matchId} 분석 성공` }
+//             })
+//         await queryRunner.commitTransaction()
+//     } catch (err) {
+//         console.log(err)
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }
+
+exports.addBanCnt = async (champId) => {
+    return ChampInfo.createQueryBuilder()
+        .update(ChampInfo)
+        .set({ banCount: () => "banCount+1" })
+        .where("champId = :champId", { champId })
+        .execute()
 }
 
-exports.addPositionCnt = async (champId, optionPosition, matchId) => {
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    let dbupdate
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(champinfo)
-            .set(optionPosition.set)
-            .where("champId = :champId", { champId })
-            .execute()
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchdata)
-            .set({ positionAnalyzed: true })
-            .where("matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: `${matchId} 분석 성공` }
-            })
-        await queryRunner.commitTransaction()
-    } catch (err) {
-        console.log(err)
-        dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return dbupdate
-    }
+// exports.addBanCnt = async (champId, matchId) => {
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     let dbupdate
+//     try {
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(champinfo)
+//             .set({ banCount: () => "banCount+1" })
+//             .where("champId = :champId", { champId })
+//             .execute()
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(matchdata)
+//             .set({ banAnalyzed: true })
+//             .where("matchId = :matchId", { matchId })
+//             .execute()
+//             .then(() => {
+//                 dbupdate = { message: `${matchId} 분석 성공` }
+//             })
+//         await queryRunner.commitTransaction()
+//     } catch (err) {
+//         console.log(err)
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }
+
+exports.addPositionCnt = async (champId, option) => {
+    return ChampInfo.createQueryBuilder()
+        .update(ChampInfo)
+        .set(option.set)
+        .where("champId = :champId", { champId })
+        .execute()
 }
+
+// exports.addPositionCnt = async (champId, optionPosition, matchId) => {
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     let dbupdate
+//     try {
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(champinfo)
+//             .set(optionPosition.set)
+//             .where("champId = :champId", { champId })
+//             .execute()
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(matchdata)
+//             .set({ positionAnalyzed: true })
+//             .where("matchId = :matchId", { matchId })
+//             .execute()
+//             .then(() => {
+//                 dbupdate = { message: `${matchId} 분석 성공` }
+//             })
+//         await queryRunner.commitTransaction()
+//     } catch (err) {
+//         console.log(err)
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }
 
 exports.positionInfo = async (champId) => {
     return ChampInfo.createQueryBuilder()
@@ -164,66 +189,82 @@ exports.positionInfo = async (champId) => {
 }
 
 exports.saveChampSpellInfo = async (champId, champName, spell1, spell2, matchId) => {
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    let dbupdate
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .insert()
-            .into(champspell)
-            .values({ champId, champName, spell1, spell2, sampleNum: 1 })
-            .execute()
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchdata)
-            .set({ spellAnalyzed: true })
-            .where("matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: `${matchId} 분석 성공` }
-            })
-        await queryRunner.commitTransaction()
-    } catch (err) {
-        console.log(err)
-        dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return dbupdate
-    }
+    return await ChampSpell.createQueryBuilder()
+        .insert()
+        .values({ champId, champName, spell1, spell2, sampleNum: 1 })
+        .execute()
 }
+// exports.saveChampSpellInfo = async (champId, champName, spell1, spell2, matchId) => {
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     let dbupdate
+//     try {
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .insert()
+//             .into(champspell)
+//             .values({ champId, champName, spell1, spell2, sampleNum: 1 })
+//             .execute()
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(matchdata)
+//             .set({ spellAnalyzed: true })
+//             .where("matchId = :matchId", { matchId })
+//             .execute()
+//             .then(() => {
+//                 dbupdate = { message: `${matchId} 분석 성공` }
+//             })
+//         await queryRunner.commitTransaction()
+//     } catch (err) {
+//         console.log(err)
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }
 
 exports.updateChampSpellInfo = async (champId, spell1, spell2, matchId) => {
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    let dbupdate
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(champspell)
-            .set({ sampleNum: () => "sampleNum+1" })
-            .where("champId = :champId", { champId })
-            .andWhere("spell1 = :spell1", { spell1 })
-            .andWhere("spell2 = :spell2", { spell2 })
-            .execute()
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchdata)
-            .set({ spellAnalyzed: true })
-            .where("matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: `${matchId} 분석 성공` }
-            })
-        await queryRunner.commitTransaction()
-    } catch (err) {
-        console.log(err)
-        dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return dbupdate
-    }
+    return await ChampSpell.createQueryBuilder()
+        .update(ChampSpell)
+        .set({ sampleNum: () => "sampleNum+1" })
+        .where("champId = :champId", { champId })
+        .andWhere("spell1 = :spell1", { spell1 })
+        .andWhere("spell2 = :spell2", { spell2 })
+        .execute()
 }
+
+// exports.updateChampSpellInfo = async (champId, spell1, spell2, matchId) => {
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     let dbupdate
+//     try {
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(champspell)
+//             .set({ sampleNum: () => "sampleNum+1" })
+//             .where("champId = :champId", { champId })
+//             .andWhere("spell1 = :spell1", { spell1 })
+//             .andWhere("spell2 = :spell2", { spell2 })
+//             .execute()
+//         await queryRunner.manager
+//             .createQueryBuilder()
+//             .update(matchdata)
+//             .set({ spellAnalyzed: true })
+//             .where("matchId = :matchId", { matchId })
+//             .execute()
+//             .then(() => {
+//                 dbupdate = { message: `${matchId} 분석 성공` }
+//             })
+//         await queryRunner.commitTransaction()
+//     } catch (err) {
+//         console.log(err)
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }
 
 exports.findSpellInfoData = async (champId, spell1, spell2) => {
     return await ChampSpell.createQueryBuilder()
@@ -231,6 +272,32 @@ exports.findSpellInfoData = async (champId, spell1, spell2) => {
         .andWhere("spell1 = :spell1", { spell1 })
         .andWhere("spell2 = :spell2", { spell2 })
         .getRawOne()
+}
+
+exports.spellTotalCnt = async (champId) => {
+    return await ChampSpell.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .select("SUM(sampleNum)", "total")
+        .getRawOne()
+}
+
+exports.findSpellData = async (champId) => {
+    return await ChampSpell.createQueryBuilder().getRawMany()
+}
+
+exports.ServiceSaveSpell = async (champId, spell1, spell2, pickRate, sampleNum) => {
+    return await ChampSpellServiceDev.createQueryBuilder()
+        .insert()
+        .values({ champId, spell1, spell2, pickRate, sampleNum })
+        .execute()
+}
+
+exports.spellTest = async (champId) => {
+    return ChampSpellServiceDev.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .orderBy("pickRate", "DESC")
+        .limit(2)
+        .execute()
 }
 
 exports.ServiceSaveRate = async (
