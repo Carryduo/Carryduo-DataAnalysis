@@ -29,7 +29,7 @@ exports.getMatchId = async () => {
                 })
             })
         )
-        .andWhere('matchid.analyzed = :analyzed', {
+        .andWhere("matchid.analyzed = :analyzed", {
             analyzed: false,
         })
         .limit(500)
@@ -49,7 +49,7 @@ exports.getMatchData = async () => {
                 })
             })
         )
-        .andWhere('matchdata.analyzed = :analyzed', {
+        .andWhere("matchdata.analyzed = :analyzed", {
             analyzed: false,
         })
         .getMany()
@@ -359,15 +359,21 @@ exports.getCombinationData = async () => {
 
 exports.transferToService = async (data) => {
     console.log(data)
-    let result = { type: 'none', success: 'none' }
-    const existData = await combination_stat.createQueryBuilder().select()
-        .where('COMBINATION_STAT.mainChampId = :mainChampId', { mainChampId: data.mainChampId })
-        .andWhere('COMBINATION_STAT.subChampId = :subChampId', { subChampId: data.subChampId })
+    let result = { type: "none", success: "none" }
+    const existData = await combination_stat
+        .createQueryBuilder()
+        .select()
+        .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
+        .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
         .getMany()
     console.log(existData, existData.length)
     if (existData.length === 0) {
-        result.type = 'save'
-        result.success = await combination_stat.createQueryBuilder().insert().values(data).execute()
+        result.type = "save"
+        result.success = await combination_stat
+            .createQueryBuilder()
+            .insert()
+            .values(data)
+            .execute()
 
             .then(() => {
                 return { success: true }
@@ -376,14 +382,14 @@ exports.transferToService = async (data) => {
                 console.log(error)
                 return { success: false }
             })
-    }
-
-    else {
-        result.type = 'update'
-        result.success = await combination_stat.createQueryBuilder().update().set(data)
-            .where('COMBINATION_STAT.mainChampId = :mainChampId', { mainChampId: data.mainChampId })
-            .andWhere('COMBINATION_STAT.subChampId = :subChampId', { subChampId: data.subChampId })
-
+    } else {
+        result.type = "update"
+        result.success = await combination_stat
+            .createQueryBuilder()
+            .update()
+            .set(data)
+            .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
+            .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
 
             .execute()
             .then(() => {

@@ -8,14 +8,17 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/", Router)
 const db = require("./orm")
 
-const summonerController = require('./data/summonerId/summonerId.controller')
-const puuidController = require('./data/puuId/puuId.controller')
-const matchDataController = require('./data/match_data/match.data.controller')
-const matchIdController = require('./data/matchId/matchId.controller')
+const summonerController = require("./data/summonerId/summonerId.controller")
+const puuidController = require("./data/puuId/puuId.controller")
+const matchDataController = require("./data/match_data/match.data.controller")
+const matchIdController = require("./data/matchId/matchId.controller")
 const { sleep } = require("./timer")
+db.connect()
+const redisClient = require("./redis")
 
+redisClient.connect().then()
 
-startAnalyze()
+// startAnalyze()
 
 async function startAnalyze() {
     await db.connect()
@@ -39,6 +42,5 @@ async function startAnalyze() {
 }
 
 // db.connectService()
-
 
 module.exports = app
