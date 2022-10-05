@@ -7,14 +7,14 @@ const matchdata = require("../../entity/match.data")
 const matchid = require("../../entity/match.id")
 const queryRunner = dataSource.createQueryRunner()
 
-const { Brackets, MoreThan } = require('typeorm')
-const Combination = dataSource.getRepository('combination')
-const combination = require('../../entity/combination.data')
-const combinationServiceData = require('../../entity/combination.service.data')
-const Combination_Service = dataSource.getRepository('combination_service')
+const { Brackets, MoreThan } = require("typeorm")
+const Combination = dataSource.getRepository("combination")
+const combination = require("../../entity/combination.data")
+const combinationServiceData = require("../../entity/combination.service.data")
+const Combination_Service = dataSource.getRepository("combination_service")
 
 // 서비스 DB
-const combination_stat = dataSource_service.getRepository('COMBINATION_STAT')
+const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
 
 // 매치 아이디 가져오기
 exports.getMatchId = async () => {
@@ -102,37 +102,16 @@ exports.getData = async (type) => {
     return await Combination_Service.createQueryBuilder()
         .select()
         .where("combination_service.category = :category", { category: type })
-        .andWhere(new Brackets(qb3 => {
-            qb3.where({
-                sample_num: MoreThan(9)
+        .andWhere(
+            new Brackets((qb3) => {
+                qb3.where({
+                    sample_num: MoreThan(9),
+                })
             })
-        }))
+        )
         .orderBy({ "combination_service.rank_in_category": "ASC" })
         .limit(30)
         .getMany()
-}
-
-// 챔피언 승/밴/픽 관련
-exports.getChampBanCnt = async (id) => {
-    return await ChampInfo.findOne({ id }, { _id: false, ban: true })
-}
-
-exports.getChampInfo = async (id) => {
-    return ChampInfo.findOne({ id })
-}
-
-exports.saveChampInfo = async (id, name, win, game) => {
-    return ChampInfo.create({ id, name, win, game })
-}
-
-exports.addWinCnt = async (id, winCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { win: winCnt + 1 } })
-}
-exports.addGameCnt = async (id, gameCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { game: gameCnt + 1 } })
-}
-exports.addbanCnt = async (id, banCnt) => {
-    return ChampInfo.updateOne({ id }, { $set: { ban: banCnt + 1 } })
 }
 
 exports.checkCombinationData = async (mainChamp, subChamp) => {
@@ -143,7 +122,7 @@ exports.checkCombinationData = async (mainChamp, subChamp) => {
         .getMany()
 }
 
-// 챔피언 조합 승률 관련 
+// 챔피언 조합 승률 관련
 exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, category) => {
     // TODO: 트랜젝션, matchId 업데이트
     console.log("update", mainChamp, subChamp)
@@ -276,7 +255,8 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
 }
 
 exports.findRawCombinationData = async () => {
-    let data = await queryRunner.manager.getRepository(combination)
+    let data = await queryRunner.manager
+        .getRepository(combination)
         .createQueryBuilder()
         .select()
         .getMany()
@@ -287,25 +267,31 @@ exports.updateWinRate = async (value) => {
     console.log(value)
     let type
     try {
-        const existData = await Combination_Service.createQueryBuilder().select()
-            .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
-            .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId }).getOne()
+        const existData = await Combination_Service.createQueryBuilder()
+            .select()
+            .where("combination_service.mainChampId = :mainChampId", {
+                mainChampId: value.mainChampId,
+            })
+            .andWhere("combination_service.subChampId = :subChampId", {
+                subChampId: value.subChampId,
+            })
+            .getOne()
 
         if (!existData) {
-            await Combination_Service.createQueryBuilder().insert()
-                .values(
-                    value
-                ).execute()
-            type = 'save'
+            await Combination_Service.createQueryBuilder().insert().values(value).execute()
+            type = "save"
         } else {
-            await Combination_Service.createQueryBuilder().update()
-                .set(
-                    value
-                )
-                .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
-                .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+            await Combination_Service.createQueryBuilder()
+                .update()
+                .set(value)
+                .where("combination_service.mainChampId = :mainChampId", {
+                    mainChampId: value.mainChampId,
+                })
+                .andWhere("combination_service.subChampId = :subChampId", {
+                    subChampId: value.subChampId,
+                })
                 .execute()
-            type = 'update'
+            type = "update"
         }
 
         return { type, success: true }
@@ -315,21 +301,23 @@ exports.updateWinRate = async (value) => {
     }
 }
 
-
 exports.findCombinationCleansedData = async () => {
-    const category0 = await queryRunner.manager.getRepository(combinationServiceData)
+    const category0 = await queryRunner.manager
+        .getRepository(combinationServiceData)
         .createQueryBuilder()
-        .where('combination_service.category = :category', { category: 0 })
+        .where("combination_service.category = :category", { category: 0 })
         .select()
         .getMany()
-    const category1 = await queryRunner.manager.getRepository(combinationServiceData)
+    const category1 = await queryRunner.manager
+        .getRepository(combinationServiceData)
         .createQueryBuilder()
-        .where('combination_service.category = :category', { category: 1 })
+        .where("combination_service.category = :category", { category: 1 })
         .select()
         .getMany()
-    const category2 = await queryRunner.manager.getRepository(combinationServiceData)
+    const category2 = await queryRunner.manager
+        .getRepository(combinationServiceData)
         .createQueryBuilder()
-        .where('combination_service.category = :category', { category: 2 })
+        .where("combination_service.category = :category", { category: 2 })
         .select()
         .getMany()
     return { category0, category1, category2 }
@@ -339,13 +327,23 @@ exports.updateCombinationTier = async (value) => {
     await Combination_Service.createQueryBuilder()
         .update()
         .set(value)
-        .where('combination_service.mainChampId = :mainChampId', { mainChampId: value.mainChampId })
-        .andWhere('combination_service.subChampId = :subChampId', { subChampId: value.subChampId })
+        .where("combination_service.mainChampId = :mainChampId", { mainChampId: value.mainChampId })
+        .andWhere("combination_service.subChampId = :subChampId", { subChampId: value.subChampId })
         .execute()
 }
 
 exports.getCombinationData = async () => {
-    return Combination_Service.createQueryBuilder().select(['combination_service.tier', 'combination_service.category', 'combination_service.rank_in_category', 'combination_service.winrate', 'combination_service.sample_num', "combination_service.mainChampId", 'combination_service.subChampId']).getMany()
+    return Combination_Service.createQueryBuilder()
+        .select([
+            "combination_service.tier",
+            "combination_service.category",
+            "combination_service.rank_in_category",
+            "combination_service.winrate",
+            "combination_service.sample_num",
+            "combination_service.mainChampId",
+            "combination_service.subChampId",
+        ])
+        .getMany()
 }
 
 exports.transferToService = async (data) => {
@@ -359,9 +357,11 @@ exports.transferToService = async (data) => {
     if (existData.length === 0) {
         result.type = 'save'
         result.success = await combination_stat.createQueryBuilder().insert().values(data).execute()
+
             .then(() => {
                 return { success: true }
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 console.log(error)
                 return { success: false }
             })
@@ -372,16 +372,18 @@ exports.transferToService = async (data) => {
         result.success = await combination_stat.createQueryBuilder().update().set(data)
             .where('COMBINATION_STAT.mainChampId = :mainChampId', { mainChampId: data.mainChampId })
             .andWhere('COMBINATION_STAT.subChampId = :subChampId', { subChampId: data.subChampId })
+
+
             .execute()
             .then(() => {
                 return { success: true }
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 console.log(error)
                 return { success: false }
             })
     }
     return result
-
 }
 
 exports.disconnect = async () => {

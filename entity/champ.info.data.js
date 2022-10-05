@@ -53,5 +53,25 @@ module.exports = new EntitySchema({
             type: "int",
             default: 0,
         },
+        top: {
+            type: "int",
+            default: 0,
+        },
+        jungle: {
+            type: "int",
+            default: 0,
+        },
+        mid: {
+            type: "int",
+            default: 0,
+        },
+        ad: {
+            type: "int",
+            default: 0,
+        },
+        support: {
+            type: "int",
+            default: 0,
+        },
     },
 })

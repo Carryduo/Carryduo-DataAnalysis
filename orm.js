@@ -16,7 +16,9 @@ const dataSource = new typeorm.DataSource({
         require("./entity/match.data"),
         require("./entity/combination.data"),
         require("./entity/champ.info.data"),
-        require('./entity/combination.service.data')
+        require("./entity/combination.service.data"),
+        require("./entity/champ.spell.data"),
+        require("./entity/champ.spell.service"),
     ],
 })
 

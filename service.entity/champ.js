@@ -32,6 +32,26 @@ module.exports = new EntitySchema({
             type: "int",
             require: false,
         },
+        top_rate: {
+            type: "int",
+            require: false,
+        },
+        jungle_rate: {
+            type: "int",
+            require: false,
+        },
+        mid_rate: {
+            type: "int",
+            require: false,
+        },
+        ad_rate: {
+            type: "int",
+            require: false,
+        },
+        support_rate: {
+            type: "int",
+            require: false,
+        },
     },
     relations: {
         champId: {
