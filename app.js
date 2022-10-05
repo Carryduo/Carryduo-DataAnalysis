@@ -7,6 +7,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use("/", Router)
 const db = require("./orm")
+
 const summonerController = require('./data/summonerId/summonerId.controller')
 const puuidController = require('./data/puuId/puuId.controller')
 const matchDataController = require('./data/match_data/match.data.controller')
@@ -38,5 +39,6 @@ async function startAnalyze() {
 }
 
 // db.connectService()
+
 
 module.exports = app
