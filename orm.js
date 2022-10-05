@@ -18,7 +18,6 @@ const dataSource = new typeorm.DataSource({
         require("./entity/champ.info.data"),
         require("./entity/combination.service.data"),
         require("./entity/champ.spell.data"),
-        require("./entity/champ.spell.service"),
     ],
 })
 
@@ -31,7 +30,11 @@ const dataSource_service = new typeorm.DataSource({
     database: process.env.SERVICE_DB_NAME,
     synchronize: false,
     logging: true,
-    entities: [require("./service.entity/champ"), require("./service.entity/combination.stat")],
+    entities: [
+        require("./service.entity/champ"),
+        require("./service.entity/combination.stat"),
+        require("./service.entity/champ.spell"),
+    ],
 })
 
 module.exports = {

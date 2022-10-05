@@ -1,4 +1,3 @@
-
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
@@ -6,54 +5,58 @@ module.exports = new EntitySchema({
     tableName: "COMBINATION_STAT", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
-            type: 'varchar',
+            type: "varchar",
             primary: true,
-            generated: 'uuid',
+            generated: "uuid",
         },
         created_at: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         updated_at: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         deleted_at: {
-            type: 'timestamp',
+            type: "timestamp",
             require: false,
-            default: null
+            default: null,
         },
         tier: {
-            type: 'int',
+            type: "int",
             require: true,
         },
         category: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         rank_in_category: {
-            type: 'int',
+            type: "int",
             require: true,
         },
         winrate: {
-            type: 'float',
+            type: "float",
             precision: 5,
             scale: 2,
-            require: true
+            require: true,
         },
         sample_num: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         mainChampId: {
-            type: 'varchar',
-            require: true
+            type: "varchar",
+            require: true,
         },
         subChampId: {
-            type: 'varchar',
-            require: true
-        }
+            type: "varchar",
+            require: true,
+        },
     },
 })

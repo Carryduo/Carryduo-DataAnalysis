@@ -10,6 +10,6 @@ app.use("/", Router)
 
 const db = require("./orm")
 db.connect()
-// db.connectService()
+db.connectService()
 
 module.exports = app
