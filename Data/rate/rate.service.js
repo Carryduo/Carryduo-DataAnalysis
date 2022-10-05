@@ -14,9 +14,9 @@ exports.matchDataList = async () => {
         .where(
             new Brackets((qb) => {
                 qb.where("rateAnalyzed = :result", { result: 0 })
-                    .andWhere("spellAnalyzed = :result", { result: 0 })
-                    .andWhere("banAnalyzed = :result", { result: 0 })
-                    .andWhere("positionAnalyzed = :result", { result: 0 })
+                    .orWhere("spellAnalyzed = :result", { result: 0 })
+                    .orWhere("banAnalyzed = :result", { result: 0 })
+                    .orWhere("positionAnalyzed = :result", { result: 0 })
             })
         )
         .andWhere(

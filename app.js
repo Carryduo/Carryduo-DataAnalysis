@@ -41,8 +41,7 @@ async function startAnalyze() {
     await sleep(10)
     await matchDataController.transferCombinationStatToServiceDB()
     const endDate = new Date()
-    console.log((endDate - startDate) / 1000, '초') // 데이터분석까지 걸린 시간 체크
+    console.log((endDate - startDate) / 1000, "초") // 데이터분석까지 걸린 시간 체크
 }
-
 
 module.exports = app
