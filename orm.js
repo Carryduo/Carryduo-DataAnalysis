@@ -32,7 +32,7 @@ const dataSource_service = new typeorm.DataSource({
     password: process.env.SERVICE_DB_PASSWORD,
     database: process.env.SERVICE_DB_NAME,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [
         require("./service.entity/champ"),
         require("./service.entity/combination.stat"),

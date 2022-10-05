@@ -115,6 +115,10 @@ exports.positionInfo = async (champId) => {
         .getRawMany()
 }
 
+exports.findSpellData = async (champId) => {
+    return await ChampSpell.createQueryBuilder().getRawMany()
+}
+
 //챔피언 스펠정보 저장
 exports.saveChampSpellInfo = async (champId, champName, spell1, spell2, matchId) => {
     return ChampSpell.createQueryBuilder()
@@ -191,27 +195,6 @@ exports.ServiceSaveSpell = async (champId, spell1, spell2, pickRate, sampleNum) 
         .execute()
 }
 
-exports.ServiceUpdateSpell = async (champId, spell1, spell2) => {
-    return ChampSpellService.createQueryBuilder()
-        .update(ChampSpell)
-        .set({ sampleNum: () => "sampleNum+1" })
-        .where("champId = :champId", { champId })
-        .andWhere(
-            new Brackets((qb) => {
-                qb.where("spell1 = :spell1", { spell1 })
-                    .andWhere("spell2 = :spell2", { spell2 })
-                    .orWhere(
-                        new Brackets((qb2) => {
-                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
-                                spell1,
-                            })
-                        })
-                    )
-            })
-        )
-        .execute()
-}
-
 exports.ServicefindSpellInfoData = async (champId, spell1, spell2) => {
     return ChampSpellService.createQueryBuilder()
         .where("champId = :champId", { champId })
@@ -228,6 +211,7 @@ exports.ServicefindSpellInfoData = async (champId, spell1, spell2) => {
                     )
             })
         )
+        .getRawOne()
 }
 
 exports.ServicePosition = async (champId, topRate, jungleRate, midRate, adRate, supportRate) => {

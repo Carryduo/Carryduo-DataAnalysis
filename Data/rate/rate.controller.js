@@ -1,20 +1,19 @@
 const fs = require("fs")
 const axios = require("axios")
 const {
-    matchDataList,
     updateRate,
     saveChampId,
     addBanCnt,
     getMatchDataCnt,
     getChampList,
     ServiceSaveRate,
-    champCnt,
     addPositionCnt,
     positionInfo,
     findSpellInfoData,
     updateChampSpellInfo,
     saveChampSpellInfo,
     spellTotalCnt,
+    findSpellData,
     ServiceSaveSpell,
     ServicePosition,
     successAnalyzed,
@@ -38,21 +37,24 @@ const {
 
 exports.serviceSaveChampSpell = async (req, res, next) => {
     try {
-        for (let s of spellData) {
-            const spell1 = s.champspell_spell1
-            const spell2 = s.champspell_spell2
-            const champId = s.champspell_champId
-            const sampleNum = s.champspell_sampleNum
-            const spellTotal = await spellTotalCnt(champId)
+        const champList = await getChampList()
 
-            const spellData = await ServicefindSpellInfoData(champId, spell1, spell2)
-            if (!spellData) {
-                let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
-                pickRate = pickRate.toFixed(2)
+        for (let c of champList) {
+            const spellData = await findSpellData(c.champ_champId)
+            for (let s of spellData) {
+                const spell1 = s.champspell_spell1
+                const spell2 = s.champspell_spell2
+                const champId = s.champspell_champId
+                const sampleNum = s.champspell_sampleNum
+                const spellTotal = await spellTotalCnt(champId)
 
-                await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum)
-            } else {
-                await ServiceUpdateSpell(champId, spell1, spell2)
+                const spellData = await ServicefindSpellInfoData(champId, spell1, spell2)
+                if (!spellData) {
+                    let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
+                    pickRate = pickRate.toFixed(2)
+
+                    await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum)
+                }
             }
         }
 
@@ -108,7 +110,7 @@ exports.serviceSavePosition = async (req, res, next) => {
 // 챔프 승/ 픽/ 벤 연산 후 서비스 DB로 저장
 exports.serviceSaveRate = async (req, res, next) => {
     try {
-        //분석한 match data의 총 카운트
+        const champList = await getChampList()
         const totalCnt = await getMatchDataCnt()
 
         for (let c of champList) {
