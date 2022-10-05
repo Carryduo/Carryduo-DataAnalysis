@@ -18,6 +18,7 @@ const { sleep } = require("./timer")
 startAnalyze()
 
 async function startAnalyze() {
+    const startDate = new Date()
     await db.connect()
     await db.connectService()
     await sleep(10)
@@ -36,9 +37,10 @@ async function startAnalyze() {
     await matchDataController.updateCombinationTierAndRank()
     await sleep(10)
     await matchDataController.transferCombinationStatToServiceDB()
+    const endDate = new Date()
+    console.log((endDate - startDate) / 1000, '초') // 데이터분석까지 걸린 시간 체크
 }
 
-// db.connectService()
 
 
 module.exports = app
