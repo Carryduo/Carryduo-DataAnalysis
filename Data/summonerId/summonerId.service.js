@@ -1,7 +1,5 @@
 const { dataSource, dataSource_service } = require('../../orm')
 const SummonerId = dataSource.getRepository('summonerid')
-const Champ = dataSource_service.getRepository('CHAMP')
-const CombinationStat = dataSource_service.getRepository('COMBINATION_STAT')
 
 exports.saveSummonerId = (summonerId, tier, division) => {
     const data = SummonerId.createQueryBuilder().insert().values({

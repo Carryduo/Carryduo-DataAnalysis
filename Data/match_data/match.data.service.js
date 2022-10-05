@@ -29,9 +29,10 @@ exports.getMatchId = async () => {
                 })
             })
         )
-        // .andWhere('matchid.analyzed = :analyzed', {
-        //     analyzed: false,
-        // })
+        .andWhere('matchid.analyzed = :analyzed', {
+            analyzed: false,
+        })
+        .limit(500)
         .getMany()
 }
 
@@ -39,8 +40,18 @@ exports.getMatchId = async () => {
 exports.getMatchData = async () => {
     return await MatchData.createQueryBuilder()
         .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId"])
-        .where("matchdata.tier = :tier", { tier: "DIAMOND" })
-        .orWhere("matchdata.tier = :tier2", { tier2: "PLATINUM" })
+        .where(
+            new Brackets((qb) => {
+                qb.where("matchdata.tier = :tier", {
+                    tier: "PLATINUM",
+                }).orWhere("matchdata.tier = :tier2", {
+                    tier2: "DIAMOND",
+                })
+            })
+        )
+        .andWhere('matchdata.analyzed = :analyzed', {
+            analyzed: false,
+        })
         .getMany()
 }
 

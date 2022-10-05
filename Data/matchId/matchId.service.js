@@ -12,6 +12,7 @@ exports.findPuuId = async () => {
             "puuid.division": "ASC",
         })
         .where("puuid.analyzed = :analyzed", { analyzed: false })
+        .limit(500)
         .getMany()
 }
 exports.saveMatchId = async (matchId, tier, division, summonerId, puuid) => {

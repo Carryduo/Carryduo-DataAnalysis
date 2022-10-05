@@ -6,9 +6,10 @@ const { findPuuId, saveMatchId, findMatchId, disconnect } = require("./matchId.s
 exports.matchId = async (req, res, next) => {
     try {
         const result = await startGetMatchId()
-        res.status(200).json({ result })
+        return result
     } catch (err) {
         console.log(err)
+        return result
     }
 }
 
@@ -17,8 +18,8 @@ let matchId = []
 let status
 async function startGetMatchId() {
     const puuIds = await findPuuId()
-
     console.log(puuIds.length)
+
     while (key !== puuIds.length + 1) {
         console.log(key + `번째`)
         if (status !== 403) {

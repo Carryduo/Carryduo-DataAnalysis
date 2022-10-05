@@ -5,19 +5,26 @@ const { findSummonerId, savePuuId, disconnect } = require("./puuId.service")
 
 exports.puuId = async (req, res, next) => {
     const result = await startGetPuuId()
-    res.status(200).json({ result })
+    return result
 }
 
 let key = 0
 
 async function startGetPuuId() {
-    const summonerIds = await findSummonerId()
-    while (key !== summonerIds.length) {
-        await getPuuId(summonerIds, key)
-        key++
+    try {
+        const summonerIds = await findSummonerId()
+        console.log(summonerIds.length)
+        while (key !== summonerIds.length) {
+            await getPuuId(summonerIds, key)
+            key++
+        }
+        // await disconnect()
+        return 'success'
     }
-    await disconnect()
-    return 'success'
+    catch (error) {
+        console.log(error)
+        return 'fail'
+    }
 }
 
 async function getPuuId(summonerIds, key) {

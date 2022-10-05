@@ -8,17 +8,21 @@ let key = 0
 let status
 
 exports.saveMatchData = async (req, res, next) => {
-    const matchIdList = await getMatchIdList()
-    console.log(matchIdList.length)
-    while (key !== matchIdList.length) {
-        if (status !== undefined) {
-            status = undefined
-            continue
+    try {
+        const matchIdList = await getMatchIdList()
+        console.log(matchIdList.length)
+        while (key !== matchIdList.length) {
+            if (status !== undefined) {
+                status = undefined
+                continue
+            }
+            await saveMatchDataFunction(matchIdList)
         }
-        await saveMatchDataFunction(matchIdList)
+        return 'matchData 저장 성공'
+    } catch (error) {
+        console.log(error)
+        return 'matchData 저장 실패'
     }
-    await disconnect()
-    res.status(200).send({ result: "success" })
 }
 
 
@@ -256,7 +260,7 @@ exports.analyzeCombination = async (req, res, next) => {
         }
     }
 
-    res.status(200).json({ result: "success" })
+    return "success"
 }
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
@@ -277,7 +281,7 @@ exports.uploadCombinationWinRate = async (req, res, next) => {
         console.log(`${i}번째`, result)
     }
 
-    res.status(200).json({ success: true })
+    return "success"
 }
 
 exports.updateCombinationTierAndRank = async (req, res, next) => {
@@ -321,7 +325,7 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
     }
     // sort된 것에 순서에 따라 랭크 넣어주기
     // 1-3등까지 1티어 4-10등까지 2티어 11-20등까지 3티어, 21등 -27등까지 4티어, 28-30등 5티어
-    res.status(200).json({ success: true })
+    return "success"
 }
 
 exports.transferCombinationStatToServiceDB = async (req, res, next) => {
@@ -331,7 +335,7 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
         result = await transferToService(data)
         console.log(result)
     }
-    res.status(200).json({ success: true })
+    return "success"
 }
 
 // 챔피언 승/밴/픽 관련

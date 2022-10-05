@@ -1,5 +1,6 @@
 require("dotenv").config()
 const typeorm = require("typeorm")
+
 const dataSource = new typeorm.DataSource({
     type: "mysql",
     host: process.env.DB_HOST,
@@ -8,7 +9,7 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: true,
+    logging: false,
     entities: [
         require("./entity/summoner.id"),
         require("./entity/puuid"),
@@ -18,9 +19,10 @@ const dataSource = new typeorm.DataSource({
         require("./entity/champ.info.data"),
         require("./entity/combination.service.data"),
         require("./entity/champ.spell.data"),
-        require("./entity/champ.spell.service"),
     ],
 })
+
+// const puuidController = require("./data/puuId/puuId.controller")
 
 const dataSource_service = new typeorm.DataSource({
     type: "mysql",
@@ -30,7 +32,7 @@ const dataSource_service = new typeorm.DataSource({
     password: process.env.SERVICE_DB_PASSWORD,
     database: process.env.SERVICE_DB_NAME,
     synchronize: false,
-    logging: true,
+    logging: false,
     entities: [require("./service.entity/champ"), require("./service.entity/combination.stat")],
 })
 

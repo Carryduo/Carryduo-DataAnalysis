@@ -19,12 +19,12 @@ exports.findSummonerId = async () => {
                     .orWhere('summonerid.tier = :tier2', {
                         tier2: 'DIAMOND'
                     });
-
-
             })
-        ).andWhere('summonerid.analyzed = :analyzed', {
-            analyzed: true,
+        )
+        .andWhere('summonerid.analyzed = :analyzed', {
+            analyzed: false,
         })
+        .limit(500)
         .getMany()
 }
 
