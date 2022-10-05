@@ -48,9 +48,14 @@ async function serviceSaveData() {
         const time = new Date().toTimeString().split(" ")[0]
         const data = "error: " + error.toString() + " ||" + " Date: " + date + " Time: " + time
 
-        fs.writeFile(process.env.TIPLOG || `./Log/serviceData.txt`, data, { flag: "a+" }, (err) => {
-            return err
-        })
+        fs.writeFile(
+            process.env.TIPLOG || `./logs/serviceData.txt`,
+            data,
+            { flag: "a+" },
+            (err) => {
+                return err
+            }
+        )
         return error
     }
 }
@@ -72,7 +77,7 @@ async function champDataAnalysis() {
         const time = new Date().toTimeString().split(" ")[0]
         const data = "error: " + error.toString() + " ||" + " Date: " + date + " Time: " + time
 
-        fs.writeFile(process.env.TIPLOG || `./Log/devData.txt`, data, { flag: "a+" }, (err) => {
+        fs.writeFile(process.env.TIPLOG || `./logs/devData.txt`, data, { flag: "a+" }, (err) => {
             return err
         })
         return error
