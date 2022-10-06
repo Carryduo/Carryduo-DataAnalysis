@@ -94,7 +94,7 @@ exports.saveMatchData = async (matchData, tier, division, matchId) => {
         await queryRunner.manager
             .createQueryBuilder()
             .update(matchid)
-            .set({ analyzed: true })
+            .set({ analyzed: 1 })
             .where("matchid.matchId = :matchId", { matchId })
             .execute()
             .then(() => {
@@ -162,7 +162,7 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
             await queryRunner.manager
                 .createQueryBuilder()
                 .update(matchdata)
-                .set({ analyzed: true })
+                .set({ analyzed: 1 })
                 .where("matchdata.id = :id", { id })
                 .execute()
                 .then(() => {
@@ -183,7 +183,7 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
             await queryRunner.manager
                 .createQueryBuilder()
                 .update(matchdata)
-                .set({ analyzed: true })
+                .set({ analyzed: 1 })
                 .where("matchdata.id = :id", { id })
                 .execute()
                 .then(() => {
@@ -228,7 +228,7 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
             await queryRunner.manager
                 .createQueryBuilder()
                 .update(matchdata)
-                .set({ analyzed: true })
+                .set({ analyzed: 1 })
                 .where("matchdata.id = :id", { id })
                 .execute()
                 .then(() => {
@@ -254,7 +254,7 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
             await queryRunner.manager
                 .createQueryBuilder()
                 .update(matchdata)
-                .set({ analyzed: true })
+                .set({ analyzed: 1 })
                 .where("matchdata.id = :id", { id })
                 .execute()
                 .then(() => {

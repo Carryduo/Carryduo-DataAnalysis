@@ -13,13 +13,13 @@ const puuidController = require("./data/puuId/puuId.controller")
 const matchDataController = require("./data/match_data/match.data.controller")
 const matchIdController = require("./data/matchId/matchId.controller")
 const { sleep } = require("./timer")
-db.connect()
-db.connectService()
-const redisClient = require("./redis")
+// db.connect()
+// db.connectService()
+// const redisClient = require("./redis")
 
-redisClient.connect().then()
+// redisClient.connect().then()
 
-// startAnalyze()
+startAnalyze()
 
 async function startAnalyze() {
     const startDate = new Date()

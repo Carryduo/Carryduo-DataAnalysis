@@ -22,7 +22,7 @@ exports.findSummonerId = async () => {
             })
         )
         .andWhere('summonerid.analyzed = :analyzed', {
-            analyzed: false,
+            analyzed: 0,
         })
         .limit(500)
         .getMany()
@@ -40,7 +40,7 @@ exports.savePuuId = async (puuid, tier, division, summonerId) => {
             .then((value) => { return { code: 200, message: '정상' } })
         await queryRunner.manager.createQueryBuilder()
             .update(summonerid)
-            .set({ analyzed: true })
+            .set({ analyzed: 1 })
             .where('summonerid.summonerId = :summonerId', { summonerId })
             .execute()
             .then(() => {
