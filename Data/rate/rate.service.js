@@ -187,6 +187,27 @@ exports.ServiceSaveSpell = async (champId, spell1, spell2, pickRate, sampleNum) 
         .execute()
 }
 
+exports.ServiceUpdateChampSpellInfo = async (champId, spell1, spell2, pickRate, sampleNum) => {
+    return ChampSpellService.createQueryBuilder()
+        .update(ChampSpellService)
+        .set({ pick_rate: pickRate, sample_num: sampleNum })
+        .where("champId = :champId", { champId })
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("spell1 = :spell1", { spell1 })
+                    .andWhere("spell2 = :spell2", { spell2 })
+                    .orWhere(
+                        new Brackets((qb2) => {
+                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                spell1,
+                            })
+                        })
+                    )
+            })
+        )
+        .execute()
+}
+
 exports.ServicefindSpellInfoData = async (champId, spell1, spell2) => {
     return ChampSpellService.createQueryBuilder()
         .where("champId = :champId", { champId })

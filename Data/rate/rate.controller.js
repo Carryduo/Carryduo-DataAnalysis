@@ -18,7 +18,7 @@ const {
     ServicePosition,
     successAnalyzed,
     ServicefindSpellInfoData,
-    ServiceUpdateSpell,
+    ServiceUpdateChampSpellInfo,
 } = require("./rate.service")
 
 // exports.Rate = async (req, res, next) => {
@@ -47,13 +47,15 @@ exports.serviceSaveChampSpell = async (req, res, next) => {
                 const champId = s.champspell_champId
                 const sampleNum = s.champspell_sampleNum
                 const spellTotal = await spellTotalCnt(champId)
+                let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
+                pickRate = pickRate.toFixed(2)
 
                 const spellData = await ServicefindSpellInfoData(champId, spell1, spell2)
-                if (!spellData) {
-                    let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
-                    pickRate = pickRate.toFixed(2)
 
+                if (!spellData) {
                     await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum)
+                } else if (spellData) {
+                    await ServiceUpdateChampSpellInfo(champId, spell1, spell2, pickRate, sampleNum)
                 }
             }
         }
@@ -351,8 +353,8 @@ exports.saveChampInfo = async (req, res, next) => {
         return err
     }
 }
-const redisClient = require("../../redis")
-const redisCli = redisClient.v4
+// const redisClient = require("../../redis")
+// const redisCli = redisClient.v4
 exports.saveRedis = async (req, res, next) => {
     try {
         // const data = await matchDataList()

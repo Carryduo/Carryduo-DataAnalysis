@@ -15,9 +15,9 @@ const matchIdController = require("./data/matchId/matchId.controller")
 const { sleep } = require("./timer")
 db.connect()
 db.connectService()
-const redisClient = require("./redis")
+// const redisClient = require("./redis")
 
-redisClient.connect().then()
+// redisClient.connect().then()
 
 // startAnalyze()
 
