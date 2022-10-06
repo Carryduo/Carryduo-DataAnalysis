@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier, getCombinationData, transferToService } = require("./match.data.service")
+const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier, getCombinationData, transferToService, updateWrongMatchDataAnalyzed } = require("./match.data.service")
 
 
 let key = 0
@@ -102,8 +102,14 @@ exports.analyzeCombination = async (req, res, next) => {
     for (let z = 0; z < data.length; z++) {
         const matchId = data[z].matchId
         const id = data[z].id
-        if (data[z].matchData.info.gameMode !== "CLASSIC") continue
-        if (data[z].matchData.info.queueId !== 420) continue
+        if (data[z].matchData.info.gameMode !== "CLASSIC") {
+            await updateWrongMatchDataAnalyzed(matchId)
+            continue
+        }
+        if (data[z].matchData.info.queueId !== 420) {
+            await updateWrongMatchDataAnalyzed(matchId)
+            continue
+        }
         let winjungle, winmiddle, wintop, winbottom, winutility
         let losejungle, losemiddle, losetop, losebottom, loseutility
         for (let i = 0; i < data[z].matchData.info.participants.length; i++) {
@@ -203,6 +209,7 @@ exports.analyzeCombination = async (req, res, next) => {
             !loseutility
         ) {
             console.log("@@@@@@@@@@@@@@@@@여기서 멈췄어")
+            await updateWrongMatchDataAnalyzed(matchId)
             continue
         }
         console.log("이긴팀", {

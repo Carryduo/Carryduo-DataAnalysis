@@ -39,7 +39,7 @@ exports.getMatchId = async () => {
 // 매치 RAW DATA 관련
 exports.getMatchData = async () => {
     return await MatchData.createQueryBuilder()
-        .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId"])
+        .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId", 'matchdata.analyzed', 'matchdata.tier', 'matchdata.division'])
         .where(
             new Brackets((qb) => {
                 qb.where("matchdata.tier = :tier", {
@@ -49,14 +49,20 @@ exports.getMatchData = async () => {
                 })
             })
         )
-        .andWhere("matchdata.analyzed = :analyzed", {
-            analyzed: false,
+        .andWhere('matchdata.analyzed = :analyzed', {
+            analyzed: 0,
         })
         .getMany()
 }
 
 exports.getMatchDataCnt = async () => {
     return await MatchData.find({}, { _id: false, data: true }).count()
+}
+
+exports.updateWrongMatchDataAnalyzed = async (matchId) => {
+    await MatchData.createQueryBuilder().update().set({ analyzed: 2 }).where('matchdata.matchId = :matchId', { matchId }).execute()
+    console.log('무의미한 MatchData 처리 완료')
+    return
 }
 
 exports.saveMatchData = async (matchData, tier, division, matchId) => {
