@@ -178,14 +178,6 @@ exports.spellTotalCnt = async (champId) => {
         .getRawOne()
 }
 
-// exports.spellTest = async (champId) => {
-//     return ChampSpellServiceDev.createQueryBuilder()
-//         .where("champId = :champId", { champId })
-//         .orderBy("pickRate", "DESC")
-//         .limit(2)
-//         .execute()
-// }
-
 // ==========================================================================================//
 //서비스 DB 저장 관련 쿼리
 exports.ServiceSaveSpell = async (champId, spell1, spell2, pickRate, sampleNum) => {
