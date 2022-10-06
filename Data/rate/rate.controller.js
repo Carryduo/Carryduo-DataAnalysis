@@ -1,20 +1,19 @@
 const fs = require("fs")
 const axios = require("axios")
 const {
-    matchDataList,
     updateRate,
     saveChampId,
     addBanCnt,
     getMatchDataCnt,
     getChampList,
     ServiceSaveRate,
-    champCnt,
     addPositionCnt,
     positionInfo,
     findSpellInfoData,
     updateChampSpellInfo,
     saveChampSpellInfo,
     spellTotalCnt,
+    findSpellData,
     ServiceSaveSpell,
     ServicePosition,
     successAnalyzed,
@@ -22,91 +21,44 @@ const {
     ServiceUpdateSpell,
 } = require("./rate.service")
 
-exports.Rate = async (req, res, next) => {
-    const start = performance.now()
-    await champDataAnalysis()
-    await serviceSaveData()
-    const end = performance.now()
-    const runningTime = end - start
-    const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
-    console.log(`==========================${ConversionRunningTime} 소요==========================`)
-    return res.status(200).json({})
-}
-//==========================================================================================================//
-//챔프 데이터 2차 분석후 서비스용 DB에 저장
-async function serviceSaveData() {
-    try {
-        const champList = await getChampList()
-        await Promise.all([
-            serviceSaveRate(champList),
-            serviceSavePosition(champList),
-            serviceSaveChampSpell(champList),
-        ])
-    } catch (error) {
-        console.log(error)
-        const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
-        const time = new Date().toTimeString().split(" ")[0]
-        const data = "error: " + error.toString() + " ||" + " Date: " + date + " Time: " + time
-
-        fs.writeFile(
-            process.env.TIPLOG || `./logs/serviceData.txt`,
-            data,
-            { flag: "a+" },
-            (err) => {
-                return err
-            }
-        )
-        return error
-    }
-}
-//==========================================================================================================//
-//챔프 데이터 1차 분석후 데이터 분석용 DB에 저장
-async function champDataAnalysis() {
-    try {
-        const data = await matchDataList()
-        const champs = await champCnt()
-        if (!champs) {
-            await saveChampInfo()
-            await Promise.all([champSpellCnt(data), champPositionCnt(data), winLoseBanCnt(data)])
-        } else {
-            await Promise.all([champSpellCnt(data), champPositionCnt(data), winLoseBanCnt(data)])
-        }
-    } catch (error) {
-        console.log(error)
-        const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
-        const time = new Date().toTimeString().split(" ")[0]
-        const data = "error: " + error.toString() + " ||" + " Date: " + date + " Time: " + time
-
-        fs.writeFile(process.env.TIPLOG || `./logs/devData.txt`, data, { flag: "a+" }, (err) => {
-            return err
-        })
-        return error
-    }
-}
+// exports.Rate = async (req, res, next) => {
+//     const start = performance.now()
+//     await champDataAnalysis()
+//     await serviceSaveData()
+//     const end = performance.now()
+//     const runningTime = end - start
+//     const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
+//     console.log(`==========================${ConversionRunningTime} 소요==========================`)
+//     return res.status(200).json({})
+// }
 
 //==========================================================================================================//
 //챔프 스펠 정보 연산 후 서비스 DB로 저장
-async function serviceSaveChampSpell() {
+
+exports.serviceSaveChampSpell = async (req, res, next) => {
     try {
-        for (let s of spellData) {
-            const spell1 = s.champspell_spell1
-            const spell2 = s.champspell_spell2
-            const champId = s.champspell_champId
-            const sampleNum = s.champspell_sampleNum
-            const spellTotal = await spellTotalCnt(champId)
+        const champList = await getChampList()
 
-            const spellData = await ServicefindSpellInfoData(champId, spell1, spell2)
-            if (!spellData) {
-                let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
-                pickRate = pickRate.toFixed(2)
+        for (let c of champList) {
+            const spellData = await findSpellData(c.champ_champId)
+            for (let s of spellData) {
+                const spell1 = s.champspell_spell1
+                const spell2 = s.champspell_spell2
+                const champId = s.champspell_champId
+                const sampleNum = s.champspell_sampleNum
+                const spellTotal = await spellTotalCnt(champId)
 
-                await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum)
-            } else {
-                await ServiceUpdateSpell(champId, spell1, spell2)
+                const spellData = await ServicefindSpellInfoData(champId, spell1, spell2)
+                if (!spellData) {
+                    let pickRate = (s.champspell_sampleNum / spellTotal.total) * 100
+                    pickRate = pickRate.toFixed(2)
+
+                    await ServiceSaveSpell(champId, spell1, spell2, pickRate, sampleNum)
+                }
             }
         }
 
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         return err
     }
@@ -114,8 +66,10 @@ async function serviceSaveChampSpell() {
 
 //==========================================================================================================//
 //챔프 포지션 연산 후 서비스 DB로 저장
-async function serviceSavePosition(champList) {
+exports.serviceSavePosition = async (req, res, next) => {
     try {
+        const champList = await getChampList()
+
         for (let c of champList) {
             const champId = c.champ_champId
 
@@ -147,16 +101,16 @@ async function serviceSavePosition(champList) {
 
             await ServicePosition(champId, topRate, jungleRate, midRate, adRate, supportRate)
         }
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         return err
     }
 }
 //==========================================================================================================//
 // 챔프 승/ 픽/ 벤 연산 후 서비스 DB로 저장
-async function serviceSaveRate(champList) {
+exports.serviceSaveRate = async (req, res, next) => {
     try {
-        //분석한 match data의 총 카운트
+        const champList = await getChampList()
         const totalCnt = await getMatchDataCnt()
 
         for (let c of champList) {
@@ -174,7 +128,7 @@ async function serviceSaveRate(champList) {
 
             await ServiceSaveRate(champId, winRate, pickRate, banRate)
         }
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         return err
     }
@@ -182,8 +136,11 @@ async function serviceSaveRate(champList) {
 
 //==========================================================================================================//
 //챔프 스펠 정보 저장
-async function champSpellCnt(data) {
+exports.champSpell = async (req, res, next) => {
     try {
+        const matchData = await redisCli.get("data")
+        const data = JSON.parse(matchData)
+
         let cnt = 1
         let analyzedMatchId = []
         let analyzedOption
@@ -224,7 +181,7 @@ async function champSpellCnt(data) {
             }
             successAnalyzed(analyzedMatchId, analyzedOption)
         }
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
     }
@@ -232,8 +189,11 @@ async function champSpellCnt(data) {
 
 //==========================================================================================================//
 //챔프 포지션 카운팅
-async function champPositionCnt(data) {
+exports.position = async (req, res, next) => {
     try {
+        const matchData = await redisCli.get("data")
+        const data = JSON.parse(matchData)
+
         let analyzedMatchId = []
         let analyzedOption
         let cnt = 1
@@ -296,7 +256,7 @@ async function champPositionCnt(data) {
             await successAnalyzed(analyzedMatchId, analyzedOption)
         }
 
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
         return err
@@ -305,22 +265,21 @@ async function champPositionCnt(data) {
 
 //==========================================================================================================//
 //챔피언 win, lose, ban 카운팅
-async function winLoseBanCnt(data) {
+exports.rate = async (req, res, next) => {
+    const matchData = await redisCli.get("data")
+    const data = JSON.parse(matchData)
     try {
         let analyzedWinMatchId = []
         let analyzedBanMatchId = []
         let analyzedOption
         let cnt = 1
-
         for (let i of data) {
             console.log(
                 `============================================승/패/밴 카운팅 ${cnt}번============================================`
             )
             const matchId = i.matchData.metadata.matchId
-
             if (i.matchData.info.gameMode === "CLASSIC" && i.matchData.info.queueId === 420) {
                 const participants = i.matchData.info.participants
-
                 //win, lose 카운팅
                 for (let v of participants) {
                     const champId = v.championId
@@ -334,12 +293,10 @@ async function winLoseBanCnt(data) {
                             set: { lose: () => "lose+1", sampleNum: () => "sampleNum+1" },
                         }
                     }
-
                     await updateRate(champId, optionWinRate)
                     analyzedWinMatchId.push(matchId)
                 }
             }
-
             //ban 카운팅
             const teams = i.matchData.info.teams
             for (let t of teams) {
@@ -354,7 +311,6 @@ async function winLoseBanCnt(data) {
             cnt++
         }
         // win, lose , ban 카운팅이 종료되면 analyzed = true
-
         if (analyzedWinMatchId.length === 0 && analyzedBanMatchId.length === 0) {
             return
         } else {
@@ -362,15 +318,12 @@ async function winLoseBanCnt(data) {
                 set: { rateAnalyzed: true },
             }
             await successAnalyzed(analyzedWinMatchId, analyzedOption)
-
             analyzedOption = {
                 set: { banAnalyzed: true },
             }
-
             await successAnalyzed(analyzedBanMatchId, analyzedOption)
         }
-
-        return
+        return res.status(200).json({ success: true })
     } catch (err) {
         return err
     }
@@ -378,7 +331,7 @@ async function winLoseBanCnt(data) {
 
 //==========================================================================================================//
 //챔피언 id, name 저장
-async function saveChampInfo() {
+exports.saveChampInfo = async (req, res, next) => {
     try {
         let champName = []
 
@@ -392,6 +345,24 @@ async function saveChampInfo() {
         for (let i of champName) {
             await saveChampId(i, response.data.data[i].key)
         }
+        return res.status(200).json({ success: true })
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+const redisClient = require("../../redis")
+const redisCli = redisClient.v4
+exports.saveRedis = async (req, res, next) => {
+    try {
+        // const data = await matchDataList()
+
+        // const redisData = JSON.stringify(data)
+        // await redisCli.set("data", redisData)
+        const data = await redisCli.get("data")
+        const matchData = JSON.parse(data)
+        console.log(matchData)
+        return res.status(200).json({ success: true })
     } catch (err) {
         console.log(err)
         return err

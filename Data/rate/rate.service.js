@@ -14,9 +14,9 @@ exports.matchDataList = async () => {
         .where(
             new Brackets((qb) => {
                 qb.where("rateAnalyzed = :result", { result: 0 })
-                    .andWhere("spellAnalyzed = :result", { result: 0 })
-                    .andWhere("banAnalyzed = :result", { result: 0 })
-                    .andWhere("positionAnalyzed = :result", { result: 0 })
+                    .orWhere("spellAnalyzed = :result", { result: 0 })
+                    .orWhere("banAnalyzed = :result", { result: 0 })
+                    .orWhere("positionAnalyzed = :result", { result: 0 })
             })
         )
         .andWhere(
@@ -37,6 +37,7 @@ exports.successAnalyzed = async (matchIds, option) => {
         .execute()
 }
 
+//챔피언 ID 저장
 exports.saveChampId = async (champName, champId) => {
     return ChampInfo.createQueryBuilder()
         .insert()
@@ -56,22 +57,22 @@ exports.saveChampId = async (champName, champId) => {
         })
 }
 
+//챔피언 개수
 exports.champCnt = async () => {
     return ChampInfo.createQueryBuilder("champ").getCount()
 }
 
+//매치데이터 개수
 exports.getMatchDataCnt = async () => {
     return MatchData.createQueryBuilder().getCount()
 }
 
-exports.getMatchDataLimit = async () => {
-    return MatchData.createQueryBuilder().select(["matchData"]).limit(5).execute()
-}
-
+//챔피언 데이터 리스트
 exports.getChampList = async () => {
     return ChampInfo.createQueryBuilder("champ").getRawMany()
 }
 
+// 챔피언 승, 패, 게임수, 밴 수 가져오기
 exports.targetChamp = async (champId) => {
     return ChampInfo.createQueryBuilder("champ")
         .where("champId = :champId", { champId })
@@ -79,6 +80,7 @@ exports.targetChamp = async (champId) => {
         .getOneOrFail()
 }
 
+// 챔피언 승/패 카운팅
 exports.updateRate = async (champId, optionWinRate) => {
     return ChampInfo.createQueryBuilder()
         .update(ChampInfo)
@@ -87,6 +89,7 @@ exports.updateRate = async (champId, optionWinRate) => {
         .execute()
 }
 
+// 챔피언 밴 카운팅
 exports.addBanCnt = async (champId) => {
     return ChampInfo.createQueryBuilder()
         .update(ChampInfo)
@@ -95,6 +98,7 @@ exports.addBanCnt = async (champId) => {
         .execute()
 }
 
+//챔피언 포지션 카운팅
 exports.addPositionCnt = async (champId, option) => {
     return ChampInfo.createQueryBuilder()
         .update(ChampInfo)
@@ -103,6 +107,7 @@ exports.addPositionCnt = async (champId, option) => {
         .execute()
 }
 
+//챔피언 포지션 데이터 가져오기
 exports.positionInfo = async (champId) => {
     return ChampInfo.createQueryBuilder()
         .where("champId = :champId", { champId })
@@ -110,31 +115,62 @@ exports.positionInfo = async (champId) => {
         .getRawMany()
 }
 
+exports.findSpellData = async (champId) => {
+    return await ChampSpell.createQueryBuilder().getRawMany()
+}
+
+//챔피언 스펠정보 저장
 exports.saveChampSpellInfo = async (champId, champName, spell1, spell2, matchId) => {
-    return await ChampSpell.createQueryBuilder()
+    return ChampSpell.createQueryBuilder()
         .insert()
         .values({ champId, champName, spell1, spell2, sampleNum: 1 })
         .execute()
 }
 
+//챔피언 스펠정보 업데이트
 exports.updateChampSpellInfo = async (champId, spell1, spell2, matchId) => {
-    return await ChampSpell.createQueryBuilder()
+    return ChampSpell.createQueryBuilder()
         .update(ChampSpell)
         .set({ sampleNum: () => "sampleNum+1" })
         .where("champId = :champId", { champId })
-        .andWhere("spell1 = :spell1", { spell1 })
-        .andWhere("spell2 = :spell2", { spell2 })
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("spell1 = :spell1", { spell1 })
+                    .andWhere("spell2 = :spell2", { spell2 })
+                    .orWhere(
+                        new Brackets((qb2) => {
+                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                spell1,
+                            })
+                        })
+                    )
+            })
+        )
         .execute()
 }
 
+//쳄피언 스펠정보 가져오기
 exports.findSpellInfoData = async (champId, spell1, spell2) => {
-    return await ChampSpell.createQueryBuilder()
+    return ChampSpell.createQueryBuilder()
         .where("champId = :champId", { champId })
-        .andWhere("spell1 = :spell1", { spell1 })
-        .andWhere("spell2 = :spell2", { spell2 })
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("spell1 = :spell1", { spell1 })
+                    .andWhere("spell2 = :spell2", { spell2 })
+                    .orWhere(
+                        new Brackets((qb2) => {
+                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                spell1,
+                            })
+                        })
+                    )
+            })
+        )
+
         .getRawOne()
 }
 
+//챔피언 게임 수 합산해서 가져오기
 exports.spellTotalCnt = async (champId) => {
     return await ChampSpell.createQueryBuilder()
         .where("champId = :champId", { champId })
@@ -150,28 +186,31 @@ exports.spellTotalCnt = async (champId) => {
 //         .execute()
 // }
 
+// ==========================================================================================//
+//서비스 DB 저장 관련 쿼리
 exports.ServiceSaveSpell = async (champId, spell1, spell2, pickRate, sampleNum) => {
-    return await ChampSpellService.createQueryBuilder()
+    return ChampSpellService.createQueryBuilder()
         .insert()
         .values({ champId, spell1, spell2, pick_rate: pickRate, sample_num: sampleNum })
         .execute()
 }
 
-exports.ServiceUpdateSpell = async (champId, spell1, spell2) => {
-    return await ChampSpellService.createQueryBuilder()
-        .update(ChampSpell)
-        .set({ sampleNum: () => "sampleNum+1" })
-        .where("champId = :champId", { champId })
-        .andWhere("spell1 = :spell1", { spell1 })
-        .andWhere("spell2 = :spell2", { spell2 })
-        .execute()
-}
-
 exports.ServicefindSpellInfoData = async (champId, spell1, spell2) => {
-    return await ChampSpellService.createQueryBuilder()
+    return ChampSpellService.createQueryBuilder()
         .where("champId = :champId", { champId })
-        .andWhere("spell1 = :spell1", { spell1 })
-        .andWhere("spell2 = :spell2", { spell2 })
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("spell1 = :spell1", { spell1 })
+                    .andWhere("spell2 = :spell2", { spell2 })
+                    .orWhere(
+                        new Brackets((qb2) => {
+                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                spell1,
+                            })
+                        })
+                    )
+            })
+        )
         .getRawOne()
 }
 

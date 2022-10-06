@@ -8,14 +8,18 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/", Router)
 const db = require("./orm")
 
-const summonerController = require('./data/summonerId/summonerId.controller')
-const puuidController = require('./data/puuId/puuId.controller')
-const matchDataController = require('./data/match_data/match.data.controller')
-const matchIdController = require('./data/matchId/matchId.controller')
+const summonerController = require("./data/summonerId/summonerId.controller")
+const puuidController = require("./data/puuId/puuId.controller")
+const matchDataController = require("./data/match_data/match.data.controller")
+const matchIdController = require("./data/matchId/matchId.controller")
 const { sleep } = require("./timer")
+db.connect()
+db.connectService()
+const redisClient = require("./redis")
 
+redisClient.connect().then()
 
-startAnalyze()
+// startAnalyze()
 
 async function startAnalyze() {
     const startDate = new Date()
@@ -38,9 +42,7 @@ async function startAnalyze() {
     await sleep(10)
     await matchDataController.transferCombinationStatToServiceDB()
     const endDate = new Date()
-    console.log((endDate - startDate) / 1000, '초') // 데이터분석까지 걸린 시간 체크
+    console.log((endDate - startDate) / 1000, "초") // 데이터분석까지 걸린 시간 체크
 }
-
-
 
 module.exports = app
