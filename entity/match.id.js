@@ -46,6 +46,26 @@ module.exports = new EntitySchema({
             type: "int",
             require: true,
             default: 0
-        }
+        },
+        rateAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
+        banAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
+        positionAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
+        spellAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
     },
 })

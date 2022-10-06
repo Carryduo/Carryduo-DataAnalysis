@@ -1,7 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { findPuuId, saveMatchId, findMatchId, disconnect } = require("./matchId.service")
+const { findPuuId, saveMatchId, findMatchId, disconnect, getMatchData, transferAnlayzed } = require("./matchId.service")
 
 exports.matchId = async (req, res, next) => {
     try {
@@ -11,6 +11,19 @@ exports.matchId = async (req, res, next) => {
         console.log(err)
         return result
     }
+}
+
+exports.transferMatchDataAnalyzed = async () => {
+    const data = await getMatchData()
+    for (let i = 0; i < data.length; i++) {
+        const matchId = data[i].matchId
+        const analyzed = data[i].analyzed
+        const result = await transferAnlayzed(matchId, analyzed)
+        console.log(result)
+    }
+    console.log('분석정보이동완료')
+    return 'success '
+
 }
 
 let key = 0

@@ -415,3 +415,226 @@ async function getMatchIdList() {
     // })
     return data
 }
+
+// TODO: 테스트 --------------------------------------------------------------
+exports.saveCombination = async (req, res, next) => {
+    try {
+        const matchIdList = await getMatchIdList()
+        console.log(matchIdList.length)
+        while (key !== matchIdList.length) {
+            if (status !== undefined) {
+                status = undefined
+                continue
+            }
+            await getMatchDataAndSaveCombination(matchIdList)
+        }
+        return 'matchData 저장 성공'
+    } catch (error) {
+        console.log(error)
+        return 'matchData 저장 실패'
+    }
+}
+
+async function getMatchDataAndSaveCombination(matchIdList) {
+    try {
+        const matchId = matchIdList[key].matchId
+        const tier = matchIdList[key].tier
+        const division = matchIdList[key].division
+        console.log(`${key}번째 데이터 분석 시작`, matchId, tier, division)
+        const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${process.env.KEY}`
+        const response = await axios.get(matchDataApiUrl)
+        const matchData = response.data
+        if (matchData.info.gameMode !== "CLASSIC") {
+            // TODO: 수정해야함
+            await updateWrongMatchDataAnalyzed(matchId)
+            console.log('게임 모드가 CLASSIC이 아닙니다')
+            return key++
+        }
+        if (matchData.info.queueId !== 420) {
+            await updateWrongMatchDataAnalyzed(matchId)
+            console.log('게임 모드가 솔로랭크가 아닙니다')
+            return key++
+        }
+        let winjungle, winmiddle, wintop, winbottom, winutility
+        let losejungle, losemiddle, losetop, losebottom, loseutility
+        for (let i = 0; i < matchData.info.participants.length; i++) {
+            const win = matchData.info.participants[i].win
+            let position = matchData.info.participants[i].teamPosition
+            if (position === undefined) {
+                continue
+            }
+            if (win) {
+                switch (position) {
+                    case "MIDDLE":
+                        winmiddle = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "TOP":
+                        wintop = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "BOTTOM":
+                        winbottom = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "UTILITY":
+                        winutility = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "JUNGLE":
+                        winjungle = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                }
+            } else {
+                switch (position) {
+                    case "MIDDLE":
+                        losemiddle = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "TOP":
+                        losetop = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "BOTTOM":
+                        losebottom = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "UTILITY":
+                        loseutility = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                    case "JUNGLE":
+                        losejungle = {
+                            position,
+                            champId: matchData.info.participants[i].championId,
+                            champName: matchData.info.participants[i].championName,
+                        }
+                        break
+                }
+            }
+        }
+        if (
+            !wintop ||
+            !winjungle ||
+            !winmiddle ||
+            !winbottom ||
+            !winutility ||
+            !losetop ||
+            !losejungle ||
+            !losebottom ||
+            !losemiddle ||
+            !loseutility
+        ) {
+            console.log("@@@@@@@@@@@@@@@@@여기서 멈췄어")
+            await updateWrongMatchDataAnalyzed(matchId)
+            return key++
+        }
+        console.log("이긴팀", {
+            wintop,
+            winjungle,
+            winmiddle,
+            winbottom,
+            winutility,
+        })
+        console.log("진팀", {
+            losetop,
+            losejungle,
+            losemiddle,
+            losebottom,
+            loseutility,
+        })
+        // 탑 정글 넣기
+        // TODO: matchData 기준인거 matchId 버전으로 수정
+        const existWinTopJungle = await checkCombinationData(wintop, winjungle)
+        const existWinMidJungle = await checkCombinationData(winmiddle, winjungle)
+        const existWinBottomDuo = await checkCombinationData(winbottom, winutility)
+
+        const existLoseTopJungle = await checkCombinationData(losetop, losejungle)
+        const existLoseMidJungle = await checkCombinationData(losemiddle, losejungle)
+        const existLoseBottomDuo = await checkCombinationData(losebottom, loseutility)
+        console.log(matchId)
+        if (existWinTopJungle.length === 0) {
+            await saveCombinationData(matchId, wintop, winjungle, "win", 0)
+        } else {
+            await updateCombinationData(matchId, wintop, winjungle, "win")
+        }
+        if (existWinMidJungle.length === 0) {
+            await saveCombinationData(matchId, winmiddle, winjungle, "win", 1)
+        } else {
+            await updateCombinationData(matchId, winmiddle, winjungle, "win")
+        }
+        if (existWinBottomDuo.length === 0) {
+            await saveCombinationData(matchId, winbottom, winutility, "win", 2)
+        } else {
+            await updateCombinationData(matchId, winbottom, winutility, "win")
+        }
+
+        if (existLoseTopJungle.length === 0) {
+            await saveCombinationData(matchId, losetop, losejungle, "lose", 0)
+        } else {
+            await updateCombinationData(matchId, losetop, losejungle, "lose")
+        }
+        if (existLoseMidJungle.length === 0) {
+            await saveCombinationData(matchId, losemiddle, losejungle, "lose", 1)
+        } else {
+            await updateCombinationData(matchId, losemiddle, losejungle, "lose")
+        }
+        if (existLoseBottomDuo.length === 0) {
+            await saveCombinationData(matchId, losebottom, loseutility, "lose", 2)
+        } else {
+            await updateCombinationData(matchId, losebottom, loseutility, "lose")
+        }
+    }
+    // const result = await saveMatchData(response.data, tier, division, matchId)
+    // console.log(result)
+    catch (err) {
+        if (!err.response) {
+            console.log("라이엇으로부터 err.response가 없다! ")
+            console.log(key + " 번째 부터 오류!")
+            return key++
+        }
+        if (err.response.status === 429) {
+            console.log("라이엇 요청 제한 경고!")
+            console.log(key + " 번째 부터 오류!")
+            await sleep(125)
+            return
+        } else if (err.response.status === 403) {
+            console.log("api키 갱신 필요!")
+            return
+        } else {
+            console.log(err.response.status, err.response.statusText)
+            status = err.response.status
+            return key++
+        }
+    }
+    console.log(`${key}번째 데이터 분석 끝`)
+    return key++
+}

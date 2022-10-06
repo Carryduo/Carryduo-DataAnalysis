@@ -30,7 +30,7 @@ exports.getMatchId = async () => {
             })
         )
         .andWhere("matchid.analyzed = :analyzed", {
-            analyzed: false,
+            analyzed: 0,
         })
         .limit(500)
         .getMany()
@@ -60,7 +60,7 @@ exports.getMatchDataCnt = async () => {
 }
 
 exports.updateWrongMatchDataAnalyzed = async (matchId) => {
-    await MatchData.createQueryBuilder().update().set({ analyzed: 2 }).where('matchdata.matchId = :matchId', { matchId }).execute()
+    await MatchId.createQueryBuilder().update().set({ analyzed: 2 }).where('matchid.matchId = :matchId', { matchId }).execute()
     console.log('무의미한 MatchData 처리 완료')
     return
 }
@@ -140,7 +140,7 @@ exports.checkCombinationData = async (mainChamp, subChamp) => {
 }
 
 // 챔피언 조합 승률 관련
-exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, category) => {
+exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) => {
     // TODO: 트랜젝션, matchId 업데이트
     console.log("update", mainChamp, subChamp)
 
@@ -161,9 +161,9 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
                 .execute()
             await queryRunner.manager
                 .createQueryBuilder()
-                .update(matchdata)
+                .update(matchid)
                 .set({ analyzed: 1 })
-                .where("matchdata.id = :id", { id })
+                .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
@@ -182,9 +182,9 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
 
             await queryRunner.manager
                 .createQueryBuilder()
-                .update(matchdata)
+                .update(matchid)
                 .set({ analyzed: 1 })
-                .where("matchdata.id = :id", { id })
+                .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
@@ -201,7 +201,7 @@ exports.updateCombinationData = async (id, matchId, mainChamp, subChamp, categor
     }
 }
 
-exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category, type) => {
+exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, type) => {
     console.log("save", mainChamp, subChamp, matchId)
 
     let dbupdate
@@ -227,9 +227,9 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
                 .execute()
             await queryRunner.manager
                 .createQueryBuilder()
-                .update(matchdata)
+                .update(matchid)
                 .set({ analyzed: 1 })
-                .where("matchdata.id = :id", { id })
+                .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }
@@ -253,9 +253,9 @@ exports.saveCombinationData = async (id, matchId, mainChamp, subChamp, category,
                 .execute()
             await queryRunner.manager
                 .createQueryBuilder()
-                .update(matchdata)
+                .update(matchid)
                 .set({ analyzed: 1 })
-                .where("matchdata.id = :id", { id })
+                .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
                     dbupdate = { message: `${matchId} 분석 성공` }

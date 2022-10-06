@@ -4,6 +4,8 @@ const MatchId = dataSource.getRepository("matchid")
 const queryRunner = dataSource.createQueryRunner()
 const matchid = require("../../entity/match.id")
 const puuId = require("../../entity/puuid")
+const MatchData = dataSource.getRepository("matchdata")
+const { Brackets } = require("typeorm")
 
 exports.findPuuId = async () => {
     return await PuuId.createQueryBuilder()
@@ -58,6 +60,36 @@ exports.saveMatchId = async (matchId, tier, division, summonerId, puuid) => {
     }
 }
 
+exports.getMatchData = async () => {
+    return await MatchData.createQueryBuilder()
+        .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId", 'matchdata.analyzed', 'matchdata.tier', 'matchdata.division'])
+        .where(
+            new Brackets((qb) => {
+                qb.where("matchdata.tier = :tier", {
+                    tier: "PLATINUM",
+                }).orWhere("matchdata.tier = :tier2", {
+                    tier2: "DIAMOND",
+                })
+            })
+        )
+        .getMany()
+}
+
+exports.transferAnlayzed = async (matchId, analyzed) => {
+    return await MatchId.createQueryBuilder()
+        .update()
+        .set({
+            analyzed
+        })
+        .where('matchid.matchId = :matchId', { matchId }).execute()
+        .then(() => {
+            return { success: true, message: 'matchId로 분석정보 이동 성공' }
+        })
+        .catch((error) => {
+            console.log(error)
+            return { success: false, message: 'matchId로 분석정보 이동 실패' }
+        })
+}
 exports.disconnect = async () => {
     await queryRunner.release()
 }
