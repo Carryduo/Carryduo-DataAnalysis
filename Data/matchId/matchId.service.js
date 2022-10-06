@@ -11,7 +11,7 @@ exports.findPuuId = async () => {
         .orderBy({
             "puuid.division": "ASC",
         })
-        .where("puuid.analyzed = :analyzed", { analyzed: false })
+        .where("puuid.analyzed = :analyzed", { analyzed: 0 })
         .limit(500)
         .getMany()
 }
@@ -40,7 +40,7 @@ exports.saveMatchId = async (matchId, tier, division, summonerId, puuid) => {
         await queryRunner.manager
             .createQueryBuilder()
             .update(puuId)
-            .set({ analyzed: true })
+            .set({ analyzed: 1 })
             .where("puuid.puuid = :puuid", { puuid })
             .execute()
             .then(() => {
