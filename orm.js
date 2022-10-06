@@ -41,8 +41,8 @@ const dataSource_service = new typeorm.DataSource({
 })
 
 module.exports = {
-    connect() {
-        dataSource
+    async connect() {
+        await dataSource
             .initialize()
             .then(function () {
                 console.log("분석용 연결 완료")
@@ -51,8 +51,8 @@ module.exports = {
                 console.log("Error: ", error)
             })
     },
-    connectService() {
-        dataSource_service
+    async connectService() {
+        await dataSource_service
             .initialize()
             .then(function () {
                 console.log("서비스용 연결 완료")

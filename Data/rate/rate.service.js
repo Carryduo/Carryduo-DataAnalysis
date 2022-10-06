@@ -1,22 +1,24 @@
 const { dataSource } = require("../../orm")
 const ChampInfo = dataSource.getRepository("champinfo")
 const ChampSpell = dataSource.getRepository("champspell")
-const MatchData = dataSource.getRepository("matchdata")
+const MatchId = dataSource.getRepository("matchid")
 
 const { dataSource_service } = require("../../orm")
 const { Brackets } = require("typeorm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
 
-exports.matchDataList = async () => {
-    return await MatchData.createQueryBuilder()
-        .select(["matchData", "id", "matchId"])
+const fs = require("fs")
+
+exports.matchIdList = async () => {
+    return await MatchId.createQueryBuilder()
+        .select()
         .where(
             new Brackets((qb) => {
                 qb.where("rateAnalyzed = :result", { result: 0 })
-                    .orWhere("spellAnalyzed = :result", { result: 0 })
-                    .orWhere("banAnalyzed = :result", { result: 0 })
-                    .orWhere("positionAnalyzed = :result", { result: 0 })
+                    .andWhere("spellAnalyzed = :result", { result: 0 })
+                    .andWhere("banAnalyzed = :result", { result: 0 })
+                    .andWhere("positionAnalyzed = :result", { result: 0 })
             })
         )
         .andWhere(
@@ -26,15 +28,40 @@ exports.matchDataList = async () => {
                 })
             })
         )
+        .limit(500)
         .getRawMany()
 }
 
-exports.successAnalyzed = async (matchIds, option) => {
-    return await MatchData.createQueryBuilder()
+exports.getMatchIdCnt = async () => {
+    return await MatchId.createQueryBuilder()
+        .where("rateAnalyzed = :result", { result: 1 })
+        .getCount()
+}
+
+exports.successAnalyzed = async (matchId, option) => {
+    return await MatchId.createQueryBuilder()
         .update()
         .set(option.set)
-        .where("matchId IN (:...matchIds)", { matchIds })
+        .where("matchid.matchId = :matchId", { matchId })
         .execute()
+}
+
+exports.dropAnalyzed = async (matchId, option) => {
+    await MatchId.createQueryBuilder()
+        .update()
+        .set(option.set)
+        .where("matchid.matchId = :matchId", { matchId })
+        .execute()
+
+    fs.writeFile(
+        process.env.TIPLOG || `./logs/dropMatchId.txt`,
+        `${matchId},`,
+        { flag: "a+" },
+        (err) => {
+            return err
+        }
+    )
+    return
 }
 
 //챔피언 ID 저장
@@ -60,11 +87,6 @@ exports.saveChampId = async (champName, champId) => {
 //챔피언 개수
 exports.champCnt = async () => {
     return ChampInfo.createQueryBuilder("champ").getCount()
-}
-
-//매치데이터 개수
-exports.getMatchDataCnt = async () => {
-    return MatchData.createQueryBuilder().getCount()
 }
 
 //챔피언 데이터 리스트
@@ -115,7 +137,7 @@ exports.positionInfo = async (champId) => {
         .getRawMany()
 }
 
-exports.findSpellData = async (champId) => {
+exports.findSpellData = async () => {
     return await ChampSpell.createQueryBuilder().getRawMany()
 }
 

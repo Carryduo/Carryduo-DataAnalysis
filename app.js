@@ -8,23 +8,27 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/", Router)
 const db = require("./orm")
 
+const { sleep } = require("./timer")
+const schedule = require("node-schedule")
 const summonerController = require("./data/summonerId/summonerId.controller")
 const puuidController = require("./data/puuId/puuId.controller")
 const matchDataController = require("./data/match_data/match.data.controller")
 const matchIdController = require("./data/matchId/matchId.controller")
-const { sleep } = require("./timer")
-const schedule = require('node-schedule')
-// db.connect()
-// db.connectService()
-// const redisClient = require("./redis")
-
-// redisClient.connect().then()
+//================================================================================//
+//챔피언 관련 데이터분석 로직
+const {
+    startChampInfo,
+    serviceSaveRate,
+    serviceSavePosition,
+    serviceSaveChampSpell,
+} = require("./Data/rate/rate.controller")
 
 // schedule.scheduleJob(' */1 * * * *', () => {
 //     console.log('1분 주기입니다')
 // })
 // TODO: 스케줄링을 걸되, API카 만료되지 않은 상황일때에만 작업 시작할 수 있게 하기.
-startAnalyze()
+
+// startAnalyze()
 
 async function startAnalyze() {
     const startDate = new Date()
@@ -51,5 +55,27 @@ async function startAnalyze() {
     const endDate = new Date()
     console.log((endDate - startDate) / 1000, "초") // 데이터분석까지 걸린 시간 체크
 }
+
+async function startChampAnalyze() {
+    const start = performance.now()
+    await db.connect()
+    await db.connectService()
+
+    //데이터 분석 및 분석용 데이터베이스에 저장
+    await startChampInfo()
+    await sleep(10)
+
+    //데이터 분석 후 서비스DB에 업데이트
+    await serviceSaveRate()
+    await sleep(10)
+    await serviceSavePosition()
+    await sleep(10)
+    await serviceSaveChampSpell()
+    const end = performance.now()
+    const runningTime = end - start
+    const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
+    console.log(`===${ConversionRunningTime} 분소요===`)
+}
+// startChampAnalyze()
 
 module.exports = app

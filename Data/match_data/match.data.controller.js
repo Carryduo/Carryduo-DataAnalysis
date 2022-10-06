@@ -1,8 +1,30 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const { getMatchId, saveMatchData, saveChampInfo, addWinCnt, addGameCnt, getChampInfo, getMatchDataCnt, getMatchData, addbanCnt, getChampBanCnt, saveCombinationData, checkCombinationData, updateCombinationData, getData, disconnect, updateWinRate, findRawCombinationData, findCombinationCleansedData, updateCombinationTier, getCombinationData, transferToService, updateWrongMatchDataAnalyzed } = require("./match.data.service")
-
+const {
+    getMatchId,
+    saveMatchData,
+    saveChampInfo,
+    addWinCnt,
+    addGameCnt,
+    getChampInfo,
+    getMatchDataCnt,
+    getMatchData,
+    addbanCnt,
+    getChampBanCnt,
+    saveCombinationData,
+    checkCombinationData,
+    updateCombinationData,
+    getData,
+    disconnect,
+    updateWinRate,
+    findRawCombinationData,
+    findCombinationCleansedData,
+    updateCombinationTier,
+    getCombinationData,
+    transferToService,
+    updateWrongMatchDataAnalyzed,
+} = require("./match.data.service")
 
 let key = 0
 let status
@@ -18,71 +40,10 @@ exports.saveMatchData = async (req, res, next) => {
             }
             await saveMatchDataFunction(matchIdList)
         }
-        return 'matchData 저장 성공'
+        return "matchData 저장 성공"
     } catch (error) {
         console.log(error)
-        return 'matchData 저장 실패'
-    }
-}
-
-
-// 챔피언 승/밴/픽 관련
-exports.Rate = async (req, res, next) => {
-    const { champId } = req.params
-
-    const result = await getMatchDataCnt()
-    const champ = await getChampInfo(champId)
-
-    let winRate = (champ.win / champ.game) * 100
-    winRate = winRate.toFixed(2)
-    let pickRate = (champ.game / result) * 100
-    pickRate = pickRate.toFixed(2)
-    let banRate = (champ.ban / result) * 100
-    banRate = banRate.toFixed(2)
-
-    return res.status(200).json({ winRate, pickRate, banRate })
-}
-
-//이긴 게임 / 1920 = 승률, 해당챔피언 존재하는 게임/ 1920 = 픽률, 해당 챔피언 밴한 게임/1920
-
-exports.champAnalysis = async (req, res, next) => {
-    try {
-        let cnt = 0
-        const result = await getMatchData()
-
-        for (let i of result) {
-            console.log("Count: " + cnt)
-            if (i.data.info.gameMode === "CLASSIC" && i.data.info.queueId === 420) {
-                const participants = i.data.info.participants
-
-                for (let v of participants) {
-                    const champ = await getChampInfo(v.championId)
-
-                    if (!champ) {
-                        if (v.win) {
-                            await saveChampInfo(v.championId, v.championName, 1, 1) //챔프가 없는데 이겼으면 win:1
-                        } else {
-                            await saveChampInfo(v.championId, v.championName, 0, 1) //챔프가 없는데 졌으면 win:0
-                        }
-                    } else {
-                        if (v.win) {
-                            await addWinCnt(v.championId, champ.win) //챔프가 있는데 이기면 win +1
-                            await addGameCnt(v.championId, champ.game)
-                        } else {
-                            await addGameCnt(v.championId, champ.game) //챔프가 있는데 졌으면 game만 +1
-                        }
-                    }
-                }
-            }
-            cnt++
-        }
-        await ban(result)
-        console.log("완료!")
-
-        return res.status(200).json({ result: true })
-    } catch (err) {
-        console.log(err)
-        return res.status(400).json({ err })
+        return "matchData 저장 실패"
     }
 }
 
@@ -279,7 +240,7 @@ exports.uploadCombinationWinRate = async (req, res, next) => {
             mainChampId: value.mainChampId,
             subChampId: value.subChampId,
             category: value.category,
-            sample_num: value.sampleNum
+            sample_num: value.sampleNum,
         }
         return value
     })
@@ -305,7 +266,9 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
                 rankList.push(category[i])
             }
         }
-        rankList.sort((a, b) => { return b.winrate - a.winrate })
+        rankList.sort((a, b) => {
+            return b.winrate - a.winrate
+        })
         for (let j = 0; j < rankList.length; j++) {
             rankList[j].rank_in_category = j + 1
         }
@@ -343,34 +306,6 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
         console.log(result)
     }
     return "success"
-}
-
-// 챔피언 승/밴/픽 관련
-//벤 저장 할 때 한게임에서 중복되는 벤 제거 할지...
-async function ban(result) {
-    let banId = []
-    for (let i of result) {
-        if (i.data.info.gameMode === "CLASSIC" && i.data.info.queueId === 420) {
-            const teams = i.data.info.teams
-
-            for (let t of teams) {
-                const ban = t.bans
-                for (let b of ban) {
-                    if (b.championId === -1) {
-                        continue
-                    }
-                    const champBanCnt = await getChampBanCnt(b.championId)
-
-                    if (!banId.includes(b.championId)) {
-                        banId.push(b.championId)
-                        await addbanCnt(b.championId, champBanCnt.ban)
-                    }
-                }
-            }
-            banId = []
-            console.log("1번 완료: " + banId)
-        }
-    }
 }
 
 // 매치 RAW DATA 관련
@@ -428,10 +363,10 @@ exports.saveCombination = async (req, res, next) => {
             }
             await getMatchDataAndSaveCombination(matchIdList)
         }
-        return 'matchData 저장 성공'
+        return "matchData 저장 성공"
     } catch (error) {
         console.log(error)
-        return 'matchData 저장 실패'
+        return "matchData 저장 실패"
     }
 }
 
@@ -447,12 +382,12 @@ async function getMatchDataAndSaveCombination(matchIdList) {
         if (matchData.info.gameMode !== "CLASSIC") {
             // TODO: 수정해야함
             await updateWrongMatchDataAnalyzed(matchId)
-            console.log('게임 모드가 CLASSIC이 아닙니다')
+            console.log("게임 모드가 CLASSIC이 아닙니다")
             return key++
         }
         if (matchData.info.queueId !== 420) {
             await updateWrongMatchDataAnalyzed(matchId)
-            console.log('게임 모드가 솔로랭크가 아닙니다')
+            console.log("게임 모드가 솔로랭크가 아닙니다")
             return key++
         }
         let winjungle, winmiddle, wintop, winbottom, winutility
@@ -612,10 +547,9 @@ async function getMatchDataAndSaveCombination(matchIdList) {
         } else {
             await updateCombinationData(matchId, losebottom, loseutility, "lose")
         }
-    }
-    // const result = await saveMatchData(response.data, tier, division, matchId)
-    // console.log(result)
-    catch (err) {
+    } catch (err) {
+        // const result = await saveMatchData(response.data, tier, division, matchId)
+        // console.log(result)
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
             console.log(key + " 번째 부터 오류!")
