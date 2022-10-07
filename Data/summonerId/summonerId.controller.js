@@ -6,7 +6,7 @@ require("dotenv").config()
 exports.summonerId = async () => {
     try {
         const result = await startGetSummonerId()
-        return 'summonerId 분석 완료'
+        return "summonerId 분석 완료"
     } catch (err) {
         console.log(err)
     }
@@ -21,7 +21,7 @@ async function startGetSummonerId() {
         console.log("while문 진입", "status: " + page)
         await getSummonerId(summonerIds, page)
     }
-    return 'success'
+    return "success"
 }
 
 async function getSummonerId(summonerIds, num) {
@@ -58,10 +58,9 @@ async function getSummonerId(summonerIds, num) {
                         const data = await saveSummonerId(value.summonerId, tier, division)
                         console.log(data)
                         if (data.code === 1062) {
-                            console.log(num + '번째 페이지 요청 중 중복값 발생')
+                            console.log(num + "번째 페이지 요청 중 중복값 발생")
                             continue
-                        }
-                        else {
+                        } else {
                             console.log(data)
                         }
                     }

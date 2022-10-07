@@ -21,7 +21,7 @@ const {
     serviceSaveRate,
     serviceSavePosition,
     serviceSaveChampSpell,
-} = require("./Data/rate/rate.controller")
+} = require("./data/rate/rate.controller")
 
 // schedule.scheduleJob(' */1 * * * *', () => {
 //     console.log('1분 주기입니다')

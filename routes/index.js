@@ -3,7 +3,7 @@ const summonerIdRouter = require("../data/summonerId")
 const puuIdRouter = require("../data/puuId")
 const matchIdRouter = require("../data/matchId")
 const matchDataRouter = require("../data/match_data")
-const rateRouter = require("../Data/rate/")
+const rateRouter = require("../data/rate")
 
 router.use("/summonerId", summonerIdRouter)
 router.use("/puuId", puuIdRouter)
