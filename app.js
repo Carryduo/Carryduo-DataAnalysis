@@ -93,7 +93,7 @@ async function startChampAnalyze() {
         const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
 
         fs.writeFile(
-            process.env.TIPLOG || `./logs/champ.analyze.error.txt`,
+            process.env.LOG || `./logs/champ.analyze.error.txt`,
             data,
             { flag: "a+" },
             (err) => {
