@@ -51,6 +51,11 @@ module.exports = {
                 console.log("Error: ", error)
             })
     },
+    async close() {
+        await dataSource.destroy().then(() => {
+            console.log("분석용 연결 해제")
+        })
+    },
     async connectService() {
         await dataSource_service
             .initialize()
@@ -60,6 +65,11 @@ module.exports = {
             .catch(function (error) {
                 console.log("Error: ", error)
             })
+    },
+    async closeService() {
+        await dataSource_service.destroy().then(() => {
+            console.log("서비스용 연결 해제")
+        })
     },
     dataSource,
     dataSource_service,
