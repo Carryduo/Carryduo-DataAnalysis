@@ -72,7 +72,7 @@ exports.startChampInfo = async () => {
             await champSpell(matchData)
             key++
         }
-
+        key = 0
         return "champ info 분석 성공"
     } catch (error) {
         console.log(error)

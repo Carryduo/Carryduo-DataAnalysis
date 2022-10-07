@@ -1,5 +1,6 @@
 require("dotenv").config()
 const fs = require("fs")
+const { performance } = require("perf_hooks")
 const express = require("express")
 const app = express()
 const Router = require("./routes")
@@ -10,6 +11,7 @@ const db = require("./orm")
 
 const { sleep } = require("./timer")
 const schedule = require("node-schedule")
+const { ToadScheduler, SimpleIntervalJob, AsyncTask } = require("toad-scheduler")
 const summonerController = require("./data/summonerId/summonerId.controller")
 const puuidController = require("./data/puuId/puuId.controller")
 const matchDataController = require("./data/match_data/match.data.controller")
@@ -54,16 +56,41 @@ async function startAnalyze() {
     console.log((endDate - startDate) / 1000, "초") // 데이터분석까지 걸린 시간 체크
 }
 
-schedule.scheduleJob("* 30 * * * *", () => {
-    startChampAnalyze()
-})
-async function startChampAnalyze() {
-    try {
-        const start = performance.now()
+const scheduler = new ToadScheduler()
 
+const task = new AsyncTask(
+    "task",
+    async () => {
         //데이터베이스 연결
         await db.connect()
         await db.connectService()
+
+        //데이터 분석 로직 수행
+        return await startChampAnalyze()
+    },
+    (err) => {
+        const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+        const time = new Date().toTimeString().split(" ")[0]
+        const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+
+        fs.writeFile(
+            process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+            data,
+            { flag: "a+" },
+            (err) => {
+                console.log(err)
+            }
+        )
+    }
+)
+
+const job = new SimpleIntervalJob({ hours: 1 }, task)
+
+scheduler.addSimpleIntervalJob(job)
+
+async function startChampAnalyze() {
+    try {
+        const start = performance.now()
 
         //데이터 분석 및 분석용 데이터베이스에 저장
         await startChampInfo()
@@ -83,11 +110,13 @@ async function startChampAnalyze() {
         await db.close()
         await db.closeService()
 
+        //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
         const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
         console.log(`===${ConversionRunningTime} 분소요===`)
     } catch (err) {
+        //에러 로그 파일
         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
         const time = new Date().toTimeString().split(" ")[0]
         const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time

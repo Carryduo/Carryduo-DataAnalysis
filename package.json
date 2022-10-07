@@ -21,6 +21,7 @@
         "mysql2": "^2.3.3",
         "node-schedule": "^2.1.0",
         "redis": "^4.3.1",
+        "toad-scheduler": "^1.6.1",
         "typeorm": "^0.3.10"
     },
     "devDependencies": {
