@@ -40,7 +40,7 @@ const task = new AsyncTask(
         await db.connectService()
 
         //데이터 분석 로직 수행
-        return await startChampAnalyze()
+        return await startAnalyze()
     },
     (err) => {
         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
@@ -58,7 +58,7 @@ const task = new AsyncTask(
     }
 )
 
-const combinationTask = new AsyncTask(
+const matchIdTask = new AsyncTask(
     "task",
     async () => {
         //데이터베이스 연결
@@ -66,7 +66,7 @@ const combinationTask = new AsyncTask(
         await db.connectService()
 
         //데이터 분석 로직 수행
-        return await startCombinationAnalyze()
+        return await startGetMatchIds()
     },
     (err) => {
         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
@@ -84,13 +84,17 @@ const combinationTask = new AsyncTask(
     }
 )
 
-const combinationJob = new SimpleIntervalJob({ hours: 2, runImmediately: true }, combinationTask) // runImmediately: 즉시실행
-const job = new SimpleIntervalJob({ hours: 1 }, task)
+// 데이터 분석
+const job = new SimpleIntervalJob({ hours: 2, runImmediately: true }, task)
+scheduler.addSimpleIntervalJob(job)
 
-scheduler.addSimpleIntervalJob(combinationJob)
-// scheduler.addSimpleIntervalJob(job)
+// 매치Id 수집 
+const matchIdJob = new SimpleIntervalJob({ hours: 12, runImmediately: true }, matchIdTask) // runImmediately: 즉시실행 
+// scheduler.addSimpleIntervalJob(matchIdJob)
 
-async function startChampAnalyze() {
+
+
+async function startAnalyze() {
     try {
         const start = performance.now()
 
@@ -107,6 +111,16 @@ async function startChampAnalyze() {
 
         await serviceSaveChampSpell()
         await sleep(10)
+
+        console.log('======챔피언조합승률 분석 시작========')
+
+        await matchDataController.saveCombination()
+        await sleep(10)
+        await matchDataController.uploadCombinationWinRate()
+        await sleep(10)
+        await matchDataController.updateCombinationTierAndRank()
+        await sleep(10)
+        await matchDataController.transferCombinationStatToServiceDB()
 
         //데이터베이스 연결 해제
         await db.close()
@@ -135,7 +149,7 @@ async function startChampAnalyze() {
 }
 
 
-async function startCombinationAnalyze() {
+async function startGetMatchIds() {
     try {
         const start = performance.now()
         // 로우데이터 수집
@@ -147,14 +161,10 @@ async function startCombinationAnalyze() {
         await matchIdController.matchId()
         await sleep(10)
 
-        // 데이터 분석
-        await matchDataController.saveCombination()
-        await sleep(10)
-        await matchDataController.uploadCombinationWinRate()
-        await sleep(10)
-        await matchDataController.updateCombinationTierAndRank()
-        await sleep(10)
-        await matchDataController.transferCombinationStatToServiceDB()
+        //데이터베이스 연결 해제
+        await db.close()
+        await db.closeService()
+
         const end = performance.now()
         const runningTime = end - start
         const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
@@ -174,4 +184,5 @@ async function startCombinationAnalyze() {
         )
     } // 데이터분석까지 걸린 시간 체크
 }
+
 module.exports = app
