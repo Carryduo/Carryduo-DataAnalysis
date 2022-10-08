@@ -30,32 +30,6 @@ const {
 
 // startAnalyze()
 
-async function startAnalyze() {
-    const startDate = new Date()
-    await db.connect()
-    await db.connectService()
-    // 로우데이터 수집
-    await sleep(10)
-    // matchData 조회 및 combination으로 데이터 분석
-    await summonerController.summonerId()
-    await sleep(10) // setTimmer를 이용해서 db가 온전히 연결된 이후에 데이터 분석 시작
-    await puuidController.puuId()
-    await sleep(10)
-    await matchIdController.matchId()
-    await sleep(10)
-
-    // 데이터 분석
-    await matchDataController.saveCombination()
-    await sleep(10)
-    await matchDataController.uploadCombinationWinRate()
-    await sleep(10)
-    await matchDataController.updateCombinationTierAndRank()
-    await sleep(10)
-    await matchDataController.transferCombinationStatToServiceDB()
-    const endDate = new Date()
-    console.log((endDate - startDate) / 1000, "초") // 데이터분석까지 걸린 시간 체크
-}
-
 const scheduler = new ToadScheduler()
 
 const task = new AsyncTask(
@@ -84,9 +58,37 @@ const task = new AsyncTask(
     }
 )
 
+const combinationTask = new AsyncTask(
+    "task",
+    async () => {
+        //데이터베이스 연결
+        await db.connect()
+        await db.connectService()
+
+        //데이터 분석 로직 수행
+        return await startCombinationAnalyze()
+    },
+    (err) => {
+        const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+        const time = new Date().toTimeString().split(" ")[0]
+        const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+
+        fs.writeFile(
+            process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+            data,
+            { flag: "a+" },
+            (err) => {
+                console.log(err)
+            }
+        )
+    }
+)
+
+const combinationJob = new SimpleIntervalJob({ hours: 2, runImmediately: true }, combinationTask) // runImmediately: 즉시실행
 const job = new SimpleIntervalJob({ hours: 1 }, task)
 
-scheduler.addSimpleIntervalJob(job)
+scheduler.addSimpleIntervalJob(combinationJob)
+// scheduler.addSimpleIntervalJob(job)
 
 async function startChampAnalyze() {
     try {
@@ -130,5 +132,46 @@ async function startChampAnalyze() {
             }
         )
     }
+}
+
+
+async function startCombinationAnalyze() {
+    try {
+        const start = performance.now()
+        // 로우데이터 수집
+        await sleep(10)
+        await summonerController.summonerId()
+        await sleep(10) // setTimmer를 이용해서 db가 온전히 연결된 이후에 데이터 분석 시작
+        await puuidController.puuId()
+        await sleep(10)
+        await matchIdController.matchId()
+        await sleep(10)
+
+        // 데이터 분석
+        await matchDataController.saveCombination()
+        await sleep(10)
+        await matchDataController.uploadCombinationWinRate()
+        await sleep(10)
+        await matchDataController.updateCombinationTierAndRank()
+        await sleep(10)
+        await matchDataController.transferCombinationStatToServiceDB()
+        const end = performance.now()
+        const runningTime = end - start
+        const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
+        console.log(`===${ConversionRunningTime} 분소요===`)
+    } catch (error) {
+        const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+        const time = new Date().toTimeString().split(" ")[0]
+        const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+
+        fs.writeFile(
+            process.env.LOG || `./logs/champ.analyze.error.txt`,
+            data,
+            { flag: "a+" },
+            (err) => {
+                console.log(err)
+            }
+        )
+    } // 데이터분석까지 걸린 시간 체크
 }
 module.exports = app
