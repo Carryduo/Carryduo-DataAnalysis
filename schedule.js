@@ -28,7 +28,7 @@ const task = new AsyncTask(
         } else {
             const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
             const time = new Date().toTimeString().split(" ")[0]
-            const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+            const data = "\nerror: " + "API 키 만료" + " ||" + " Date: " + date + " Time: " + time
             return fs.writeFile(
                 process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
                 data,
@@ -72,7 +72,7 @@ const matchIdTask = new AsyncTask(
         } else {
             const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
             const time = new Date().toTimeString().split(" ")[0]
-            const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+            const data = "\nerror: " + "API 키 만료" + " ||" + " Date: " + date + " Time: " + time
             return fs.writeFile(
                 process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
                 data,
