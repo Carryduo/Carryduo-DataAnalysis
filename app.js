@@ -1,10 +1,4 @@
 require("dotenv").config()
-const express = require("express")
-const app = express()
-const Router = require("./routes")
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use("/", Router)
 
 const { ToadScheduler, SimpleIntervalJob } = require("toad-scheduler")
 
@@ -20,4 +14,3 @@ const scheduler = new ToadScheduler()
 const matchIdJob = new SimpleIntervalJob({ hours: 12, runImmediately: true }, matchIdTask) // runImmediately: 즉시실행 
 scheduler.addSimpleIntervalJob(matchIdJob)
 
-module.exports = app
