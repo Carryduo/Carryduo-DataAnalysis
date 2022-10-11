@@ -33,8 +33,8 @@ const task = new AsyncTask(
                 process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
                 data,
                 { flag: "a+" },
-                (err) => {
-                    console.log(err)
+                (error) => {
+                    console.log(error)
                 }
             )
         }
@@ -48,7 +48,7 @@ const task = new AsyncTask(
             process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
             data,
             { flag: "a+" },
-            (err) => {
+            (error) => {
                 console.log(err)
             }
         )
@@ -92,7 +92,7 @@ const matchIdTask = new AsyncTask(
             process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
             data,
             { flag: "a+" },
-            (err) => {
+            (error) => {
                 console.log(err)
             }
         )
@@ -127,10 +127,6 @@ async function startAnalyze() {
         await sleep(10)
         await matchDataController.transferCombinationStatToServiceDB()
 
-        //데이터베이스 연결 해제
-        await db.close()
-        await db.closeService()
-
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
@@ -146,10 +142,14 @@ async function startAnalyze() {
             process.env.LOG || `./logs/champ.analyze.error.txt`,
             data,
             { flag: "a+" },
-            (err) => {
+            (error) => {
                 console.log(err)
             }
         )
+    } finally {
+        //데이터베이스 연결 해제
+        await db.close()
+        await db.closeService()
     }
 }
 
@@ -165,15 +165,11 @@ async function startGetMatchIds() {
         await matchIdController.matchId()
         await sleep(10)
 
-        //데이터베이스 연결 해제
-        await db.close()
-        await db.closeService()
-
         const end = performance.now()
         const runningTime = end - start
         const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
         console.log(`===${ConversionRunningTime} 분소요===`)
-    } catch (error) {
+    } catch (err) {
         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
         const time = new Date().toTimeString().split(" ")[0]
         const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
@@ -182,11 +178,15 @@ async function startGetMatchIds() {
             process.env.LOG || `./logs/champ.analyze.error.txt`,
             data,
             { flag: "a+" },
-            (err) => {
+            (error) => {
                 console.log(err)
             }
         )
-    } // 데이터분석까지 걸린 시간 체크
+    } finally {
+        //데이터베이스 연결 해제
+        await db.close()
+        await db.closeService()
+    }
 }
 
 module.exports = { task, matchIdTask }
