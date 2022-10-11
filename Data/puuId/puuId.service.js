@@ -24,7 +24,7 @@ exports.findSummonerId = async () => {
         .andWhere('summonerid.analyzed = :analyzed', {
             analyzed: 0,
         })
-        .limit(500)
+        .limit(2000)
         .getMany()
 }
 
