@@ -1,8 +1,8 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "COMBINATION_STAT", // Will use table name `category` as default behaviour.
-    tableName: "COMBINATION_STAT", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "SIMULATION", // Will use table name `category` as default behaviour.
+    tableName: "SIMULATION", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: "varchar",
@@ -28,15 +28,7 @@ module.exports = new EntitySchema({
             require: false,
             default: null,
         },
-        tier: {
-            type: "int",
-            require: true,
-        },
         category: {
-            type: "int",
-            require: true,
-        },
-        rank_in_category: {
             type: "int",
             require: true,
         },
@@ -50,13 +42,21 @@ module.exports = new EntitySchema({
             type: "int",
             require: true,
         },
-        mainChampId: {
-            type: "varchar",
-            require: true,
+        champ1Id: {
+            type: 'int',
+            require: true
         },
-        subChampId: {
-            type: "varchar",
-            require: true,
+        champ2Id: {
+            type: 'int',
+            require: true
+        },
+        champ3Id: {
+            type: 'int',
+            require: true
+        },
+        champ4Id: {
+            type: 'int',
+            require: true
         },
     },
 })

@@ -13,5 +13,3 @@ const scheduler = new ToadScheduler()
 // 매치Id 수집 
 const matchIdJob = new SimpleIntervalJob({ hours: 12, runImmediately: true }, matchIdTask) // runImmediately: 즉시실행 
 scheduler.addSimpleIntervalJob(matchIdJob)
-
-module.exports = scheduler
