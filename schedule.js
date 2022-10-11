@@ -82,7 +82,6 @@ const matchIdTask = new AsyncTask(
                 }
             )
         }
-
     },
     (err) => {
         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
@@ -118,7 +117,7 @@ async function startAnalyze() {
         await serviceSaveChampSpell()
         await sleep(10)
 
-        console.log('======챔피언조합승률 분석 시작========')
+        console.log("======챔피언조합승률 분석 시작========")
 
         await matchDataController.saveCombination()
         await sleep(10)
@@ -153,7 +152,6 @@ async function startAnalyze() {
         )
     }
 }
-
 
 async function startGetMatchIds() {
     try {
