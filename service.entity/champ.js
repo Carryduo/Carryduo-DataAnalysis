@@ -62,6 +62,14 @@ module.exports = new EntitySchema({
             eager: true,
             inverseSide: "CHAMP",
         },
+        champId: {
+            target: "SIMULATION",
+            type: "one-to-many",
+            joinColumn: ["champ1Id", "champ2Id", "champ3Id", "champ4Id"],
+            cascade: true,
+            eager: true,
+            inverseSide: "CHAMP",
+        },
     },
     relations: {
         champId: {
@@ -73,4 +81,5 @@ module.exports = new EntitySchema({
             inverseSide: "CHAMP",
         },
     },
+
 })
