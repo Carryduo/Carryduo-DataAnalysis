@@ -26,7 +26,17 @@ const task = new AsyncTask(
         if (response) {
             return await startAnalyze()
         } else {
-            return console.log('RIOT API 만료')
+            const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+            const time = new Date().toTimeString().split(" ")[0]
+            const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+            return fs.writeFile(
+                process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+                data,
+                { flag: "a+" },
+                (err) => {
+                    console.log(err)
+                }
+            )
         }
     },
     (err) => {
@@ -60,7 +70,17 @@ const matchIdTask = new AsyncTask(
         if (response) {
             return await startGetMatchIds()
         } else {
-            return console.log('RIOT API 만료')
+            const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+            const time = new Date().toTimeString().split(" ")[0]
+            const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time
+            return fs.writeFile(
+                process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+                data,
+                { flag: "a+" },
+                (err) => {
+                    console.log(err)
+                }
+            )
         }
 
     },
