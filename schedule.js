@@ -1,15 +1,15 @@
 const { sleep } = require("./timer")
 const { performance } = require("perf_hooks")
-const summonerController = require("./data/summonerId/summonerId.controller")
-const puuidController = require("./data/puuId/puuId.controller")
-const matchDataController = require("./data/match_data/match.data.controller")
-const matchIdController = require("./data/matchId/matchId.controller")
+const summonerController = require("./analyze/summonerId/summonerId.controller")
+const puuidController = require("./analyze/puuId/puuId.controller")
+const matchDataController = require("./analyze/match_data/match.data.controller")
+const matchIdController = require("./analyze/matchId/matchId.controller")
 const {
     startChampInfo,
     serviceSaveRate,
     serviceSavePosition,
     serviceSaveChampSpell,
-} = require("./data/rate/rate.controller")
+} = require("./analyze/rate/rate.controller")
 const { AsyncTask } = require("toad-scheduler")
 const fs = require("fs")
 const db = require("./orm")
