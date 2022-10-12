@@ -113,49 +113,49 @@ async function startAnalyze() {
   }
 }
 
-// const matchIdTask = new AsyncTask(
-//     "task",
-//     async () => {
-//       //데이터베이스 연결
-//       await db.connect();
-//       await db.connectService();
+const matchIdTask = new AsyncTask(
+  "task",
+  async () => {
+    //데이터베이스 연결
+    await db.connect();
+    await db.connectService();
 
-//       //데이터 분석 로직 수행
-//       // TODO: api키가 정상이면 실행, 아니면 실행 취소
-//       // return console.log('API 키 만료')
-//       const response = await summonerController.testRiotRequest();
-//       console.log(response);
-//       if (response) {
-//         return await startGetMatchIds();
-//       } else {
-//         const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
-//         const time = new Date().toTimeString().split(" ")[0];
-//         const data = "\nerror: " + "API 키 만료" + " ||" + " Date: " + date + " Time: " + time;
-//         return fs.writeFile(
-//           process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
-//           data,
-//           { flag: "a+" },
-//           (err) => {
-//             console.log(err);
-//           }
-//         );
-//       }
-//     },
-//     (err) => {
-//       const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
-//       const time = new Date().toTimeString().split(" ")[0];
-//       const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time;
+    //데이터 분석 로직 수행
+    // TODO: api키가 정상이면 실행, 아니면 실행 취소
+    // return console.log('API 키 만료')
+    const response = await summonerController.testRiotRequest();
+    console.log(response);
+    if (response) {
+      return await startGetMatchIds();
+    } else {
+      const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
+      const time = new Date().toTimeString().split(" ")[0];
+      const data = "\nerror: " + "API 키 만료" + " ||" + " Date: " + date + " Time: " + time;
+      return fs.writeFile(
+        process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+        data,
+        { flag: "a+" },
+        (err) => {
+          console.log(err);
+        }
+      );
+    }
+  },
+  (err) => {
+    const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
+    const time = new Date().toTimeString().split(" ")[0];
+    const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time;
 
-//       fs.writeFile(
-//         process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
-//         data,
-//         { flag: "a+" },
-//         (error) => {
-//           console.log(err);
-//         }
-//       );
-//     }
-//   );
+    fs.writeFile(
+      process.env.SCHEDUL_LOG || `./logs/schedule.error.txt`,
+      data,
+      { flag: "a+" },
+      (error) => {
+        console.log(err);
+      }
+    );
+  }
+);
 
 // async function startGetMatchIds() {
 //   try {
