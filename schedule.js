@@ -105,8 +105,6 @@ const matchIdTask = new AsyncTask(
   "task",
   async () => {
     //데이터베이스 연결
-    await db.connect();
-    await db.connectService();
 
     //데이터 분석 로직 수행
     // TODO: api키가 정상이면 실행, 아니면 실행 취소
@@ -145,40 +143,36 @@ const matchIdTask = new AsyncTask(
   }
 );
 
-// async function startGetMatchIds() {
-//   try {
-//     const start = performance.now();
-//     // 로우데이터 수집
-//     await sleep(10);
-//     await summonerController.summonerId();
-//     await sleep(10); // setTimmer를 이용해서 db가 온전히 연결된 이후에 데이터 분석 시작
-//     await puuidController.puuId();
-//     await sleep(10);
-//     await matchIdController.matchId();
-//     await sleep(10);
+async function startGetMatchIds() {
+  try {
+    const start = performance.now();
+    // 로우데이터 수집
+    await sleep(10);
+    await summonerController.summonerId();
+    await sleep(10); // setTimmer를 이용해서 db가 온전히 연결된 이후에 데이터 분석 시작
+    await puuidController.puuId();
+    await sleep(10);
+    await matchIdController.matchId();
+    await sleep(10);
 
-//     const end = performance.now();
-//     const runningTime = end - start;
-//     const ConversionRunningTime = (runningTime / (1000 * 60)) % 60;
-//     console.log(`===${ConversionRunningTime} 분소요===`);
-//   } catch (err) {
-//     const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
-//     const time = new Date().toTimeString().split(" ")[0];
-//     const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time;
+    const end = performance.now();
+    const runningTime = end - start;
+    const ConversionRunningTime = (runningTime / (1000 * 60)) % 60;
+    console.log(`===${ConversionRunningTime} 분소요===`);
+  } catch (err) {
+    const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
+    const time = new Date().toTimeString().split(" ")[0];
+    const data = "\nerror: " + err.toString() + " ||" + " Date: " + date + " Time: " + time;
 
-//     fs.writeFile(
-//       process.env.LOG || `./logs/champ.analyze.error.txt`,
-//       data,
-//       { flag: "a+" },
-//       (error) => {
-//         console.log(err);
-//       }
-//     );
-//   } finally {
-//     //데이터베이스 연결 해제
-//     await db.close();
-//     await db.closeService();
-//   }
-// }
+    fs.writeFile(
+      process.env.LOG || `./logs/champ.analyze.error.txt`,
+      data,
+      { flag: "a+" },
+      (error) => {
+        console.log(err);
+      }
+    );
+  }
+}
 
 module.exports = { task, matchIdTask };
