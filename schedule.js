@@ -51,17 +51,9 @@ const task = new AsyncTask(
   }
 );
 
-async function test() {
-  console.log("connect test");
-}
-
 async function startAnalyze() {
   try {
     const start = performance.now();
-
-    //데이터베이스 연결
-    await db.connect();
-    await db.connectService();
 
     //데이터 분석 및 분석용 데이터베이스에 저장
     await startChampInfo();
@@ -106,10 +98,6 @@ async function startAnalyze() {
         console.log(err);
       }
     );
-  } finally {
-    //데이터베이스 연결 해제
-    await db.close();
-    await db.closeService();
   }
 }
 
