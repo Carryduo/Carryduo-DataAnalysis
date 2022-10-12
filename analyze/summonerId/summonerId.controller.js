@@ -54,7 +54,7 @@ async function getSummonerId(summonerIds, num, summonerIds) {
     const tierDivisionList = ["I", "II", "III", "IV"]
     for (let tier of tierList) {
         for (let division of tierDivisionList) {
-            console.log(`${tier} ${division}, ${num} + 번째 페이지 요청 `)
+            console.log(`${tier} ${division}, ${num}` + "번째 페이지 요청")
             const targetTierUsersApiUrl = `https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}?page=${num}&api_key=${process.env.KEY}`
 
             const response = await axios.get(targetTierUsersApiUrl).catch(async (err) => {
