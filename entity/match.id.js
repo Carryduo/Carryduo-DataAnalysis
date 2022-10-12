@@ -67,5 +67,10 @@ module.exports = new EntitySchema({
             require: true,
             default: 0,
         },
+        simulationAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
     },
 })

@@ -11,9 +11,9 @@ const scheduler = new ToadScheduler();
 db.connect();
 db.connectService();
 // 데이터 분석
-const job = new SimpleIntervalJob({ hours: 1, runImmediately: true }, task);
-scheduler.addSimpleIntervalJob(job);
+// const job = new SimpleIntervalJob({ hours: 1, runImmediately: true }, task);
+// scheduler.addSimpleIntervalJob(job);
 
 // 매치Id 수집
-// const matchIdJob = new SimpleIntervalJob({ hours: 12, runImmediately: true }, matchIdTask) // runImmediately: 즉시실행
-// scheduler.addSimpleIntervalJob(matchIdJob)
+const matchIdJob = new SimpleIntervalJob({ hours: 12, runImmediately: true }, matchIdTask) // runImmediately: 즉시실행
+scheduler.addSimpleIntervalJob(matchIdJob)
