@@ -1,4 +1,3 @@
-const fs = require("fs")
 const { sleep } = require("../../timer")
 const axios = require("axios")
 const {
@@ -23,7 +22,7 @@ const {
     ServicefindSpellInfoData,
     ServiceUpdateChampSpellInfo,
 } = require("./rate.service")
-
+const { matchIdLogging } = require("../../log")
 let key = 0
 let status
 
@@ -61,6 +60,7 @@ async function requestRiotAPI(matchId) {
 exports.startChampInfo = async () => {
     try {
         const data = await matchIdList()
+
         while (key !== data.length) {
             if (status !== undefined) {
                 status = undefined
@@ -73,7 +73,7 @@ exports.startChampInfo = async () => {
             key++
         }
         key = 0
-        return "champ info 분석 성공"
+        return matchIdLogging(data.length)
     } catch (error) {
         console.log(error)
         return { error, message: "champ info 분석 실패" }
