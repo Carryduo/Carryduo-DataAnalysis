@@ -12,14 +12,15 @@ exports.summonerId = async () => {
     }
 }
 
-let summonerIds = []
+
 let page = 1
 let errStatus = 0
 
 async function startGetSummonerId() {
+    let summonerIds = []
     while (page !== 6) {
         console.log("while문 진입", "status: " + page)
-        await getSummonerId(summonerIds, page)
+        await getSummonerId(summonerIds, page, summonerIds)
     }
     return "success"
 }
@@ -46,7 +47,7 @@ exports.testRiotRequest = async () => {
     return response
 }
 
-async function getSummonerId(summonerIds, num) {
+async function getSummonerId(summonerIds, num, summonerIds) {
     console.log("getSummonerId 실행")
 
     const tierList = ["DIAMOND", "PLATINUM"]
