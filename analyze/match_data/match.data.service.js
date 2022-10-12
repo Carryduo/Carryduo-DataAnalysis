@@ -12,7 +12,7 @@ const Combination = dataSource.getRepository("combination")
 const combination = require("../../entity/combination.data")
 const combinationServiceData = require("../../entity/combination.service.data")
 const Combination_Service = dataSource.getRepository("combination_service")
-
+const Simulation = dataSource.getRepository('simulation')
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
 
