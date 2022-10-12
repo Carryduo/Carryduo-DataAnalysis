@@ -12,7 +12,6 @@ const Combination = dataSource.getRepository("combination")
 const combination = require("../../entity/combination.data")
 const combinationServiceData = require("../../entity/combination.service.data")
 const Combination_Service = dataSource.getRepository("combination_service")
-const Simulation = dataSource.getRepository('simulation')
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
 
@@ -64,6 +63,7 @@ exports.updateWrongMatchDataAnalyzed = async (matchId) => {
     console.log('무의미한 MatchData 처리 완료')
     return
 }
+
 
 exports.saveMatchData = async (matchData, tier, division, matchId) => {
     console.log(tier, division, matchId)
