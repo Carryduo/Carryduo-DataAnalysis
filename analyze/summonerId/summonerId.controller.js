@@ -12,14 +12,15 @@ exports.summonerId = async () => {
     }
 }
 
-let summonerIds = []
+
 let page = 1
 let errStatus = 0
 
 async function startGetSummonerId() {
+    let summonerIds = []
     while (page !== 6) {
         console.log("while문 진입", "status: " + page)
-        await getSummonerId(summonerIds, page)
+        await getSummonerId(summonerIds, page, summonerIds)
     }
     return "success"
 }
@@ -46,14 +47,14 @@ exports.testRiotRequest = async () => {
     return response
 }
 
-async function getSummonerId(summonerIds, num) {
+async function getSummonerId(summonerIds, num, summonerIds) {
     console.log("getSummonerId 실행")
 
     const tierList = ["DIAMOND", "PLATINUM"]
     const tierDivisionList = ["I", "II", "III", "IV"]
     for (let tier of tierList) {
         for (let division of tierDivisionList) {
-            console.log(`${tier} ${division}, ${num} + 번째 페이지 요청 `)
+            console.log(`${tier} ${division}, ${num}` + "번째 페이지 요청")
             const targetTierUsersApiUrl = `https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}?page=${num}&api_key=${process.env.KEY}`
 
             const response = await axios.get(targetTierUsersApiUrl).catch(async (err) => {

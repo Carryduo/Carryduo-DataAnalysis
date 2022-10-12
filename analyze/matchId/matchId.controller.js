@@ -27,23 +27,23 @@ exports.transferMatchDataAnalyzed = async () => {
 }
 
 let key = 0
-let matchId = []
 let status
+
 async function startGetMatchId() {
     const puuIds = await findPuuId()
     console.log(puuIds.length)
-
+    let matchId = []
     while (key !== puuIds.length + 1) {
         console.log(key + `번째`)
+
         if (status !== 403) {
-            await getMatchId(puuIds, key)
+            await getMatchId(puuIds, key, matchId)
         }
     }
-    await disconnect()
     return 'success'
 }
 
-async function getMatchId(puuIds, num) {
+async function getMatchId(puuIds, num, matchId) {
     try {
 
         console.log("getMatchId 실행")
