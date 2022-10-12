@@ -17,11 +17,7 @@ const db = require("./orm")
 const task = new AsyncTask(
     "task",
     async () => {
-        //데이터베이스 연결
-        await db.connect()
-        await db.connectService()
         const response = await summonerController.testRiotRequest()
-        console.log(response)
         //데이터 분석 로직 수행
         if (response) {
             return await startAnalyze()
@@ -102,6 +98,10 @@ const matchIdTask = new AsyncTask(
 async function startAnalyze() {
     try {
         const start = performance.now()
+
+        //데이터베이스 연결
+        await db.connect()
+        await db.connectService()
 
         //데이터 분석 및 분석용 데이터베이스에 저장
         await startChampInfo()
