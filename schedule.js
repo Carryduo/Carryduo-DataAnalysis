@@ -4,6 +4,8 @@ const summonerController = require("./analyze/summonerId/summonerId.controller")
 const puuidController = require("./analyze/puuId/puuId.controller");
 const matchDataController = require("./analyze/match_data/match.data.controller");
 const matchIdController = require("./analyze/matchId/matchId.controller");
+const simulationController = require('./analyze/match_data/simulation.controller')
+
 const {
   startChampInfo,
   serviceSaveRate,
@@ -12,7 +14,7 @@ const {
 } = require("./analyze/rate/rate.controller");
 const { AsyncTask } = require("toad-scheduler");
 const fs = require("fs");
-const db = require("./orm");
+
 
 const task = new AsyncTask(
   "task",
@@ -78,6 +80,8 @@ async function startAnalyze() {
     await matchDataController.updateCombinationTierAndRank();
     await sleep(10);
     await matchDataController.transferCombinationStatToServiceDB();
+
+
 
     //함수 실행 시간 체크
     const end = performance.now();
@@ -148,6 +152,7 @@ async function startGetMatchIds() {
     const start = performance.now();
     // 로우데이터 수집
     await sleep(10);
+
     await summonerController.summonerId();
     await sleep(10); // setTimmer를 이용해서 db가 온전히 연결된 이후에 데이터 분석 시작
     await puuidController.puuId();
