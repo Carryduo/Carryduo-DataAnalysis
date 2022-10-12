@@ -1,15 +1,10 @@
 require("dotenv").config()
 const axios = require("axios")
 const { sleep } = require("../../timer")
-const {
-    getMatchId,
-    updateWrongMatchDataAnalyzed,
-} = require("./match.data.service")
-
-const { updateWrongMatchDataSimulationAnalyzed } = require('./simulation.service')
+const { getMatchId, updateWrongMatchDataSimulationAnalyzed, checkSimulationData, saveSimulationData, updateSimulationData, findRawSimulationData, updateSimulationWinRate } = require('./simulation.service')
 let key = 0
 let status
-exports.saveSimulation = async (req, res, next) => {
+exports.saveSimulation = async () => {
     try {
         const matchIdList = await getMatchId()
         console.log(matchIdList.length)
@@ -18,7 +13,7 @@ exports.saveSimulation = async (req, res, next) => {
                 status = undefined
                 continue
             }
-            await getMatchDataAndSaveCombination(matchIdList)
+            await getMatchDataAndSaveSimulation(matchIdList)
         }
         return "matchData 저장 성공"
     } catch (error) {
@@ -27,7 +22,7 @@ exports.saveSimulation = async (req, res, next) => {
     }
 }
 
-async function getMatchDataAndSaveCombination(matchIdList) {
+async function getMatchDataAndSaveSimulation(matchIdList) {
     try {
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
@@ -176,49 +171,28 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             team2utility,
         })
         // 탑 정글 넣기
-        // TODO: matchData 기준인거 matchId 버전으로 수정
-        // const existWinTopJungle = await checkCombinationData(wintop, winjungle)
-        // const existWinMidJungle = await checkCombinationData(winmiddle, winjungle)
-        // const existWinBottomDuo = await checkCombinationData(winbottom, winutility)
+        const existTopJungleSimulation = await checkSimulationData(team1top, team1jungle, team2top, team2jungle)
+        const existMidJungleSimulation = await checkSimulationData(team1middle, team1jungle, team2middle, team2jungle)
+        const existBottomDuoSimulation = await checkSimulationData(team1bottom, team1utility, team2bottom, team2utility)
 
-        // const existLoseTopJungle = await checkCombinationData(losetop, losejungle)
-        // const existLoseMidJungle = await checkCombinationData(losemiddle, losejungle)
-        // const existLoseBottomDuo = await checkCombinationData(losebottom, loseutility)
-        // console.log(matchId)
-        // if (existWinTopJungle.length === 0) {
-        //     await saveCombinationData(matchId, wintop, winjungle, "win", 0)
-        // } else {
-        //     await updateCombinationData(matchId, wintop, winjungle, "win")
-        // }
-        // if (existWinMidJungle.length === 0) {
-        //     await saveCombinationData(matchId, winmiddle, winjungle, "win", 1)
-        // } else {
-        //     await updateCombinationData(matchId, winmiddle, winjungle, "win")
-        // }
-        // if (existWinBottomDuo.length === 0) {
-        //     await saveCombinationData(matchId, winbottom, winutility, "win", 2)
-        // } else {
-        //     await updateCombinationData(matchId, winbottom, winutility, "win")
-        // }
+        console.log(existBottomDuoSimulation.length, existTopJungleSimulation.length, existMidJungleSimulation.length)
+        if (existTopJungleSimulation.length === 0) {
+            await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0)
+        } else {
+            await updateSimulationData(matchId, team1top, team1jungle, team2top, team2jungle)
+        }
+        if (existMidJungleSimulation.length === 0) {
+            await saveSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle, 1)
+        } else {
+            await updateSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle)
+        }
+        if (existBottomDuoSimulation.length === 0) {
+            await saveSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility, 2)
+        } else {
+            await updateSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility)
+        }
 
-        // if (existLoseTopJungle.length === 0) {
-        //     await saveCombinationData(matchId, losetop, losejungle, "lose", 0)
-        // } else {
-        //     await updateCombinationData(matchId, losetop, losejungle, "lose")
-        // }
-        // if (existLoseMidJungle.length === 0) {
-        //     await saveCombinationData(matchId, losemiddle, losejungle, "lose", 1)
-        // } else {
-        //     await updateCombinationData(matchId, losemiddle, losejungle, "lose")
-        // }
-        // if (existLoseBottomDuo.length === 0) {
-        //     await saveCombinationData(matchId, losebottom, loseutility, "lose", 2)
-        // } else {
-        //     await updateCombinationData(matchId, losebottom, loseutility, "lose")
-        // }
     } catch (err) {
-        // const result = await saveMatchData(response.data, tier, division, matchId)
-        // console.log(result)
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
             console.log(key + " 번째 부터 오류!")
@@ -241,3 +215,30 @@ async function getMatchDataAndSaveCombination(matchIdList) {
     console.log(`${key}번째 데이터 분석 끝`)
     return key++
 }
+
+exports.uploadSimulationWinRate = async () => {
+    let data = await findRawSimulationData()
+    console.log(data.length)
+    data = data.map((value) => {
+        value = {
+            winrate: value.win / value.sampleNum,
+            champ1Id: value.champ1Id,
+            champ2Id: value.champ2Id,
+            champ3Id: value.champ3Id,
+            champ4Id: value.champ4Id,
+            champ1Name: value.champ1Name,
+            champ2Name: value.champ2Name,
+            champ3Name: value.champ3Name,
+            champ4Name: value.champ4Name,
+            category: value.category,
+            sample_num: value.sampleNum,
+        }
+        return value
+    })
+    for (let i = 0; i < data.length; i++) {
+        const result = await updateSimulationWinRate(data[i])
+        console.log(`${i}번째`, result)
+    }
+    return "success"
+}
+
