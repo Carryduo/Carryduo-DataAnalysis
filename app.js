@@ -6,9 +6,8 @@ const { task, matchIdTask } = require("./schedule");
 
 const scheduler = new ToadScheduler();
 
-// // 데이터 분석
-
-const job = new SimpleIntervalJob({ seconds: 30, runImmediately: true }, task);
+// 데이터 분석
+const job = new SimpleIntervalJob({ hours: 1, runImmediately: true }, task);
 scheduler.addSimpleIntervalJob(job);
 
 // 매치Id 수집
