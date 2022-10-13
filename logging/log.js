@@ -23,7 +23,7 @@ exports.taskSuccessLogging = async (step) => {
         data,
         { flag: "a+" },
         (error) => {
-            console.log(err)
+            console.log(error)
         }
     )
 }
