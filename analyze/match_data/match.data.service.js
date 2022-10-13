@@ -12,6 +12,7 @@ const combination = require("../../entity/combination.data")
 
 const Combination_Service = dataSource.getRepository("combination_service")
 const combinationServiceData = require("../../entity/combination.service.data")
+const { taskErrLogging } = require("../../logging/log")
 
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
@@ -37,13 +38,17 @@ exports.getMatchId = async () => {
 }
 
 exports.updateWrongMatchDataAnalyzed = async (matchId) => {
-    await MatchId.createQueryBuilder()
-        .update()
-        .set({ analyzed: 2 })
-        .where("matchid.matchId = :matchId", { matchId })
-        .execute()
-    console.log("무의미한 MatchData 처리 완료")
-    return
+    try {
+        await MatchId.createQueryBuilder()
+            .update()
+            .set({ analyzed: 2 })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
+        console.log("무의미한 MatchData 처리 완료")
+        return
+    } catch (error) {
+        await taskErrLogging(error, '오류 matchId 예외처리 실패')
+    }
 }
 
 exports.getData = async (type) => {
@@ -126,6 +131,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
     } catch (error) {
         dbupdate = { message: `${matchId} 분석 실패` }
         console.log(error)
+        await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(update)`)
         await queryRunner.rollbackTransaction()
     } finally {
         return dbupdate
@@ -195,6 +201,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
         await queryRunner.commitTransaction()
     } catch (error) {
         console.log(error)
+        await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(save)`)
         dbupdate = { message: `${matchId} 분석 실패` }
         await queryRunner.rollbackTransaction()
     } finally {
@@ -203,12 +210,16 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
 }
 
 exports.findRawCombinationData = async () => {
-    let data = await queryRunner.manager
-        .getRepository(combination)
-        .createQueryBuilder()
-        .select()
-        .getMany()
-    return data
+    try {
+        let data = await queryRunner.manager
+            .getRepository(combination)
+            .createQueryBuilder()
+            .select()
+            .getMany()
+        return data
+    } catch (error) {
+        await taskErrLogging(error, '챔피언 조합 승률 로우데이터 조회 실패(승률 변환)')
+    }
 }
 
 exports.updateWinRate = async (value) => {
@@ -245,98 +256,115 @@ exports.updateWinRate = async (value) => {
         return { type, success: true }
     } catch (error) {
         console.log(error)
-        return { type, success: fals }
+        await taskErrLogging(error, `챔피언 조합 승률 로우 데이터 승률 변환 실패`)
+        return { type, success: false }
     }
 }
 
 exports.findCombinationCleansedData = async () => {
-    const category0 = await queryRunner.manager
-        .getRepository(combinationServiceData)
-        .createQueryBuilder()
-        .where("combination_service.category = :category", { category: 0 })
-        .select()
-        .getMany()
-    const category1 = await queryRunner.manager
-        .getRepository(combinationServiceData)
-        .createQueryBuilder()
-        .where("combination_service.category = :category", { category: 1 })
-        .select()
-        .getMany()
-    const category2 = await queryRunner.manager
-        .getRepository(combinationServiceData)
-        .createQueryBuilder()
-        .where("combination_service.category = :category", { category: 2 })
-        .select()
-        .getMany()
-    return { category0, category1, category2 }
+    try {
+        const category0 = await queryRunner.manager
+            .getRepository(combinationServiceData)
+            .createQueryBuilder()
+            .where("combination_service.category = :category", { category: 0 })
+            .select()
+            .getMany()
+        const category1 = await queryRunner.manager
+            .getRepository(combinationServiceData)
+            .createQueryBuilder()
+            .where("combination_service.category = :category", { category: 1 })
+            .select()
+            .getMany()
+        const category2 = await queryRunner.manager
+            .getRepository(combinationServiceData)
+            .createQueryBuilder()
+            .where("combination_service.category = :category", { category: 2 })
+            .select()
+            .getMany()
+        return { category0, category1, category2 }
+    } catch (error) {
+        await taskErrLogging(error, '챔피언조합승률 카테고리별 승률 데이터 조회 실패')
+    }
 }
 
 exports.updateCombinationTier = async (value) => {
-    await Combination_Service.createQueryBuilder()
-        .update()
-        .set(value)
-        .where("combination_service.mainChampId = :mainChampId", { mainChampId: value.mainChampId })
-        .andWhere("combination_service.subChampId = :subChampId", { subChampId: value.subChampId })
-        .execute()
+    try {
+        await Combination_Service.createQueryBuilder()
+            .update()
+            .set(value)
+            .where("combination_service.mainChampId = :mainChampId", { mainChampId: value.mainChampId })
+            .andWhere("combination_service.subChampId = :subChampId", { subChampId: value.subChampId })
+            .execute()
+    } catch (error) {
+        await taskErrLogging(error, '챔피언조합승률 티어 업데이트 실패')
+    }
 }
 
 exports.getCombinationData = async () => {
-    return Combination_Service.createQueryBuilder()
-        .select([
-            "combination_service.tier",
-            "combination_service.category",
-            "combination_service.rank_in_category",
-            "combination_service.winrate",
-            "combination_service.sample_num",
-            "combination_service.mainChampId",
-            "combination_service.subChampId",
-        ])
-        .getMany()
+    try {
+        return Combination_Service.createQueryBuilder()
+            .select([
+                "combination_service.tier",
+                "combination_service.category",
+                "combination_service.rank_in_category",
+                "combination_service.winrate",
+                "combination_service.sample_num",
+                "combination_service.mainChampId",
+                "combination_service.subChampId",
+            ])
+            .getMany()
+    } catch (error) {
+        await taskErrLogging(error, '챔피언 조합승률 데이터 조회 실패(서비스 DB로 이관)')
+    }
 }
 
 exports.transferToService = async (data) => {
-    let result = { type: "none", success: "none" }
-    const existData = await combination_stat
-        .createQueryBuilder()
-        .select()
-        .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
-        .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
-        .getMany()
-    console.log(existData, existData.length)
-    if (existData.length === 0) {
-        result.type = "save"
-        result.success = await combination_stat
+    try {
+        let result = { type: "none", success: "none" }
+        const existData = await combination_stat
             .createQueryBuilder()
-            .insert()
-            .values(data)
-            .execute()
-
-            .then(() => {
-                return { success: true }
-            })
-            .catch((error) => {
-                console.log(error)
-                return { success: false }
-            })
-    } else {
-        result.type = "update"
-        result.success = await combination_stat
-            .createQueryBuilder()
-            .update()
-            .set(data)
+            .select()
             .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
             .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
+            .getMany()
+        console.log(existData, existData.length)
+        if (existData.length === 0) {
+            result.type = "save"
+            result.success = await combination_stat
+                .createQueryBuilder()
+                .insert()
+                .values(data)
+                .execute()
 
-            .execute()
-            .then(() => {
-                return { success: true }
-            })
-            .catch((error) => {
-                console.log(error)
-                return { success: false }
-            })
+                .then(() => {
+                    return { success: true }
+                })
+                .catch((error) => {
+                    console.log(error)
+                    return { success: false }
+                })
+        } else {
+            result.type = "update"
+            result.success = await combination_stat
+                .createQueryBuilder()
+                .update()
+                .set(data)
+                .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
+                .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
+
+                .execute()
+                .then(() => {
+                    return { success: true }
+                })
+                .catch((error) => {
+                    console.log(error)
+                    return { success: false }
+                })
+        }
+        return result
+    } catch (error) {
+        await taskErrLogging(error, '챔피언 조합승률 서비스 DB 이관')
     }
-    return result
 }
 
 exports.disconnect = async () => {

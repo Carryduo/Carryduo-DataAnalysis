@@ -1,6 +1,6 @@
 const { sleep } = require("../../timer/timer")
 const axios = require("axios")
-const { matchIdLogging, champInfoErrLogging } = require("../../logging/log")
+const { matchIdLogging, champInfoErrLogging, taskSuccessLogging } = require("../../logging/log")
 
 const {
     matchIdList,
@@ -62,7 +62,7 @@ async function requestRiotAPI(matchId) {
 exports.startChampInfo = async () => {
     try {
         const data = await matchIdList()
-        await matchIdLogging(data.length)
+        await matchIdLogging(data.length, '챔피언 스펠, 포지션, 승률 분석')
 
         while (key !== data.length) {
             if (status !== undefined) {
@@ -76,6 +76,7 @@ exports.startChampInfo = async () => {
             key++
         }
         key = 0
+        await taskSuccessLogging('챔피언 스펠, 포지션, 승률 분석')
         return { message: "startChampInfo 분석 완료" }
     } catch (err) {
         console.log(err)
