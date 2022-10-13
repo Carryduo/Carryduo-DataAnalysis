@@ -44,6 +44,7 @@ async function startAnalyze() {
 
         console.log("======챔피언조합승률 분석 시작========")
 
+        await sleep(5)
         await matchDataController.saveCombination()
         await matchDataController.uploadCombinationWinRate()
         await matchDataController.updateCombinationTierAndRank()
@@ -58,6 +59,7 @@ async function startAnalyze() {
         const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
         console.log(`===${ConversionRunningTime} 분소요===`)
     } catch (err) {
+        console.log(err)
         analyzeErrLogging(err)
     }
 }
