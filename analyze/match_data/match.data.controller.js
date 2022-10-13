@@ -1,22 +1,12 @@
 require("dotenv").config()
 const axios = require("axios")
-const { sleep } = require("../../timer")
+const { sleep } = require("../../timer/timer")
 const {
     getMatchId,
-    saveMatchData,
-    saveChampInfo,
-    addWinCnt,
-    addGameCnt,
-    getChampInfo,
-    getMatchDataCnt,
-    getMatchData,
-    addbanCnt,
-    getChampBanCnt,
     saveCombinationData,
     checkCombinationData,
     updateCombinationData,
     getData,
-    disconnect,
     updateWinRate,
     findRawCombinationData,
     findCombinationCleansedData,
@@ -28,24 +18,6 @@ const {
 
 let key = 0
 let status
-
-exports.saveMatchData = async (req, res, next) => {
-    try {
-        const matchIdList = await getMatchIdList()
-        console.log(matchIdList.length)
-        while (key !== matchIdList.length) {
-            if (status !== undefined) {
-                status = undefined
-                continue
-            }
-            await saveMatchDataFunction(matchIdList)
-        }
-        return "matchData 저장 성공"
-    } catch (error) {
-        console.log(error)
-        return "matchData 저장 실패"
-    }
-}
 
 // 챔피언 조합승률 관련
 exports.getAnalysis = async (req, res, next) => {
@@ -131,41 +103,6 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
         console.log(result)
     }
     return "success"
-}
-
-// 매치 RAW DATA 관련
-async function saveMatchDataFunction(matchIdList) {
-    try {
-        const matchId = matchIdList[key].matchId
-        const tier = matchIdList[key].tier
-        const division = matchIdList[key].division
-        console.log(`${key}번째 데이터 분석 시작`, matchId)
-        const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${process.env.KEY}`
-        const response = await axios.get(matchDataApiUrl)
-        const result = await saveMatchData(response.data, tier, division, matchId)
-        console.log(result)
-    } catch (err) {
-        if (!err.response) {
-            console.log("라이엇으로부터 err.response가 없다! ")
-            console.log(key + " 번째 부터 오류!")
-            return
-        }
-        if (err.response.status === 429) {
-            console.log("라이엇 요청 제한 경고!")
-            console.log(key + " 번째 부터 오류!")
-            await sleep(125)
-            return
-        } else if (err.response.status === 403) {
-            console.log("api키 갱신 필요!")
-            return
-        } else {
-            console.log(err.response.status, err.response.statusText)
-            status = err.response.status
-            return key++
-        }
-    }
-    console.log(`${key}번째 데이터 분석 끝`)
-    return key++
 }
 
 async function getMatchIdList() {

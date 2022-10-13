@@ -1,5 +1,7 @@
-const { sleep } = require("../../timer")
+const { sleep } = require("../../timer/timer")
 const axios = require("axios")
+const { matchIdLogging, champInfoErrLogging } = require("../../logging/log")
+
 const {
     matchIdList,
     updateRate,
@@ -21,8 +23,8 @@ const {
     dropAnalyzed,
     ServicefindSpellInfoData,
     ServiceUpdateChampSpellInfo,
-} = require("./rate.service")
-const { matchIdLogging } = require("../../log")
+} = require("./champInfo.service")
+
 let key = 0
 let status
 
@@ -60,6 +62,7 @@ async function requestRiotAPI(matchId) {
 exports.startChampInfo = async () => {
     try {
         const data = await matchIdList()
+        await matchIdLogging(data.length)
 
         while (key !== data.length) {
             if (status !== undefined) {
@@ -73,10 +76,11 @@ exports.startChampInfo = async () => {
             key++
         }
         key = 0
-        return matchIdLogging(data.length)
-    } catch (error) {
-        console.log(error)
-        return { error, message: "champ info 분석 실패" }
+        return { message: "startChampInfo 분석 완료" }
+    } catch (err) {
+        console.log(err)
+        await champInfoErrLogging(err)
+        return err
     }
 }
 
@@ -104,7 +108,9 @@ exports.serviceSaveChampSpell = async () => {
 
         return "스펠 데이터 서비스DB 업데이트 완료"
     } catch (err) {
-        return { err, message: "스펠 데이터 서비스DB 업데이트 실패" }
+        console.log(err)
+
+        return err
     }
 }
 
@@ -147,7 +153,9 @@ exports.serviceSavePosition = async () => {
         }
         return "포지션 데이터 서비스DB 업데이트 완료"
     } catch (err) {
-        return { err, message: "포지션 데이터 서비스DB 업데이트 실패" }
+        console.log(err)
+
+        return err
     }
 }
 //==========================================================================================================//
@@ -172,7 +180,9 @@ exports.serviceSaveRate = async () => {
         }
         return "승/패/벤 데이터 서비스DB 업데이트 완료"
     } catch (err) {
-        return { err, message: "승/패/벤 데이터 서비스DB 업데이트 실패" }
+        console.log(err)
+
+        return err
     }
 }
 
@@ -215,7 +225,9 @@ async function champSpell(data) {
             await dropAnalyzed(matchId, dropAnalyzedOption)
         }
     } catch (err) {
-        return { err, message: "챔프 스펠 데이터분석 실패" }
+        console.log(err)
+
+        return err
     }
 }
 
@@ -278,7 +290,8 @@ async function position(data) {
             await dropAnalyzed(matchId, dropAnalyzedOption)
         }
     } catch (err) {
-        return { err, message: "챔프 포지션 데이터분석 실패" }
+        console.log(err)
+        return err
     }
 }
 
@@ -291,7 +304,6 @@ async function rate(data) {
         console.log(
             `============================================승/패/밴 카운팅 ${key}번============================================`
         )
-
         const matchId = data.metadata.matchId
 
         if (data.info.gameMode === "CLASSIC" && data.info.queueId === 420) {
@@ -345,7 +357,8 @@ async function rate(data) {
             await dropAnalyzed(matchId, dropAnalyzedOption)
         }
     } catch (err) {
-        return { err, message: "챔프 승,밴,픽 데이터분석 실패" }
+        console.log(err)
+        return err
     }
 }
 
