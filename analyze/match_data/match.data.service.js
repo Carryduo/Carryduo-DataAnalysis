@@ -81,13 +81,11 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
     console.log("update", mainChamp, subChamp)
 
     let dbupdate
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
     try {
         if (category === "win") {
-            await queryRunner.manager
+            await Combination
                 .createQueryBuilder()
-                .update(combination)
+                .update()
                 .set({
                     win: () => "win + 1",
                     sampleNum: () => "sampleNum + 1",
@@ -95,9 +93,9 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
-            await queryRunner.manager
+            await MatchId
                 .createQueryBuilder()
-                .update(matchid)
+                .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
@@ -105,9 +103,9 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await queryRunner.manager
+            await Combination
                 .createQueryBuilder()
-                .update(combination)
+                .update()
                 .set({
                     lose: () => "lose + 1",
                     sampleNum: () => "sampleNum + 1",
@@ -116,9 +114,9 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
 
-            await queryRunner.manager
+            await MatchId
                 .createQueryBuilder()
-                .update(matchid)
+                .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
@@ -127,12 +125,10 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 })
         }
 
-        await queryRunner.commitTransaction()
     } catch (error) {
         dbupdate = { message: `${matchId} 분석 실패` }
         console.log(error)
         await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(update)`)
-        await queryRunner.rollbackTransaction()
     } finally {
         return dbupdate
     }
@@ -142,14 +138,11 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
     console.log("save", mainChamp, subChamp, matchId)
 
     let dbupdate
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
     try {
         if (category === "win") {
-            await queryRunner.manager
+            await Combination
                 .createQueryBuilder()
                 .insert()
-                .into(combination)
                 .values({
                     matchId,
                     mainChampId: mainChamp.champId,
@@ -162,9 +155,9 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     category: type,
                 })
                 .execute()
-            await queryRunner.manager
+            await MatchId
                 .createQueryBuilder()
-                .update(matchid)
+                .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
@@ -172,10 +165,9 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await queryRunner.manager
+            await Combination
                 .createQueryBuilder()
                 .insert()
-                .into(combination)
                 .values({
                     matchId,
                     mainChampId: mainChamp.champId,
@@ -188,9 +180,9 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     category: type,
                 })
                 .execute()
-            await queryRunner.manager
+            await MatchId
                 .createQueryBuilder()
-                .update(matchid)
+                .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
@@ -198,12 +190,10 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-        await queryRunner.commitTransaction()
     } catch (error) {
         console.log(error)
         await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(save)`)
         dbupdate = { message: `${matchId} 분석 실패` }
-        await queryRunner.rollbackTransaction()
     } finally {
         return dbupdate
     }
@@ -211,8 +201,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
 
 exports.findRawCombinationData = async () => {
     try {
-        let data = await queryRunner.manager
-            .getRepository(combination)
+        let data = await Combination
             .createQueryBuilder()
             .select()
             .getMany()
@@ -263,20 +252,17 @@ exports.updateWinRate = async (value) => {
 
 exports.findCombinationCleansedData = async () => {
     try {
-        const category0 = await queryRunner.manager
-            .getRepository(combinationServiceData)
+        const category0 = await Combination_Service
             .createQueryBuilder()
             .where("combination_service.category = :category", { category: 0 })
             .select()
             .getMany()
-        const category1 = await queryRunner.manager
-            .getRepository(combinationServiceData)
+        const category1 = await Combination_Service
             .createQueryBuilder()
             .where("combination_service.category = :category", { category: 1 })
             .select()
             .getMany()
-        const category2 = await queryRunner.manager
-            .getRepository(combinationServiceData)
+        const category2 = await Combination_Service
             .createQueryBuilder()
             .where("combination_service.category = :category", { category: 2 })
             .select()
@@ -335,7 +321,6 @@ exports.transferToService = async (data) => {
                 .insert()
                 .values(data)
                 .execute()
-
                 .then(() => {
                     return { success: true }
                 })
@@ -370,3 +355,65 @@ exports.transferToService = async (data) => {
 exports.disconnect = async () => {
     await queryRunner.release()
 }
+
+// exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) => {
+//     // TODO: 트랜젝션, matchId 업데이트
+//     console.log("update", mainChamp, subChamp)
+
+//     let dbupdate
+//     await queryRunner.connect()
+//     await queryRunner.startTransaction()
+//     try {
+//         if (category === "win") {
+//             await queryRunner.manager
+//                 .createQueryBuilder()
+//                 .update(combination)
+//                 .set({
+//                     win: () => "win + 1",
+//                     sampleNum: () => "sampleNum + 1",
+//                 })
+//                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
+//                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+//                 .execute()
+//             await queryRunner.manager
+//                 .createQueryBuilder()
+//                 .update(matchid)
+//                 .set({ analyzed: 1 })
+//                 .where("matchid.matchId = :matchId", { matchId })
+//                 .execute()
+//                 .then(() => {
+//                     dbupdate = { message: `${matchId} 분석 성공` }
+//                 })
+//         } else {
+//             await queryRunner.manager
+//                 .createQueryBuilder()
+//                 .update(combination)
+//                 .set({
+//                     lose: () => "lose + 1",
+//                     sampleNum: () => "sampleNum + 1",
+//                 })
+//                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
+//                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+//                 .execute()
+
+//             await queryRunner.manager
+//                 .createQueryBuilder()
+//                 .update(matchid)
+//                 .set({ analyzed: 1 })
+//                 .where("matchid.matchId = :matchId", { matchId })
+//                 .execute()
+//                 .then(() => {
+//                     dbupdate = { message: `${matchId} 분석 성공` }
+//                 })
+//         }
+
+//         await queryRunner.commitTransaction()
+//     } catch (error) {
+//         dbupdate = { message: `${matchId} 분석 실패` }
+//         console.log(error)
+//         await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(update)`)
+//         await queryRunner.rollbackTransaction()
+//     } finally {
+//         return dbupdate
+//     }
+// }

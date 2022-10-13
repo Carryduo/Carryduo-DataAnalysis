@@ -36,23 +36,24 @@ async function startAnalyze() {
         const start = performance.now()
 
         // 데이터 분석 및 분석용 데이터베이스에 저장
-        await startChampInfo()
+        // await startChampInfo()
         // 데이터 분석 후 서비스DB에 업데이트
         await matchDataController.saveCombination()
         await matchDataController.uploadCombinationWinRate()
         await matchDataController.updateCombinationTierAndRank()
-        await simulationController.saveSimulation()
-        await simulationController.uploadSimulationWinRate()
+
+        // await simulationController.saveSimulation()
+        // await simulationController.uploadSimulationWinRate()
 
         await sleep(5)
 
         console.log("======서비스 DB 이관========")
 
-        await serviceSaveRate()
-        await serviceSavePosition()
-        await serviceSaveChampSpell()
+        // await serviceSaveRate()
+        // await serviceSavePosition()
+        // await serviceSaveChampSpell()
         await matchDataController.transferCombinationStatToServiceDB()
-        await simulationController.transferSimulationToServiceDB()
+        // await simulationController.transferSimulationToServiceDB()
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
