@@ -36,6 +36,7 @@ const dataSource_service = new typeorm.DataSource({
         require("./service.entity/champ"),
         require("./service.entity/combination.stat"),
         require("./service.entity/champ.spell"),
+        require('./service.entity/simulation')
     ],
 })
 

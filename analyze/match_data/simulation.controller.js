@@ -1,5 +1,6 @@
 require("dotenv").config()
 const axios = require("axios")
+const { taskErrLogging, taskSuccessLogging, matchIdLogging } = require("../../logging/log")
 const { sleep } = require("../../timer/timer")
 const {
     getMatchId,
@@ -9,13 +10,16 @@ const {
     updateSimulationData,
     findRawSimulationData,
     updateSimulationWinRate,
+    getSimulationData,
+    transferToService_Simulation,
 } = require("./simulation.service")
 let key = 0
 let status
 exports.saveSimulation = async () => {
     try {
+
         const matchIdList = await getMatchId()
-        console.log(matchIdList.length)
+        await matchIdLogging(matchIdList.length, '매치데이터 조회 및 시뮬레이션 데이터 분석')
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -23,15 +27,18 @@ exports.saveSimulation = async () => {
             }
             await getMatchDataAndSaveSimulation(matchIdList)
         }
+        await taskSuccessLogging('매치데이터 조회 및 시뮬레이션 데이터 분석')
         return "matchData 저장 성공"
     } catch (error) {
         console.log(error)
+        await taskErrLogging(error, '매치데이터 조회 및 시뮬레이션 데이터 분석')
         return "matchData 저장 실패"
     }
 }
 
 async function getMatchDataAndSaveSimulation(matchIdList) {
     try {
+
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division
@@ -256,27 +263,52 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
 }
 
 exports.uploadSimulationWinRate = async () => {
-    let data = await findRawSimulationData()
-    console.log(data.length)
-    data = data.map((value) => {
-        value = {
-            winrate: value.win / value.sampleNum,
-            champ1Id: value.champ1Id,
-            champ2Id: value.champ2Id,
-            champ3Id: value.champ3Id,
-            champ4Id: value.champ4Id,
-            champ1Name: value.champ1Name,
-            champ2Name: value.champ2Name,
-            champ3Name: value.champ3Name,
-            champ4Name: value.champ4Name,
-            category: value.category,
-            sample_num: value.sampleNum,
+
+    try {
+        await matchIdLogging(0, '대전 시뮬레이션 로우데이터 승률로 변환')
+        let data = await findRawSimulationData()
+        console.log(data.length)
+        data = data.map((value) => {
+            value = {
+                winrate: value.win / value.sampleNum,
+                champ1Id: value.champ1Id,
+                champ2Id: value.champ2Id,
+                champ3Id: value.champ3Id,
+                champ4Id: value.champ4Id,
+                champ1Name: value.champ1Name,
+                champ2Name: value.champ2Name,
+                champ3Name: value.champ3Name,
+                champ4Name: value.champ4Name,
+                category: value.category,
+                sample_num: value.sampleNum,
+            }
+            return value
+        })
+        for (let i = 0; i < data.length; i++) {
+            const result = await updateSimulationWinRate(data[i])
+            console.log(`${i}번째`, result)
         }
-        return value
-    })
-    for (let i = 0; i < data.length; i++) {
-        const result = await updateSimulationWinRate(data[i])
-        console.log(`${i}번째`, result)
+        await taskSuccessLogging('대전 시뮬레이션 로우데이터 승률로 변환')
+        return "success"
+    } catch (error) {
+        console.log(error)
+        await taskErrLogging(error, '대전 시뮬레이션 로우데이터 승률로 변환')
     }
-    return "success"
+}
+
+exports.transferSimulationToServiceDB = async () => {
+    try {
+        await matchIdLogging(0, '대전 시뮬레이션 서비스 DB로 이관')
+        const dataList = await getSimulationData()
+        let result
+        for (let data of dataList) {
+            result = await transferToService_Simulation(data)
+            console.log(result)
+        }
+        await taskSuccessLogging('대전 시뮬레이션 서비스 DB로 이관')
+        return "success"
+    } catch (error) {
+        console.log(error)
+        await taskErrLogging(error, '대전 시뮬레이션 서비스 DB로 이관')
+    }
 }

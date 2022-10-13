@@ -14,10 +14,24 @@ exports.analyzeErrLogging = async (err) => {
     )
 }
 
-exports.taskErrLogging = async (err) => {
+exports.taskSuccessLogging = async (step) => {
     const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
     const time = new Date().toTimeString().split(" ")[0]
-    const data = `\ntask error: ${err} | Date: ${date} Time:${time}`
+    const data = `\n ${step} 성공 | Date: ${date} Time:${time}`
+    fs.writeFile(
+        process.env.LOG || `./logs/champ.analyze.error.txt`,
+        data,
+        { flag: "a+" },
+        (error) => {
+            console.log(err)
+        }
+    )
+}
+
+exports.taskErrLogging = async (err, step) => {
+    const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+    const time = new Date().toTimeString().split(" ")[0]
+    const data = `\n ${step} 실패 | task error: ${err} | Date: ${date} Time:${time}`
     fs.writeFile(
         process.env.LOG || `./logs/champ.analyze.error.txt`,
         data,
@@ -36,7 +50,7 @@ exports.apiKeyStatusLogging = async () => {
         process.env.LOG || `./logs/champ.analyze.error.txt`,
         data,
         { flag: "a+" },
-        (error) => {}
+        (error) => { }
     )
 }
 
@@ -54,15 +68,15 @@ exports.champInfoErrLogging = async (err) => {
     )
 }
 
-exports.matchIdLogging = async (matchIdLength) => {
+exports.matchIdLogging = async (matchIdLength, step) => {
     const date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
     const time = new Date().toTimeString().split(" ")[0]
-    const data = `\nmathId: ${matchIdLength}개 분석 | Date: ${date} Time:${time}`
+    const data = `\n ${step} 시작 | mathId: ${matchIdLength}개 분석 | Date: ${date} Time:${time}`
 
     fs.writeFile(
         process.env.MATCHID_LOG || `./logs/champ.analyze.matchId.txt`,
         data,
         { flag: "a+" },
-        (error) => {}
+        (error) => { }
     )
 }

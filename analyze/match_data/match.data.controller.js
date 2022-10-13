@@ -1,5 +1,6 @@
 require("dotenv").config()
 const axios = require("axios")
+const { matchIdLogging, taskSuccessLogging, taskErrLogging } = require("../../logging/log")
 const { sleep } = require("../../timer/timer")
 const {
     getMatchId,
@@ -29,95 +30,110 @@ exports.getAnalysis = async (req, res, next) => {
 }
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
-    let data = await findRawCombinationData()
-    console.log(data.length)
-    data = data.map((value) => {
-        value = {
-            winrate: value.win / value.sampleNum,
-            mainChampId: value.mainChampId,
-            subChampId: value.subChampId,
-            category: value.category,
-            sample_num: value.sampleNum,
-        }
-        return value
-    })
-    for (let i = 0; i < data.length; i++) {
-        const result = await updateWinRate(data[i])
-        console.log(`${i}번째`, result)
-    }
-
-    return "success"
-}
-
-exports.updateCombinationTierAndRank = async (req, res, next) => {
-    let { category0, category1, category2 } = await findCombinationCleansedData()
-    // 표본 5 미만인 것은 rank 0으로 맞추기
-    const categories = [category0, category1, category2]
-    let rankList = []
-    for (let category of categories) {
-        for (let i = 0; i < category.length; i++) {
-            if (category[i].sample_num < 10) {
-                category[i].rank_in_category = 0
-            } else {
-                // 표본 5 이상인 것은 새로운 배열로 만들어서, 승률로 sort하기
-                rankList.push(category[i])
-            }
-        }
-        rankList.sort((a, b) => {
-            return b.winrate - a.winrate
-        })
-        for (let j = 0; j < rankList.length; j++) {
-            rankList[j].rank_in_category = j + 1
-        }
-        rankList.map((value) => {
-            if (value.rank_in_category < 4) {
-                value.tier = 1
-            } else if (4 <= value.rank_in_category && value.rank_in_category < 11) {
-                value.tier = 2
-            } else if (11 <= value.rank_in_category && value.rank_in_category < 21) {
-                value.tier = 3
-            } else if (21 <= value.rank_in_category && value.rank_in_category < 28) {
-                value.tier = 4
-            } else if (28 <= value.rank_in_category) {
-                value.tier = 5
+    try {
+        console.log('챔피언 조합 승률 로우데이터 승률로 변환')
+        await matchIdLogging(0, '챔피언 조합 승률 로우데이터 승률로 변환')
+        let data = await findRawCombinationData()
+        console.log(data.length)
+        data = data.map((value) => {
+            value = {
+                winrate: value.win / value.sampleNum,
+                mainChampId: value.mainChampId,
+                subChampId: value.subChampId,
+                category: value.category,
+                sample_num: value.sampleNum,
             }
             return value
         })
-
-        for (let k = 0; k < rankList.length; k++) {
-            await updateCombinationTier(rankList[k])
+        for (let i = 0; i < data.length; i++) {
+            const result = await updateWinRate(data[i])
+            console.log(`${i}번째`, result)
         }
-        // rankList 카테고리 초기화
-        rankList = []
+
+        return "success"
     }
-    // sort된 것에 순서에 따라 랭크 넣어주기
-    // 1-3등까지 1티어 4-10등까지 2티어 11-20등까지 3티어, 21등 -27등까지 4티어, 28-30등 5티어
-    return "success"
+    catch (err) {
+        console.log(err)
+        await taskErrLogging(err, '챔피언 조합 승률 로우데이터 승률로 변환')
+    }
+}
+
+exports.updateCombinationTierAndRank = async (req, res, next) => {
+    try {
+        console.log('챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        await matchIdLogging(0, '챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        let { category0, category1, category2 } = await findCombinationCleansedData()
+        // 표본 5 미만인 것은 rank 0으로 맞추기
+        const categories = [category0, category1, category2]
+        let rankList = []
+        for (let category of categories) {
+            for (let i = 0; i < category.length; i++) {
+                if (category[i].sample_num < 10) {
+                    category[i].rank_in_category = 0
+                } else {
+                    // 표본 5 이상인 것은 새로운 배열로 만들어서, 승률로 sort하기
+                    rankList.push(category[i])
+                }
+            }
+            rankList.sort((a, b) => {
+                return b.winrate - a.winrate
+            })
+            for (let j = 0; j < rankList.length; j++) {
+                rankList[j].rank_in_category = j + 1
+            }
+            rankList.map((value) => {
+                if (value.rank_in_category < 4) {
+                    value.tier = 1
+                } else if (4 <= value.rank_in_category && value.rank_in_category < 11) {
+                    value.tier = 2
+                } else if (11 <= value.rank_in_category && value.rank_in_category < 21) {
+                    value.tier = 3
+                } else if (21 <= value.rank_in_category && value.rank_in_category < 28) {
+                    value.tier = 4
+                } else if (28 <= value.rank_in_category) {
+                    value.tier = 5
+                }
+                return value
+            })
+
+            for (let k = 0; k < rankList.length; k++) {
+                await updateCombinationTier(rankList[k])
+            }
+            // rankList 카테고리 초기화
+            rankList = []
+        }
+        await taskSuccessLogging('챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        return "success"
+    } catch (err) {
+        console.log(err)
+        await taskErrLogging(err, '챔피언 조합 승률 데이터 티어, 랭크 삽입')
+    }
 }
 
 exports.transferCombinationStatToServiceDB = async (req, res, next) => {
-    const dataList = await getCombinationData()
-    let result
-    for (let data of dataList) {
-        result = await transferToService(data)
-        console.log(result)
+    try {
+        console.log('챔피언 조합 승률 데이터 서비스 DB로 이관')
+        await matchIdLogging(0, '챔피언 조합 승률 데이터 서비스 DB로 이관')
+        const dataList = await getCombinationData()
+        let result
+        for (let data of dataList) {
+            result = await transferToService(data)
+            console.log(result)
+        }
+        await taskSuccessLogging('챔피언 조합 승률 데이터 서비스 DB로 이관')
     }
-    return "success"
-}
-
-async function getMatchIdList() {
-    const data = await getMatchId()
-    // const result = data.map((value) => {
-    //     return (value = value.matchId)
-    // })
-    return data
+    catch (err) {
+        console.log(err)
+        await taskErrLogging(err, '챔피언 조합 승률 데이터 서비스 DB로 이관')
+    }
 }
 
 // TODO: 테스트 --------------------------------------------------------------
 exports.saveCombination = async (req, res, next) => {
     try {
-        const matchIdList = await getMatchIdList()
-        console.log(matchIdList.length)
+        const matchIdList = await getMatchId()
+        console.log(matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        await matchIdLogging(matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -125,15 +141,18 @@ exports.saveCombination = async (req, res, next) => {
             }
             await getMatchDataAndSaveCombination(matchIdList)
         }
-        return "matchData 저장 성공"
+        await taskSuccessLogging('매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        return
     } catch (error) {
         console.log(error)
-        return "matchData 저장 실패"
+        await taskErrLogging(error, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        return
     }
 }
 
 async function getMatchDataAndSaveCombination(matchIdList) {
     try {
+        console.log(`${key} 번째`)
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division

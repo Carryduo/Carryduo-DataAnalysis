@@ -204,10 +204,10 @@ exports.updateSimulationWinRate = async (value) => {
     try {
         const existData = await Simulation_service.createQueryBuilder()
             .select()
-            .where("simulation_service.champ1Id = :champ1Id", { champ1Id: value.champId })
-            .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champId })
-            .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champId })
-            .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champId })
+            .where("simulation_service.champ1Id = :champ1Id", { champ1Id: value.champ1Id })
+            .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
+            .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
+            .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
             .getOne()
 
         if (!existData) {
@@ -217,10 +217,10 @@ exports.updateSimulationWinRate = async (value) => {
             await Simulation_service.createQueryBuilder()
                 .update()
                 .set(value)
-                .where("simulation_service.champ1Id = :champ1Id", { champ1Id: value.champId })
-                .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champId })
-                .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champId })
-                .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champId })
+                .where("simulation_service.champ1Id = :champ1Id", { champ1Id: value.champ1Id })
+                .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
+                .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
+                .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
                 .execute()
             type = "update"
         }
@@ -232,17 +232,31 @@ exports.updateSimulationWinRate = async (value) => {
     }
 }
 
+exports.getSimulationData = async () => {
+    return Simulation_service.createQueryBuilder()
+        .select([
+            "simulation_service.category",
+            "simulation_service.winrate",
+            "simulation_service.sample_num",
+            "simulation_service.champ1Id",
+            "simulation_service.champ2Id",
+            "simulation_service.champ3Id",
+            "simulation_service.champ4Id",
+        ])
+        .getMany()
+}
 
-exports.transferToService = async (data) => {
+exports.transferToService_Simulation = async (data) => {
     console.log(data)
     let result = { type: "none", success: "none" }
     const existData = await Simulation_serviceDB
         .createQueryBuilder()
         .select()
-        .where("SIMULATION.champ1Id = :champ1Id", { champ1Id: champ1.champId })
-        .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: champ2.champId })
-        .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: champ3.champId })
-        .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: champ4.champId })
+        .where("SIMULATION.champ1Id = :champ1Id", { champ1Id: data.champ1Id })
+        .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: data.champ2Id })
+        .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
+        .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
+        .getMany()
     console.log(existData, existData.length)
     if (existData.length === 0) {
         result.type = "save"
@@ -265,10 +279,10 @@ exports.transferToService = async (data) => {
             .createQueryBuilder()
             .update()
             .set(data)
-            .where("simulation.champ1Id = :champ1Id", { champ1Id: champ1.champId })
-            .andWhere("simulation.champ2Id = :champ2Id", { champ2Id: champ2.champId })
-            .andWhere("simulation.champ3Id = :champ3Id", { champ3Id: champ3.champId })
-            .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
+            .where("SIMULATION.champ1Id = :champ1Id", { champ1Id: data.champ1Id })
+            .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: data.champ2Id })
+            .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
+            .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
             .execute()
             .then(() => {
                 return { success: true }
