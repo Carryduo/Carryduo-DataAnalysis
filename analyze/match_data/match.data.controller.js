@@ -133,7 +133,7 @@ exports.saveCombination = async (req, res, next) => {
     try {
         const matchIdList = await getMatchId()
         console.log(matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
-        await matchIdLogging(matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        await matchIdLogging('key 숫자', key, matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined

@@ -19,7 +19,7 @@ exports.saveSimulation = async () => {
     try {
 
         const matchIdList = await getMatchId()
-        await matchIdLogging(matchIdList.length, '매치데이터 조회 및 시뮬레이션 데이터 분석')
+        await matchIdLogging('key 숫자', key, matchIdList.length, '매치데이터 조회 및 시뮬레이션 데이터 분석')
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
