@@ -19,7 +19,7 @@ exports.taskSuccessLogging = async (step) => {
     const time = new Date().toTimeString().split(" ")[0]
     const data = `\n ${step} 성공 | Date: ${date} Time:${time}`
     fs.writeFile(
-        process.env.LOG || `./logs/champ.analyze.error.txt`,
+        process.env.TASK_SUCCESS_LOG || `./logs/task.success.log.txt`,
         data,
         { flag: "a+" },
         (error) => {
@@ -33,7 +33,7 @@ exports.taskErrLogging = async (err, step) => {
     const time = new Date().toTimeString().split(" ")[0]
     const data = `\n ${step} 실패 | task error: ${err} | Date: ${date} Time:${time}`
     fs.writeFile(
-        process.env.LOG || `./logs/champ.analyze.error.txt`,
+        process.env.TASK_FAIL_LOG || `./logs/task.fail.log.txt`,
         data,
         { flag: "a+" },
         (error) => {
