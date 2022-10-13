@@ -1,7 +1,15 @@
 require("dotenv").config()
 const axios = require("axios")
-const { sleep } = require("../../timer")
-const { getMatchId, updateWrongMatchDataSimulationAnalyzed, checkSimulationData, saveSimulationData, updateSimulationData, findRawSimulationData, updateSimulationWinRate } = require('./simulation.service')
+const { sleep } = require("../../timer/timer")
+const {
+    getMatchId,
+    updateWrongMatchDataSimulationAnalyzed,
+    checkSimulationData,
+    saveSimulationData,
+    updateSimulationData,
+    findRawSimulationData,
+    updateSimulationWinRate,
+} = require("./simulation.service")
 let key = 0
 let status
 exports.saveSimulation = async () => {
@@ -58,7 +66,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "TOP":
@@ -66,7 +74,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "BOTTOM":
@@ -74,7 +82,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "UTILITY":
@@ -82,7 +90,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "JUNGLE":
@@ -90,7 +98,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                 }
@@ -101,7 +109,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "TOP":
@@ -109,7 +117,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "BOTTOM":
@@ -117,7 +125,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "UTILITY":
@@ -125,7 +133,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                     case "JUNGLE":
@@ -133,7 +141,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                             position,
                             champId: matchData.info.participants[i].championId,
                             champName: matchData.info.participants[i].championName,
-                            win
+                            win,
                         }
                         break
                 }
@@ -161,7 +169,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             team1jungle,
             team1middle,
             team1bottom,
-            team1utility
+            team1utility,
         })
         console.log("team2", {
             team2top,
@@ -171,11 +179,30 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             team2utility,
         })
         // 탑 정글 넣기
-        const existTopJungleSimulation = await checkSimulationData(team1top, team1jungle, team2top, team2jungle)
-        const existMidJungleSimulation = await checkSimulationData(team1middle, team1jungle, team2middle, team2jungle)
-        const existBottomDuoSimulation = await checkSimulationData(team1bottom, team1utility, team2bottom, team2utility)
+        const existTopJungleSimulation = await checkSimulationData(
+            team1top,
+            team1jungle,
+            team2top,
+            team2jungle
+        )
+        const existMidJungleSimulation = await checkSimulationData(
+            team1middle,
+            team1jungle,
+            team2middle,
+            team2jungle
+        )
+        const existBottomDuoSimulation = await checkSimulationData(
+            team1bottom,
+            team1utility,
+            team2bottom,
+            team2utility
+        )
 
-        console.log(existBottomDuoSimulation.length, existTopJungleSimulation.length, existMidJungleSimulation.length)
+        console.log(
+            existBottomDuoSimulation.length,
+            existTopJungleSimulation.length,
+            existMidJungleSimulation.length
+        )
         if (existTopJungleSimulation.length === 0) {
             await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0)
         } else {
@@ -187,11 +214,23 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             await updateSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle)
         }
         if (existBottomDuoSimulation.length === 0) {
-            await saveSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility, 2)
+            await saveSimulationData(
+                matchId,
+                team1bottom,
+                team1utility,
+                team2bottom,
+                team2utility,
+                2
+            )
         } else {
-            await updateSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility)
+            await updateSimulationData(
+                matchId,
+                team1bottom,
+                team1utility,
+                team2bottom,
+                team2utility
+            )
         }
-
     } catch (err) {
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
@@ -241,4 +280,3 @@ exports.uploadSimulationWinRate = async () => {
     }
     return "success"
 }
-

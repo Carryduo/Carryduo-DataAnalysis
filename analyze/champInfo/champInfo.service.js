@@ -1,14 +1,13 @@
 const { dataSource } = require("../../orm")
+const { Brackets } = require("typeorm")
+
 const ChampInfo = dataSource.getRepository("champinfo")
 const ChampSpell = dataSource.getRepository("champspell")
 const MatchId = dataSource.getRepository("matchid")
 
 const { dataSource_service } = require("../../orm")
-const { Brackets } = require("typeorm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
-
-const fs = require("fs")
 
 exports.matchIdList = async () => {
     return await MatchId.createQueryBuilder()
@@ -47,21 +46,11 @@ exports.successAnalyzed = async (matchId, option) => {
 }
 
 exports.dropAnalyzed = async (matchId, option) => {
-    await MatchId.createQueryBuilder()
+    return await MatchId.createQueryBuilder()
         .update()
         .set(option.set)
         .where("matchid.matchId = :matchId", { matchId })
         .execute()
-
-    fs.writeFile(
-        process.env.TIPLOG || `./logs/dropMatchId.txt`,
-        `${matchId},`,
-        { flag: "a+" },
-        (err) => {
-            return err
-        }
-    )
-    return
 }
 
 //챔피언 ID 저장

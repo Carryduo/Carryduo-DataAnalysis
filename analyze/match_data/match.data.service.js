@@ -1,17 +1,18 @@
 // 데이터분석 DB
 
 const { dataSource, dataSource_service } = require("../../orm")
-const MatchId = dataSource.getRepository("matchid")
-const MatchData = dataSource.getRepository("matchdata")
-const matchdata = require("../../entity/match.data")
-const matchid = require("../../entity/match.id")
+const { Brackets, MoreThan } = require("typeorm")
 const queryRunner = dataSource.createQueryRunner()
 
-const { Brackets, MoreThan } = require("typeorm")
+const MatchId = dataSource.getRepository("matchid")
+const matchid = require("../../entity/match.id")
+
 const Combination = dataSource.getRepository("combination")
 const combination = require("../../entity/combination.data")
-const combinationServiceData = require("../../entity/combination.service.data")
+
 const Combination_Service = dataSource.getRepository("combination_service")
+const combinationServiceData = require("../../entity/combination.service.data")
+
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
 
@@ -35,84 +36,14 @@ exports.getMatchId = async () => {
         .getMany()
 }
 
-// 매치 RAW DATA 관련
-exports.getMatchData = async () => {
-    return await MatchData.createQueryBuilder()
-        .select(["matchdata.matchData", "matchdata.id", "matchdata.matchId", 'matchdata.analyzed', 'matchdata.tier', 'matchdata.division'])
-        .where(
-            new Brackets((qb) => {
-                qb.where("matchdata.tier = :tier", {
-                    tier: "PLATINUM",
-                }).orWhere("matchdata.tier = :tier2", {
-                    tier2: "DIAMOND",
-                })
-            })
-        )
-        .andWhere('matchdata.analyzed = :analyzed', {
-            analyzed: 0,
-        })
-        .getMany()
-}
-
-exports.getMatchDataCnt = async () => {
-    return await MatchData.find({}, { _id: false, data: true }).count()
-}
-
 exports.updateWrongMatchDataAnalyzed = async (matchId) => {
-    await MatchId.createQueryBuilder().update().set({ analyzed: 2 }).where('matchid.matchId = :matchId', { matchId }).execute()
-    console.log('무의미한 MatchData 처리 완료')
+    await MatchId.createQueryBuilder()
+        .update()
+        .set({ analyzed: 2 })
+        .where("matchid.matchId = :matchId", { matchId })
+        .execute()
+    console.log("무의미한 MatchData 처리 완료")
     return
-}
-
-
-exports.saveMatchData = async (matchData, tier, division, matchId) => {
-    console.log(tier, division, matchId)
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    let data
-    let dbupdate
-    // matchId 분석 완료 시, matchId 테이블에서 분석 상태값 변경
-
-    try {
-        await queryRunner.manager
-            .createQueryBuilder()
-            .insert()
-            .into(matchdata)
-            .values({
-                matchData,
-                tier,
-                division,
-                matchId,
-            })
-            .execute()
-            .then(() => {
-                data = { code: 200, message: "정상" }
-                return
-            })
-
-        await queryRunner.manager
-            .createQueryBuilder()
-            .update(matchid)
-            .set({ analyzed: 1 })
-            .where("matchid.matchId = :matchId", { matchId })
-            .execute()
-            .then(() => {
-                dbupdate = { message: "matchId 분석 완료" }
-                return
-            })
-        await queryRunner.commitTransaction()
-    } catch (error) {
-        console.log(error)
-        if (error.errno === 1062) {
-            data = { code: 1062, message: "중복값 에러" }
-        }
-
-        dbupdate = { message: "matchId 분석 실패" }
-        await queryRunner.rollbackTransaction()
-    } finally {
-        return { data, dbupdate }
-    }
 }
 
 exports.getData = async (type) => {
@@ -364,7 +295,6 @@ exports.getCombinationData = async () => {
 }
 
 exports.transferToService = async (data) => {
-    console.log(data)
     let result = { type: "none", success: "none" }
     const existData = await combination_stat
         .createQueryBuilder()
