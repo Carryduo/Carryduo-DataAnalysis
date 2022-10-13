@@ -28,6 +28,7 @@ exports.saveSimulation = async () => {
             await getMatchDataAndSaveSimulation(matchIdList)
         }
         await taskSuccessLogging('매치데이터 조회 및 시뮬레이션 데이터 분석')
+        key = 0
         return "matchData 저장 성공"
     } catch (error) {
         console.log(error)

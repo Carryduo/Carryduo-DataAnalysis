@@ -142,6 +142,7 @@ exports.saveCombination = async (req, res, next) => {
             await getMatchDataAndSaveCombination(matchIdList)
         }
         await taskSuccessLogging('매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        key = 0
         return
     } catch (error) {
         console.log(error)
