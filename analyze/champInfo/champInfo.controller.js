@@ -65,7 +65,6 @@ exports.startChampInfo = async () => {
         logger.info("승/밴/픽, 스펠, 포지션 데이터분석완료")
         return
     } catch (err) {
-        console.log(err)
         logger.error(err, { message: "- from startChampInfo" })
         return err
     }
