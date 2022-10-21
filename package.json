@@ -20,7 +20,9 @@
         "mysql2": "^2.3.3",
         "node-schedule": "^2.1.0",
         "toad-scheduler": "^1.6.1",
-        "typeorm": "^0.3.10"
+        "typeorm": "^0.3.10",
+        "winston": "^3.8.2",
+        "winston-daily-rotate-file": "^4.7.1"
     },
     "devDependencies": {
         "nodemon": "^2.0.20"
