@@ -263,3 +263,129 @@ exports.ServiceSaveRate = async (champId, winRate, pickRate, banRate) => {
         .where("champId = :champId", { champId })
         .execute()
 }
+
+// exports.targetChampionInfoSave = async (data) => {
+//     return this.champRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampEntity)
+//         .values({
+//             id: data.championId,
+//             champNameEn: data.championNameEn,
+//             champNameKo: data.championNameKo,
+//             champMainImg: data.championMainImg,
+//             champImg: data.championImg,
+//         })
+//         .execute()
+// }
+
+// exports.targetChampionSkillInfoSave = async (
+//     championId,
+//     qSkillInfo,
+//     wSkillInfo,
+//     eSkillInfo,
+//     rSkillInfo,
+//     passiveInfo
+// ) => {
+//     await this.skillRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampSkillInfoEntity)
+//         .values({
+//             champId: () => {
+//                 return championId
+//             },
+//             skillId: qSkillInfo.id,
+//             skillName: qSkillInfo.name,
+//             skillDesc: qSkillInfo.desc,
+//             skillToolTip: qSkillInfo.tooltip,
+//             skillImg: qSkillInfo.image,
+//         })
+//         .execute()
+
+//     await this.skillRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampSkillInfoEntity)
+//         .values({
+//             champId: () => {
+//                 return championId
+//             },
+//             skillId: wSkillInfo.id,
+//             skillName: wSkillInfo.name,
+//             skillDesc: wSkillInfo.desc,
+//             skillToolTip: wSkillInfo.tooltip,
+//             skillImg: wSkillInfo.image,
+//         })
+//         .execute()
+
+//     await this.skillRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampSkillInfoEntity)
+//         .values({
+//             champId: () => {
+//                 return championId
+//             },
+//             skillId: eSkillInfo.id,
+//             skillName: eSkillInfo.name,
+//             skillDesc: eSkillInfo.desc,
+//             skillToolTip: eSkillInfo.tooltip,
+//             skillImg: eSkillInfo.image,
+//         })
+//         .execute()
+
+//     await this.skillRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampSkillInfoEntity)
+//         .values({
+//             champId: () => {
+//                 return championId
+//             },
+//             skillId: rSkillInfo.id,
+//             skillName: rSkillInfo.name,
+//             skillDesc: rSkillInfo.desc,
+//             skillToolTip: rSkillInfo.tooltip,
+//             skillImg: rSkillInfo.image,
+//         })
+//         .execute()
+
+//     await this.skillRepository
+//         .createQueryBuilder()
+//         .insert()
+//         .into(ChampSkillInfoEntity)
+//         .values({
+//             champId: () => {
+//                 return championId
+//             },
+//             skillId: passiveInfo.id,
+//             skillName: passiveInfo.name,
+//             skillDesc: passiveInfo.desc,
+//             skillImg: passiveInfo.image,
+//         })
+//         .execute()
+// }
+
+exports.getTooltip = async () => {
+    // return await this.skillRepository
+    //     .createQueryBuilder("CHAMPSKILLINFO")
+    //     .leftJoinAndSelect("CHAMPSKILLINFO.champId", "champ")
+    //     .select()
+    //     .getMany()
+}
+
+exports.editToolTip = async (id, skillToolTip, skillDesc) => {
+    try {
+        // await this.skillRepository
+        //     .createQueryBuilder("CHAMPSKILLINFO")
+        //     .update()
+        //     .set({ skillToolTip, skillDesc })
+        //     .where("CHAMPSKILLINFO.id = :id", { id })
+        //     .execute()
+        return "success"
+    } catch (error) {
+        console.log(error)
+        return "fail"
+    }
+}
