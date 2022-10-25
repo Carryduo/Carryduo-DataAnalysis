@@ -5,6 +5,7 @@ const {
     matchIdList,
     updateRate,
     saveChampId,
+    updateChampId,
     addBanCnt,
     addPositionCnt,
     findSpellInfoData,
@@ -243,7 +244,7 @@ async function rate(data) {
     }
 }
 
-//챔피언 id, name 저장
+//챔피언 id, name 저장 및 수정
 exports.saveChampInfo = async () => {
     try {
         let champName = []
@@ -257,6 +258,7 @@ exports.saveChampInfo = async () => {
 
         for (let i of champName) {
             await saveChampId(i, response.data.data[i].key)
+            // await updateChampId(i, response.data.data[i].key)
         }
         return "챔피언ID 및 이름 저장 완료"
     } catch (err) {

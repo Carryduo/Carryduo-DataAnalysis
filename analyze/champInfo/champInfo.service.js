@@ -32,6 +32,10 @@ exports.matchIdList = async () => {
         .getRawMany()
 }
 
+exports.getChampList = async () => {
+    return ChampInfo.createQueryBuilder("champ").getRawMany()
+}
+
 exports.getMatchIdCnt = async () => {
     return await MatchId.createQueryBuilder()
         .where("rateAnalyzed = :result", { result: 1 })
@@ -72,6 +76,14 @@ exports.saveChampId = async (champName, champId) => {
                 return { code: 1062, message: "중복값 에러" }
             }
         })
+}
+//챔피언 ID 수정
+exports.updateChampId = async (champName, champId) => {
+    return ChampInfo.createQueryBuilder()
+        .update(ChampInfo)
+        .set({ champId })
+        .where("champName = :champName", { champName })
+        .execute()
 }
 
 // 챔피언 승/패 카운팅
