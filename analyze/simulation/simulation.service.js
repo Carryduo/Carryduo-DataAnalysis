@@ -52,7 +52,6 @@ exports.checkSimulationData = async (champ1, champ2, champ3, champ4) => {
 // 챔피언 조합 승률 관련
 exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) => {
     // TODO: 트랜젝션, matchId 업데이트
-    console.log("update", champ1, champ2, champ3, champ4)
     const win = champ1.win
 
     let dbupdate
@@ -108,7 +107,6 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
 }
 
 exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, category) => {
-    console.log("save", champ1, champ2, champ3, champ4, matchId)
 
     const win = champ1.win
     let dbupdate
@@ -186,7 +184,6 @@ exports.findRawSimulationData = async () => {
 }
 
 exports.updateSimulationWinRate = async (value) => {
-    console.log(value)
     let type
     try {
         const existData = await Simulation_service.createQueryBuilder()
@@ -234,7 +231,6 @@ exports.getSimulationData = async () => {
 }
 
 exports.transferToService_Simulation = async (data) => {
-    console.log(data)
     let result = { type: "none", success: "none" }
     const existData = await Simulation_serviceDB.createQueryBuilder()
         .select()
@@ -243,7 +239,6 @@ exports.transferToService_Simulation = async (data) => {
         .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
         .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
         .getMany()
-    console.log(existData, existData.length)
     if (existData.length === 0) {
         result.type = "save"
         result.success = await Simulation_serviceDB.createQueryBuilder()

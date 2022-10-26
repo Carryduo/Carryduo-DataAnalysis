@@ -1,5 +1,6 @@
 require("dotenv").config()
 const axios = require("axios")
+const { Logger } = require("mongodb")
 const logger = require("../../log")
 const { taskErrLogging, taskSuccessLogging, matchIdLogging } = require("../../logging/log")
 const { sleep } = require("../../timer/timer")
@@ -20,7 +21,7 @@ exports.saveSimulation = async () => {
     try {
 
         const matchIdList = await getMatchId()
-        logger.info(matchIdList, { message: '매치데이터 조회 및 시뮬레이션 데이터 분석 matchId 개수' })
+        logger.info(matchIdList.length, { message: '매치데이터 조회 및 시뮬레이션 데이터 분석 matchId 개수' })
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -172,20 +173,6 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             await updateWrongMatchDataAnalyzed(matchId)
             return key++
         }
-        console.log("team1", {
-            team1top,
-            team1jungle,
-            team1middle,
-            team1bottom,
-            team1utility,
-        })
-        console.log("team2", {
-            team2top,
-            team2jungle,
-            team2middle,
-            team2bottom,
-            team2utility,
-        })
         // 탑 정글 넣기
         const existTopJungleSimulation = await checkSimulationData(
             team1top,
@@ -204,12 +191,6 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             team1utility,
             team2bottom,
             team2utility
-        )
-
-        console.log(
-            existBottomDuoSimulation.length,
-            existTopJungleSimulation.length,
-            existMidJungleSimulation.length
         )
         if (existTopJungleSimulation.length === 0) {
             await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0)
@@ -259,16 +240,15 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             return key++
         }
     }
-    console.log(`${key}번째 데이터 분석 끝`)
+    console.log(`${key}번째 시뮬레이션 데이터 분석 끝`)
     return key++
 }
 
 exports.uploadSimulationWinRate = async () => {
 
     try {
-        logger.info('대전 시뮬레이션 로우데이터 승률로 변환')
         let data = await findRawSimulationData()
-        console.log(data.length)
+        logger.info(data.length, { message: '대전 시뮬레이션 로우데이터 승률로 변환' })
         data = data.map((value) => {
             value = {
                 winrate: value.win / value.sampleNum,
@@ -287,7 +267,7 @@ exports.uploadSimulationWinRate = async () => {
         })
         for (let i = 0; i < data.length; i++) {
             const result = await updateSimulationWinRate(data[i])
-            console.log(`${i}번째`, result)
+            console.log(`${i}번째 대전 시뮬레이션 로우데이터 승률로 변환 완료`)
         }
         logger.info('대전 시뮬레이션 로우데이터 승률로 변환 완료')
     } catch (err) {
@@ -297,17 +277,16 @@ exports.uploadSimulationWinRate = async () => {
 
 exports.transferSimulationToServiceDB = async () => {
     try {
-        await matchIdLogging(0, '대전 시뮬레이션 서비스 DB로 이관')
         const dataList = await getSimulationData()
+        logger.info(dataList.length, { message: '대전 시뮬레이션 서비스 DB로 이관' })
         let result
-        for (let data of dataList) {
-            result = await transferToService_Simulation(data)
-            console.log(result)
+        for (let i = 0; i < dataList.length; i++) {
+            await transferToService_Simulation(dataList[i])
+            console.log(`${i}번째 시뮬레이션 데이터 서비스 DB로 이관`)
         }
-        await taskSuccessLogging('대전 시뮬레이션 서비스 DB로 이관')
-        return "success"
-    } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, '대전 시뮬레이션 서비스 DB로 이관')
+        logger.info('대전 시뮬레이션 서비스 DB로 이관 완료')
+        return
+    } catch (err) {
+        logger.error(err, { message: '-from 대전 시뮬레이션 서비스 DB로 이관' })
     }
 }

@@ -80,7 +80,6 @@ exports.checkCombinationData = async (mainChamp, subChamp) => {
 // 챔피언 조합 승률 관련
 exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) => {
     // TODO: 트랜젝션, matchId 업데이트
-    console.log("update", mainChamp, subChamp)
 
     let dbupdate
     try {
@@ -132,7 +131,6 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
 }
 
 exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, type) => {
-    console.log("save", mainChamp, subChamp, matchId)
 
     let dbupdate
     try {
@@ -201,7 +199,6 @@ exports.findRawCombinationData = async () => {
 }
 
 exports.updateWinRate = async (value) => {
-    console.log(value)
     let type
     try {
         const existData = await Combination_Service.createQueryBuilder()
@@ -303,7 +300,6 @@ exports.transferToService = async (data) => {
             .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
             .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
             .getMany()
-        console.log(existData, existData.length)
         if (existData.length === 0) {
             result.type = "save"
             result.success = await combination_stat

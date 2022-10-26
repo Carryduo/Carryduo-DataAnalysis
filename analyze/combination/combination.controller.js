@@ -48,7 +48,7 @@ exports.uploadCombinationWinRate = async (req, res, next) => {
         })
         for (let i = 0; i < data.length; i++) {
             const result = await updateWinRate(data[i])
-            console.log(`${i}번째`, result)
+            console.log(`${i}번째 챔피언 조합승률 로우 데이터 승률 변환 완료`)
         }
         logger.info('챔피언 조합 승률 로우 데이터 승률로 변환 완료')
         return
@@ -97,6 +97,7 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
 
             for (let k = 0; k < rankList.length; k++) {
                 await updateCombinationTier(rankList[k])
+                console.log(k, '번째 티어/랭크 삽입 완료')
             }
             // rankList 카테고리 초기화
             rankList = []
@@ -113,9 +114,9 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
         logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
         const dataList = await getCombinationData()
         let result
-        for (let data of dataList) {
-            result = await transferToService(data)
-            console.log(result)
+        for (let i = 0; i < dataList.length; i++) {
+            await transferToService(dataList[i])
+            console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)
         }
         logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
     }
@@ -147,7 +148,6 @@ exports.saveCombination = async (req, res, next) => {
 
 async function getMatchDataAndSaveCombination(matchIdList) {
     try {
-        console.log(`${key} 번째`)
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division
@@ -268,20 +268,6 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             await updateWrongMatchDataAnalyzed(matchId)
             return key++
         }
-        console.log("이긴팀", {
-            wintop,
-            winjungle,
-            winmiddle,
-            winbottom,
-            winutility,
-        })
-        console.log("진팀", {
-            losetop,
-            losejungle,
-            losemiddle,
-            losebottom,
-            loseutility,
-        })
         // 탑 정글 넣기
         // TODO: matchData 기준인거 matchId 버전으로 수정
         const existWinTopJungle = await checkCombinationData(wintop, winjungle)
