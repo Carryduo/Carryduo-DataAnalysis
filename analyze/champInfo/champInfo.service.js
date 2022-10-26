@@ -42,6 +42,13 @@ exports.getMatchIdCnt = async () => {
         .getCount()
 }
 
+exports.getVersion = async (champId, version) => {
+    return await ChampInfo.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .andWhere("version = :version", { version })
+        .getOne()
+}
+
 exports.successAnalyzed = async (matchId, option) => {
     return await MatchId.createQueryBuilder()
         .update()
@@ -86,12 +93,41 @@ exports.updateChampId = async (champName, champId) => {
         .execute()
 }
 
+exports.oldVersionSet = async (champId) => {
+    await ChampInfo.createQueryBuilder()
+        .update()
+        .set({ version: "old" })
+        .where("champId = :champId", { champId })
+        .execute()
+
+    await ChampSpell.createQueryBuilder()
+        .update()
+        .set({ version: "old" })
+        .where("champId = :champId", { champId })
+        .execute()
+}
+
 // 챔피언 승/패 카운팅
-exports.updateRate = async (champId, optionWinRate) => {
+exports.createRate = async (champId, champName, version, history) => {
+    if (history) {
+        return ChampInfo.createQueryBuilder()
+            .insert()
+            .values({ champId, champName, version, win: 1, sampleNum: 1 })
+            .execute()
+    } else if (!history) {
+        return ChampInfo.createQueryBuilder()
+            .insert()
+            .values({ champId, champName, version, lose: 1, sampleNum: 1 })
+            .execute()
+    }
+}
+
+exports.updateRate = async (champId, version, updateOptionWinRate) => {
     return ChampInfo.createQueryBuilder()
         .update(ChampInfo)
-        .set(optionWinRate.set)
+        .set(updateOptionWinRate.set)
         .where("champId = :champId", { champId })
+        .andWhere("version = :version", { version })
         .execute()
 }
 

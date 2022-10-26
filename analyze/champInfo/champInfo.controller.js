@@ -3,9 +3,12 @@ const logger = require("../../log")
 const axios = require("axios")
 const {
     matchIdList,
+    getVersion,
+    createRate,
     updateRate,
     saveChampId,
     updateChampId,
+    oldVersionSet,
     addBanCnt,
     addPositionCnt,
     findSpellInfoData,
@@ -44,7 +47,7 @@ async function requestRiotAPI(matchId) {
     }
 }
 
-let key = 0
+let key = 490
 let status
 //데이터 수집 및 분석 로직 실행
 exports.startChampInfo = async () => {
@@ -58,14 +61,16 @@ exports.startChampInfo = async () => {
             }
             const matchData = await requestRiotAPI(data[key].matchid_matchId)
             await rate(matchData)
-            await position(matchData)
-            await champSpell(matchData)
+            // await position(matchData)
+            // await champSpell(matchData)
             key++
         }
-        key = 0
+        key = 498
         logger.info("승/밴/픽, 스펠, 포지션 데이터분석완료")
         return
     } catch (err) {
+        console.log(err)
+
         logger.error(err, { message: "- from startChampInfo" })
         return err
     }
@@ -190,26 +195,38 @@ async function rate(data) {
 
         if (data.info.gameMode === "CLASSIC" && data.info.queueId === 420) {
             const participants = data.info.participants
+            let OriginalVersion = data.info.gameVersion
+            const version = OriginalVersion.substring(0, 5)
             //win, lose 카운팅
             for (let v of participants) {
-                const champId = v.championId
-                let optionWinRate
+                let updateOptionWinRate
+                let history
                 if (v.win) {
-                    optionWinRate = {
+                    history = 1
+                    updateOptionWinRate = {
                         set: { win: () => "win+1", sampleNum: () => "sampleNum+1" },
                     }
                 } else {
-                    optionWinRate = {
+                    history = null
+                    updateOptionWinRate = {
                         set: { lose: () => "lose+1", sampleNum: () => "sampleNum+1" },
                     }
                 }
-                await updateRate(champId, optionWinRate)
+
+                const champId = v.championId
+                const champName = v.championName
+                const findVersion = await getVersion(champId, version)
+                if (!findVersion) {
+                    await createRate(champId, champName, version, history)
+                } else if (findVersion) {
+                    await updateRate(champId, version, updateOptionWinRate)
+                }
             }
             // 카운팅 후 카운팅한 matchId 상태값 변경
             analyzedOption = {
                 set: { rateAnalyzed: 1 },
             }
-            await successAnalyzed(matchId, analyzedOption)
+            // await successAnalyzed(matchId, analyzedOption)
 
             //ban 카운팅
             const teams = data.info.teams
@@ -218,27 +235,28 @@ async function rate(data) {
                 for (let b of ban) {
                     const champId = b.championId
                     if (b.chmapionId === -1) continue
-                    await addBanCnt(champId)
+                    // await addBanCnt(champId)
                 }
             }
             //밴 카운팅 후 카운팅한 matchId 상태값 변경
             analyzedOption = {
                 set: { banAnalyzed: 1 },
             }
-            await successAnalyzed(matchId, analyzedOption)
+            // await successAnalyzed(matchId, analyzedOption)
         } else {
             //조건에 안맞는 matchId면 각각 상태값 2로 변경
             dropAnalyzedOption = {
                 set: { rateAnalyzed: 2 },
             }
-            await dropAnalyzed(matchId, dropAnalyzedOption)
+            // await dropAnalyzed(matchId, dropAnalyzedOption)
 
             dropAnalyzedOption = {
                 set: { banAnalyzed: 2 },
             }
-            await dropAnalyzed(matchId, dropAnalyzedOption)
+            // await dropAnalyzed(matchId, dropAnalyzedOption)
         }
     } catch (err) {
+        console.log(err)
         logger.error(err, { message: "- from rate" })
         return
     }
@@ -257,11 +275,13 @@ exports.saveChampInfo = async () => {
         champName.push(...Object.keys(champData))
 
         for (let i of champName) {
-            await saveChampId(i, response.data.data[i].key)
+            await oldVersionSet(response.data.data[i].key)
+            // await saveChampId(i, response.data.data[i].key)
             // await updateChampId(i, response.data.data[i].key)
         }
         return "챔피언ID 및 이름 저장 완료"
     } catch (err) {
+        console.error(err)
         logger.error(err, { message: "- from saveChampInfo" })
         return
     }
