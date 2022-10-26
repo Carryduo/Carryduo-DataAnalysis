@@ -1,6 +1,6 @@
 require("dotenv").config()
 const axios = require("axios")
-const { matchIdLogging, taskSuccessLogging, taskErrLogging } = require("../../logging/log")
+const logger = require("../../log")
 const { sleep } = require("../../timer/timer")
 const {
     getMatchId,
@@ -15,7 +15,7 @@ const {
     getCombinationData,
     transferToService,
     updateWrongMatchDataAnalyzed,
-} = require("./match.data.service")
+} = require("./combination.service")
 
 let key = 0
 let status
@@ -31,8 +31,7 @@ exports.getAnalysis = async (req, res, next) => {
 
 exports.uploadCombinationWinRate = async (req, res, next) => {
     try {
-        console.log('챔피언 조합 승률 로우데이터 승률로 변환')
-        await matchIdLogging(0, '챔피언 조합 승률 로우데이터 승률로 변환')
+        logger.info('챔피언 조합 승률 로우 데이터 승률로 변환 시작')
         let data = await findRawCombinationData()
         console.log(data.length)
         data = data.map((value) => {
@@ -47,21 +46,19 @@ exports.uploadCombinationWinRate = async (req, res, next) => {
         })
         for (let i = 0; i < data.length; i++) {
             const result = await updateWinRate(data[i])
-            console.log(`${i}번째`, result)
+            console.log(`${i}번째 챔피언 조합승률 로우 데이터 승률 변환 완료`)
         }
-
-        return "success"
+        logger.info('챔피언 조합 승률 로우 데이터 승률로 변환 완료')
+        return
     }
     catch (err) {
-        console.log(err)
-        await taskErrLogging(err, '챔피언 조합 승률 로우데이터 승률로 변환')
+        logger.error(err, { message: '-from 챔피언 조합 승률 로우데이터 승률로 변환' })
     }
 }
 
 exports.updateCombinationTierAndRank = async (req, res, next) => {
     try {
-        console.log('챔피언 조합 승률 데이터 티어, 랭크 삽입')
-        await matchIdLogging(0, '챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        logger.info('챔피언 조합 승률 데이터 티어, 랭크 삽입')
         let { category0, category1, category2 } = await findCombinationCleansedData()
         // 표본 5 미만인 것은 rank 0으로 맞추기
         const categories = [category0, category1, category2]
@@ -98,33 +95,31 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
 
             for (let k = 0; k < rankList.length; k++) {
                 await updateCombinationTier(rankList[k])
+                console.log(k, '번째 티어/랭크 삽입 완료')
             }
             // rankList 카테고리 초기화
             rankList = []
         }
-        await taskSuccessLogging('챔피언 조합 승률 데이터 티어, 랭크 삽입')
-        return "success"
+        logger.info('챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        return
     } catch (err) {
-        console.log(err)
-        await taskErrLogging(err, '챔피언 조합 승률 데이터 티어, 랭크 삽입')
+        logger.error(err, { message: '-from 챔피언 조합 승률 데이터 티어, 랭크 삽입' })
     }
 }
 
 exports.transferCombinationStatToServiceDB = async (req, res, next) => {
     try {
-        console.log('챔피언 조합 승률 데이터 서비스 DB로 이관')
-        await matchIdLogging(0, '챔피언 조합 승률 데이터 서비스 DB로 이관')
+        logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
         const dataList = await getCombinationData()
         let result
-        for (let data of dataList) {
-            result = await transferToService(data)
-            console.log(result)
+        for (let i = 0; i < dataList.length; i++) {
+            await transferToService(dataList[i])
+            console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)
         }
-        await taskSuccessLogging('챔피언 조합 승률 데이터 서비스 DB로 이관')
+        logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
     }
     catch (err) {
-        console.log(err)
-        await taskErrLogging(err, '챔피언 조합 승률 데이터 서비스 DB로 이관')
+        logger.error(err, { message: '챔피언 조합 승률 데이터 서비스 DB로 이관' })
     }
 }
 
@@ -132,8 +127,7 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
 exports.saveCombination = async (req, res, next) => {
     try {
         const matchIdList = await getMatchId()
-        console.log(matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
-        await matchIdLogging('key 숫자', key, matchIdList.length, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        logger.info(matchIdList.length, { message: " - 매치데이터 조회 및 챔피언 조합 승률 분석 matchId 개수" })
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -141,19 +135,17 @@ exports.saveCombination = async (req, res, next) => {
             }
             await getMatchDataAndSaveCombination(matchIdList)
         }
-        await taskSuccessLogging('매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        logger.info('매치데이터 조회 및 챔피언 조합 승률 분석 완료')
         key = 0
         return
     } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, '매치데이터 조회 및 챔피언 조합 승률 분석 시작')
+        logger.error(err, { message: '-from saveCombination' })
         return
     }
 }
 
 async function getMatchDataAndSaveCombination(matchIdList) {
     try {
-        console.log(`${key} 번째`)
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division
@@ -274,20 +266,6 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             await updateWrongMatchDataAnalyzed(matchId)
             return key++
         }
-        console.log("이긴팀", {
-            wintop,
-            winjungle,
-            winmiddle,
-            winbottom,
-            winutility,
-        })
-        console.log("진팀", {
-            losetop,
-            losejungle,
-            losemiddle,
-            losebottom,
-            loseutility,
-        })
         // 탑 정글 넣기
         // TODO: matchData 기준인거 matchId 버전으로 수정
         const existWinTopJungle = await checkCombinationData(wintop, winjungle)
@@ -330,8 +308,6 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             await updateCombinationData(matchId, losebottom, loseutility, "lose")
         }
     } catch (err) {
-        // const result = await saveMatchData(response.data, tier, division, matchId)
-        // console.log(result)
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
             console.log(key + " 번째 부터 오류!")

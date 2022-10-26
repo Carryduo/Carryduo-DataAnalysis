@@ -6,7 +6,8 @@ const Simulation_service = dataSource.getRepository("simulation_service")
 const simulation = require("../../entity/simulation.data")
 const matchid = require("../../entity/match.id")
 const MatchId = dataSource.getRepository("matchid")
-const { Brackets, MoreThan } = require("typeorm")
+const { Brackets } = require("typeorm")
+const logger = require("../../log")
 const Simulation_serviceDB = dataSource_service.getRepository("SIMULATION")
 
 exports.getMatchId = async () => {
@@ -51,7 +52,6 @@ exports.checkSimulationData = async (champ1, champ2, champ3, champ4) => {
 // 챔피언 조합 승률 관련
 exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) => {
     // TODO: 트랜젝션, matchId 업데이트
-    console.log("update", champ1, champ2, champ3, champ4)
     const win = champ1.win
 
     let dbupdate
@@ -98,16 +98,15 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-    } catch (error) {
+    } catch (err) {
         dbupdate = { message: `${matchId} 분석 실패` }
-        console.log(error)
+        logger.error(err, { message: `${matchId} simulation 분석 실패(update)` })
     } finally {
         return dbupdate
     }
 }
 
 exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, category) => {
-    console.log("save", champ1, champ2, champ3, champ4, matchId)
 
     const win = champ1.win
     let dbupdate
@@ -170,8 +169,8 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                 })
         }
         await queryRunner.commitTransaction()
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        logger.error(err, { message: `${matchId} simulation 분석 실패(update)` })
         dbupdate = { message: `${matchId} 분석 실패` }
         await queryRunner.rollbackTransaction()
     } finally {
@@ -185,7 +184,6 @@ exports.findRawSimulationData = async () => {
 }
 
 exports.updateSimulationWinRate = async (value) => {
-    console.log(value)
     let type
     try {
         const existData = await Simulation_service.createQueryBuilder()
@@ -212,8 +210,8 @@ exports.updateSimulationWinRate = async (value) => {
         }
 
         return { type, success: true }
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        logger.error(err, { message: `시뮬레이션 데이터 승률 변환 실패` })
         return { type, success: false }
     }
 }
@@ -233,7 +231,6 @@ exports.getSimulationData = async () => {
 }
 
 exports.transferToService_Simulation = async (data) => {
-    console.log(data)
     let result = { type: "none", success: "none" }
     const existData = await Simulation_serviceDB.createQueryBuilder()
         .select()
@@ -242,7 +239,6 @@ exports.transferToService_Simulation = async (data) => {
         .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
         .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
         .getMany()
-    console.log(existData, existData.length)
     if (existData.length === 0) {
         result.type = "save"
         result.success = await Simulation_serviceDB.createQueryBuilder()
@@ -253,8 +249,8 @@ exports.transferToService_Simulation = async (data) => {
             .then(() => {
                 return { success: true }
             })
-            .catch((error) => {
-                console.log(error)
+            .catch((err) => {
+                logger.error(err, { message: `시뮬레이션 데이터 서비스 DB 이관 실패(save)` })
                 return { success: false }
             })
     } else {
@@ -270,8 +266,8 @@ exports.transferToService_Simulation = async (data) => {
             .then(() => {
                 return { success: true }
             })
-            .catch((error) => {
-                console.log(error)
+            .catch((err) => {
+                logger.error(err, { message: `시뮬레이션 데이터 서비스 DB 이관 실패(update)` })
                 return { success: false }
             })
     }

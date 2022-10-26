@@ -37,6 +37,7 @@ const logger = winston.createLogger({
     ],
 })
 
+// prod 개발환경이 아닌 경우에는 로그 남기면서 콘솔까지 남김
 if (process.env.NODE_ENV !== "production") {
     logger.add(
         new winston.transports.Console({

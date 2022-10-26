@@ -1,13 +1,13 @@
 const { sleep } = require("../timer/timer")
 const { performance } = require("perf_hooks")
 
-const matchDataController = require("../analyze/match_data/match.data.controller")
+const combinationController = require("../analyze/combination/combination.controller")
 const { startChampInfo } = require("../analyze/champInfo/champInfo.controller")
 const { serviceSavePosition } = require("../analyze/champInfo/champ.service.data/champ.position")
 const { serviceSaveRate } = require("../analyze/champInfo/champ.service.data/champ.rate")
 const { serviceSaveChampSpell } = require("../analyze/champInfo/champ.service.data/champ.spell")
 
-const simulationController = require("../analyze/match_data/simulation.controller")
+const simulationController = require("../analyze/simulation/simulation.controller")
 const { testRiotRequest } = require("../analyze/common.request")
 const { AsyncTask } = require("toad-scheduler")
 
@@ -35,9 +35,9 @@ async function startAnalyze() {
 
         // 데이터 분석
         await startChampInfo()
-        await matchDataController.saveCombination()
-        await matchDataController.uploadCombinationWinRate()
-        await matchDataController.updateCombinationTierAndRank()
+        await combinationController.saveCombination()
+        await combinationController.uploadCombinationWinRate()
+        await combinationController.updateCombinationTierAndRank()
 
         await simulationController.saveSimulation()
         await simulationController.uploadSimulationWinRate()
@@ -50,13 +50,13 @@ async function startAnalyze() {
         await serviceSaveRate()
         await serviceSavePosition()
         await serviceSaveChampSpell()
-        await matchDataController.transferCombinationStatToServiceDB()
+        await combinationController.transferCombinationStatToServiceDB()
         await simulationController.transferSimulationToServiceDB()
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
         const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
-        console.log(`===${ConversionRunningTime} 분소요===`)
+        logger.info(`=== 데이터 분석 ${ConversionRunningTime}분 소요`)
     } catch (err) {
         logger.error(err, { message: "- from startAnalyze" })
     }
