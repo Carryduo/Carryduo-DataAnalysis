@@ -1,7 +1,7 @@
 const { sleep } = require("../timer/timer")
 const { performance } = require("perf_hooks")
 
-const matchDataController = require("../analyze/combination/combination.controller")
+const combinationController = require("../analyze/combination/combination.controller")
 const { startChampInfo } = require("../analyze/champInfo/champInfo.controller")
 const { serviceSavePosition } = require("../analyze/champInfo/champ.service.data/champ.position")
 const { serviceSaveRate } = require("../analyze/champInfo/champ.service.data/champ.rate")
@@ -35,9 +35,9 @@ async function startAnalyze() {
 
         // 데이터 분석
         await startChampInfo()
-        await matchDataController.saveCombination()
-        await matchDataController.uploadCombinationWinRate()
-        await matchDataController.updateCombinationTierAndRank()
+        await combinationController.saveCombination()
+        await combinationController.uploadCombinationWinRate()
+        await combinationController.updateCombinationTierAndRank()
 
         await simulationController.saveSimulation()
         await simulationController.uploadSimulationWinRate()
@@ -50,7 +50,7 @@ async function startAnalyze() {
         await serviceSaveRate()
         await serviceSavePosition()
         await serviceSaveChampSpell()
-        await matchDataController.transferCombinationStatToServiceDB()
+        await combinationController.transferCombinationStatToServiceDB()
         await simulationController.transferSimulationToServiceDB()
         //함수 실행 시간 체크
         const end = performance.now()
