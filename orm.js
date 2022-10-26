@@ -19,7 +19,7 @@ const dataSource = new typeorm.DataSource({
         require("./entity/simulation.service.data"),
         require("./entity/simulation.data"),
     ],
-    migrations: ["./migrations/*.ts"],
+    migrations: ["migrations/*.js"],
     migrationsDir: ["./migrations"],
     migrationsTableName: "migration",
 })
