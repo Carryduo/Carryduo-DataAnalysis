@@ -1,8 +1,9 @@
-const { dataSource, dataSource_service } = require("../../orm")
+const { dataSource } = require("../../orm")
+const { dataSource_service } = require("../../service.orm")
 const queryRunner = dataSource.createQueryRunner()
-const Simulation = dataSource.getRepository('simulation')
-const Simulation_service = dataSource.getRepository('simulation_service')
-const simulation = require('../../entity/simulation.data')
+const Simulation = dataSource.getRepository("simulation")
+const Simulation_service = dataSource.getRepository("simulation_service")
+const simulation = require("../../entity/simulation.data")
 const matchid = require("../../entity/match.id")
 const MatchId = dataSource.getRepository("matchid")
 const { Brackets } = require("typeorm")
@@ -29,8 +30,12 @@ exports.getMatchId = async () => {
 }
 
 exports.updateWrongMatchDataSimulationAnalyzed = async (matchId) => {
-    await MatchId.createQueryBuilder().update().set({ simulationAnalyzed: 2 }).where('matchid.matchId = :matchId', { matchId }).execute()
-    console.log('무의미한 MatchData 처리 완료')
+    await MatchId.createQueryBuilder()
+        .update()
+        .set({ simulationAnalyzed: 2 })
+        .where("matchid.matchId = :matchId", { matchId })
+        .execute()
+    console.log("무의미한 MatchData 처리 완료")
     return
 }
 
@@ -53,8 +58,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
     let dbupdate
     try {
         if (win) {
-            await Simulation
-                .createQueryBuilder()
+            await Simulation.createQueryBuilder()
                 .update()
                 .set({
                     win: () => "win + 1",
@@ -65,8 +69,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                 .andWhere("simulation.champ3Id = :champ3Id", { champ3Id: champ3.champId })
                 .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ simulationAnalyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -75,8 +78,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await Simulation
-                .createQueryBuilder()
+            await Simulation.createQueryBuilder()
                 .update()
                 .set({
                     lose: () => "lose + 1",
@@ -88,8 +90,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                 .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
                 .execute()
 
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ simulationAnalyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -115,8 +116,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
     await queryRunner.startTransaction()
     try {
         if (win) {
-            await Simulation
-                .createQueryBuilder()
+            await Simulation.createQueryBuilder()
                 .insert()
                 .values({
                     matchId,
@@ -131,11 +131,10 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                     win: 1,
                     lose: 0,
                     sampleNum: 1,
-                    category
+                    category,
                 })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update(matchid)
                 .set({ simulationAnalyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -144,8 +143,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await Simulation
-                .createQueryBuilder()
+            await Simulation.createQueryBuilder()
                 .insert()
                 .values({
                     matchId,
@@ -160,11 +158,10 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                     win: 0,
                     lose: 1,
                     sampleNum: 1,
-                    category
+                    category,
                 })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ simulationAnalyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -184,10 +181,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
 }
 
 exports.findRawSimulationData = async () => {
-    let data = await Simulation
-        .createQueryBuilder()
-        .select()
-        .getMany()
+    let data = await Simulation.createQueryBuilder().select().getMany()
     return data
 }
 
@@ -242,8 +236,7 @@ exports.getSimulationData = async () => {
 exports.transferToService_Simulation = async (data) => {
     console.log(data)
     let result = { type: "none", success: "none" }
-    const existData = await Simulation_serviceDB
-        .createQueryBuilder()
+    const existData = await Simulation_serviceDB.createQueryBuilder()
         .select()
         .where("SIMULATION.champ1Id = :champ1Id", { champ1Id: data.champ1Id })
         .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: data.champ2Id })
@@ -253,8 +246,7 @@ exports.transferToService_Simulation = async (data) => {
     console.log(existData, existData.length)
     if (existData.length === 0) {
         result.type = "save"
-        result.success = await Simulation_serviceDB
-            .createQueryBuilder()
+        result.success = await Simulation_serviceDB.createQueryBuilder()
             .insert()
             .values(data)
             .execute()
@@ -268,8 +260,7 @@ exports.transferToService_Simulation = async (data) => {
             })
     } else {
         result.type = "update"
-        result.success = await Simulation_serviceDB
-            .createQueryBuilder()
+        result.success = await Simulation_serviceDB.createQueryBuilder()
             .update()
             .set(data)
             .where("SIMULATION.champ1Id = :champ1Id", { champ1Id: data.champ1Id })
