@@ -1,6 +1,6 @@
 require("dotenv").config()
 const db = require("./orm")
-const ServiceDB = require("./orm")
+const ServiceDB = require("./service.orm")
 
 const { ToadScheduler, SimpleIntervalJob } = require("toad-scheduler")
 

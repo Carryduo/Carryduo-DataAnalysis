@@ -5,7 +5,7 @@ const ChampInfo = dataSource.getRepository("champinfo")
 const ChampSpell = dataSource.getRepository("champspell")
 const MatchId = dataSource.getRepository("matchid")
 
-const { dataSource_service } = require("../../orm")
+const { dataSource_service } = require("../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
 const ChampSkill = dataSource_service.getRepository("CHAMPSKILL")

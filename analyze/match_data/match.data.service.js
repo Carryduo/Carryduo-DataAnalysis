@@ -1,6 +1,7 @@
 // 데이터분석 DB
 
-const { dataSource, dataSource_service } = require("../../orm")
+const { dataSource } = require("../../orm")
+const { dataSource_service } = require("../../service.orm")
 const { Brackets, MoreThan } = require("typeorm")
 const queryRunner = dataSource.createQueryRunner()
 
@@ -47,7 +48,7 @@ exports.updateWrongMatchDataAnalyzed = async (matchId) => {
         console.log("무의미한 MatchData 처리 완료")
         return
     } catch (error) {
-        await taskErrLogging(error, '오류 matchId 예외처리 실패')
+        await taskErrLogging(error, "오류 matchId 예외처리 실패")
     }
 }
 
@@ -83,8 +84,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
     let dbupdate
     try {
         if (category === "win") {
-            await Combination
-                .createQueryBuilder()
+            await Combination.createQueryBuilder()
                 .update()
                 .set({
                     win: () => "win + 1",
@@ -93,8 +93,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -103,8 +102,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await Combination
-                .createQueryBuilder()
+            await Combination.createQueryBuilder()
                 .update()
                 .set({
                     lose: () => "lose + 1",
@@ -114,8 +112,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
                 .execute()
 
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -124,7 +121,6 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-
     } catch (error) {
         dbupdate = { message: `${matchId} 분석 실패` }
         console.log(error)
@@ -140,8 +136,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
     let dbupdate
     try {
         if (category === "win") {
-            await Combination
-                .createQueryBuilder()
+            await Combination.createQueryBuilder()
                 .insert()
                 .values({
                     matchId,
@@ -155,8 +150,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     category: type,
                 })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -165,8 +159,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         } else {
-            await Combination
-                .createQueryBuilder()
+            await Combination.createQueryBuilder()
                 .insert()
                 .values({
                     matchId,
@@ -180,8 +173,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     category: type,
                 })
                 .execute()
-            await MatchId
-                .createQueryBuilder()
+            await MatchId.createQueryBuilder()
                 .update()
                 .set({ analyzed: 1 })
                 .where("matchid.matchId = :matchId", { matchId })
@@ -201,13 +193,10 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
 
 exports.findRawCombinationData = async () => {
     try {
-        let data = await Combination
-            .createQueryBuilder()
-            .select()
-            .getMany()
+        let data = await Combination.createQueryBuilder().select().getMany()
         return data
     } catch (error) {
-        await taskErrLogging(error, '챔피언 조합 승률 로우데이터 조회 실패(승률 변환)')
+        await taskErrLogging(error, "챔피언 조합 승률 로우데이터 조회 실패(승률 변환)")
     }
 }
 
@@ -252,24 +241,21 @@ exports.updateWinRate = async (value) => {
 
 exports.findCombinationCleansedData = async () => {
     try {
-        const category0 = await Combination_Service
-            .createQueryBuilder()
+        const category0 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 0 })
             .select()
             .getMany()
-        const category1 = await Combination_Service
-            .createQueryBuilder()
+        const category1 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 1 })
             .select()
             .getMany()
-        const category2 = await Combination_Service
-            .createQueryBuilder()
+        const category2 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 2 })
             .select()
             .getMany()
         return { category0, category1, category2 }
     } catch (error) {
-        await taskErrLogging(error, '챔피언조합승률 카테고리별 승률 데이터 조회 실패')
+        await taskErrLogging(error, "챔피언조합승률 카테고리별 승률 데이터 조회 실패")
     }
 }
 
@@ -278,11 +264,15 @@ exports.updateCombinationTier = async (value) => {
         await Combination_Service.createQueryBuilder()
             .update()
             .set(value)
-            .where("combination_service.mainChampId = :mainChampId", { mainChampId: value.mainChampId })
-            .andWhere("combination_service.subChampId = :subChampId", { subChampId: value.subChampId })
+            .where("combination_service.mainChampId = :mainChampId", {
+                mainChampId: value.mainChampId,
+            })
+            .andWhere("combination_service.subChampId = :subChampId", {
+                subChampId: value.subChampId,
+            })
             .execute()
     } catch (error) {
-        await taskErrLogging(error, '챔피언조합승률 티어 업데이트 실패')
+        await taskErrLogging(error, "챔피언조합승률 티어 업데이트 실패")
     }
 }
 
@@ -300,7 +290,7 @@ exports.getCombinationData = async () => {
             ])
             .getMany()
     } catch (error) {
-        await taskErrLogging(error, '챔피언 조합승률 데이터 조회 실패(서비스 DB로 이관)')
+        await taskErrLogging(error, "챔피언 조합승률 데이터 조회 실패(서비스 DB로 이관)")
     }
 }
 
@@ -334,8 +324,12 @@ exports.transferToService = async (data) => {
                 .createQueryBuilder()
                 .update()
                 .set(data)
-                .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
-                .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
+                .where("COMBINATION_STAT.mainChampId = :mainChampId", {
+                    mainChampId: data.mainChampId,
+                })
+                .andWhere("COMBINATION_STAT.subChampId = :subChampId", {
+                    subChampId: data.subChampId,
+                })
 
                 .execute()
                 .then(() => {
@@ -348,7 +342,7 @@ exports.transferToService = async (data) => {
         }
         return result
     } catch (error) {
-        await taskErrLogging(error, '챔피언 조합승률 서비스 DB 이관')
+        await taskErrLogging(error, "챔피언 조합승률 서비스 DB 이관")
     }
 }
 
