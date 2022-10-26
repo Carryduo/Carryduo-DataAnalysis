@@ -1,5 +1,6 @@
 require("dotenv").config()
 const axios = require("axios")
+const logger = require("../../log")
 const { taskErrLogging, taskSuccessLogging, matchIdLogging } = require("../../logging/log")
 const { sleep } = require("../../timer/timer")
 const {
@@ -19,7 +20,7 @@ exports.saveSimulation = async () => {
     try {
 
         const matchIdList = await getMatchId()
-        await matchIdLogging('key 숫자', key, matchIdList.length, '매치데이터 조회 및 시뮬레이션 데이터 분석')
+        logger.info(matchIdList, { message: '매치데이터 조회 및 시뮬레이션 데이터 분석 matchId 개수' })
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -27,13 +28,12 @@ exports.saveSimulation = async () => {
             }
             await getMatchDataAndSaveSimulation(matchIdList)
         }
-        await taskSuccessLogging('매치데이터 조회 및 시뮬레이션 데이터 분석')
+        logger.info('매치데이터 조회 및 시뮬레이션 데이터 분석')
         key = 0
-        return "matchData 저장 성공"
-    } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, '매치데이터 조회 및 시뮬레이션 데이터 분석')
-        return "matchData 저장 실패"
+        return
+    } catch (err) {
+        logger.error(err, { message: '-from 매치데이터 조회 및 시뮬레이션 데이터 분석' })
+        return
     }
 }
 
@@ -266,7 +266,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
 exports.uploadSimulationWinRate = async () => {
 
     try {
-        await matchIdLogging(0, '대전 시뮬레이션 로우데이터 승률로 변환')
+        logger.info('대전 시뮬레이션 로우데이터 승률로 변환')
         let data = await findRawSimulationData()
         console.log(data.length)
         data = data.map((value) => {
@@ -289,11 +289,9 @@ exports.uploadSimulationWinRate = async () => {
             const result = await updateSimulationWinRate(data[i])
             console.log(`${i}번째`, result)
         }
-        await taskSuccessLogging('대전 시뮬레이션 로우데이터 승률로 변환')
-        return "success"
-    } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, '대전 시뮬레이션 로우데이터 승률로 변환')
+        logger.info('대전 시뮬레이션 로우데이터 승률로 변환 완료')
+    } catch (err) {
+        logger.error(err, { message: '-from 대전 시뮬레이션 로우데이터 승률로 변환' })
     }
 }
 

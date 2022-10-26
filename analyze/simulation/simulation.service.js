@@ -5,7 +5,8 @@ const Simulation_service = dataSource.getRepository('simulation_service')
 const simulation = require('../../entity/simulation.data')
 const matchid = require("../../entity/match.id")
 const MatchId = dataSource.getRepository("matchid")
-const { Brackets, MoreThan } = require("typeorm")
+const { Brackets } = require("typeorm")
+const logger = require("../../log")
 const Simulation_serviceDB = dataSource_service.getRepository("SIMULATION")
 
 exports.getMatchId = async () => {
@@ -97,9 +98,9 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-    } catch (error) {
+    } catch (err) {
         dbupdate = { message: `${matchId} 분석 실패` }
-        console.log(error)
+        logger.error(err, { message: `${matchId} simulation 분석 실패(update)` })
     } finally {
         return dbupdate
     }
@@ -173,8 +174,8 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                 })
         }
         await queryRunner.commitTransaction()
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        logger.error(err, { message: `${matchId} simulation 분석 실패(update)` })
         dbupdate = { message: `${matchId} 분석 실패` }
         await queryRunner.rollbackTransaction()
     } finally {
@@ -218,8 +219,8 @@ exports.updateSimulationWinRate = async (value) => {
         }
 
         return { type, success: true }
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        logger.error(err, { message: `시뮬레이션 데이터 승률 변환 실패` })
         return { type, success: false }
     }
 }
@@ -261,8 +262,8 @@ exports.transferToService_Simulation = async (data) => {
             .then(() => {
                 return { success: true }
             })
-            .catch((error) => {
-                console.log(error)
+            .catch((err) => {
+                logger.error(err, { message: `시뮬레이션 데이터 서비스 DB 이관 실패(save)` })
                 return { success: false }
             })
     } else {
@@ -279,8 +280,8 @@ exports.transferToService_Simulation = async (data) => {
             .then(() => {
                 return { success: true }
             })
-            .catch((error) => {
-                console.log(error)
+            .catch((err) => {
+                logger.error(err, { message: `시뮬레이션 데이터 서비스 DB 이관 실패(update)` })
                 return { success: false }
             })
     }

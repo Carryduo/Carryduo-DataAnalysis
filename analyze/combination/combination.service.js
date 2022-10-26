@@ -13,6 +13,7 @@ const combination = require("../../entity/combination.data")
 const Combination_Service = dataSource.getRepository("combination_service")
 const combinationServiceData = require("../../entity/combination.service.data")
 const { taskErrLogging } = require("../../logging/log")
+const logger = require("../../log")
 
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
@@ -46,8 +47,8 @@ exports.updateWrongMatchDataAnalyzed = async (matchId) => {
             .execute()
         console.log("무의미한 MatchData 처리 완료")
         return
-    } catch (error) {
-        await taskErrLogging(error, '오류 matchId 예외처리 실패')
+    } catch (err) {
+        logger.error(err, { message: 'from matchId 예외처리' })
     }
 }
 
@@ -125,10 +126,9 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 })
         }
 
-    } catch (error) {
+    } catch (err) {
         dbupdate = { message: `${matchId} 분석 실패` }
-        console.log(error)
-        await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(update)`)
+        logger.error(err, { message: `-from ${matchId} 챔피언 조합승률 분석(update)` })
     } finally {
         return dbupdate
     }
@@ -190,9 +190,8 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-    } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(save)`)
+    } catch (err) {
+        logger.error(err, { message: `-from ${matchId} 챔피언 조합승률 분석(update)` })
         dbupdate = { message: `${matchId} 분석 실패` }
     } finally {
         return dbupdate
@@ -206,8 +205,8 @@ exports.findRawCombinationData = async () => {
             .select()
             .getMany()
         return data
-    } catch (error) {
-        await taskErrLogging(error, '챔피언 조합 승률 로우데이터 조회 실패(승률 변환)')
+    } catch (err) {
+        logger.error(err, { message: `챔피언 조합 승률 로우데이터 조회 실패(승률 변환)` })
     }
 }
 
@@ -243,9 +242,8 @@ exports.updateWinRate = async (value) => {
         }
 
         return { type, success: true }
-    } catch (error) {
-        console.log(error)
-        await taskErrLogging(error, `챔피언 조합 승률 로우 데이터 승률 변환 실패`)
+    } catch (err) {
+        logger.error(err, { message: `챔피언 조합 승률 변환 실패(승률 변환)` })
         return { type, success: false }
     }
 }
@@ -268,8 +266,9 @@ exports.findCombinationCleansedData = async () => {
             .select()
             .getMany()
         return { category0, category1, category2 }
-    } catch (error) {
-        await taskErrLogging(error, '챔피언조합승률 카테고리별 승률 데이터 조회 실패')
+    } catch (err) {
+        logger.error(err, { message: `챔피언 조합 승률 카테고리별 승률 데이터 조회 실패` })
+
     }
 }
 
@@ -281,8 +280,8 @@ exports.updateCombinationTier = async (value) => {
             .where("combination_service.mainChampId = :mainChampId", { mainChampId: value.mainChampId })
             .andWhere("combination_service.subChampId = :subChampId", { subChampId: value.subChampId })
             .execute()
-    } catch (error) {
-        await taskErrLogging(error, '챔피언조합승률 티어 업데이트 실패')
+    } catch (err) {
+        logger.error(err, { message: `챔피언 조합 승률 티어, 랭크 삽입 실패` })
     }
 }
 
@@ -300,7 +299,7 @@ exports.getCombinationData = async () => {
             ])
             .getMany()
     } catch (error) {
-        await taskErrLogging(error, '챔피언 조합승률 데이터 조회 실패(서비스 DB로 이관)')
+        logger.error(err, { message: `챔피언 조합승률 데이터 조회 실패(서비스DB 이관)` })
     }
 }
 
@@ -347,73 +346,11 @@ exports.transferToService = async (data) => {
                 })
         }
         return result
-    } catch (error) {
-        await taskErrLogging(error, '챔피언 조합승률 서비스 DB 이관')
+    } catch (err) {
+        logger.error(err, { message: '챔피언 조합 승률 서비스 DB 이관 실패' })
     }
 }
 
 exports.disconnect = async () => {
     await queryRunner.release()
 }
-
-// exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) => {
-//     // TODO: 트랜젝션, matchId 업데이트
-//     console.log("update", mainChamp, subChamp)
-
-//     let dbupdate
-//     await queryRunner.connect()
-//     await queryRunner.startTransaction()
-//     try {
-//         if (category === "win") {
-//             await queryRunner.manager
-//                 .createQueryBuilder()
-//                 .update(combination)
-//                 .set({
-//                     win: () => "win + 1",
-//                     sampleNum: () => "sampleNum + 1",
-//                 })
-//                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
-//                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
-//                 .execute()
-//             await queryRunner.manager
-//                 .createQueryBuilder()
-//                 .update(matchid)
-//                 .set({ analyzed: 1 })
-//                 .where("matchid.matchId = :matchId", { matchId })
-//                 .execute()
-//                 .then(() => {
-//                     dbupdate = { message: `${matchId} 분석 성공` }
-//                 })
-//         } else {
-//             await queryRunner.manager
-//                 .createQueryBuilder()
-//                 .update(combination)
-//                 .set({
-//                     lose: () => "lose + 1",
-//                     sampleNum: () => "sampleNum + 1",
-//                 })
-//                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
-//                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
-//                 .execute()
-
-//             await queryRunner.manager
-//                 .createQueryBuilder()
-//                 .update(matchid)
-//                 .set({ analyzed: 1 })
-//                 .where("matchid.matchId = :matchId", { matchId })
-//                 .execute()
-//                 .then(() => {
-//                     dbupdate = { message: `${matchId} 분석 성공` }
-//                 })
-//         }
-
-//         await queryRunner.commitTransaction()
-//     } catch (error) {
-//         dbupdate = { message: `${matchId} 분석 실패` }
-//         console.log(error)
-//         await taskErrLogging(error, `${matchId} 챔피언 조합 승률 분석 실패(update)`)
-//         await queryRunner.rollbackTransaction()
-//     } finally {
-//         return dbupdate
-//     }
-// }
