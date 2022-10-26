@@ -13,7 +13,6 @@ const combination = require("../../entity/combination.data")
 
 const Combination_Service = dataSource.getRepository("combination_service")
 const combinationServiceData = require("../../entity/combination.service.data")
-const { taskErrLogging } = require("../../logging/log")
 const logger = require("../../log")
 
 // 서비스 DB

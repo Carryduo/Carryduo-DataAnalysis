@@ -2,7 +2,6 @@ require("dotenv").config()
 const axios = require("axios")
 const { Logger } = require("mongodb")
 const logger = require("../../log")
-const { taskErrLogging, taskSuccessLogging, matchIdLogging } = require("../../logging/log")
 const { sleep } = require("../../timer/timer")
 const {
     getMatchId,
