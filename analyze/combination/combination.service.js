@@ -323,6 +323,8 @@ exports.transferToService = async (data) => {
             .select()
             .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
             .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
+            .andWhere("COMBINATION_STAT.category = :category", { category: data.category })
+            .andWhere('COMBINATION_STAT.version = :version', { version: data.version })
             .getMany()
         if (existData.length === 0) {
             result.type = "save"
@@ -350,7 +352,8 @@ exports.transferToService = async (data) => {
                 .andWhere("COMBINATION_STAT.subChampId = :subChampId", {
                     subChampId: data.subChampId,
                 })
-
+                .andWhere("COMBINATION_STAT.category = :category", { category: data.category })
+                .andWhere('COMBINATION_STAT.version = :version', { version: data.version })
                 .execute()
                 .then(() => {
                     return { success: true }

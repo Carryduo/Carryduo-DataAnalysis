@@ -39,18 +39,19 @@ exports.updateWrongMatchDataSimulationAnalyzed = async (matchId) => {
     return
 }
 
-exports.checkSimulationData = async (champ1, champ2, champ3, champ4) => {
+exports.checkSimulationData = async (champ1, champ2, champ3, champ4, version) => {
     return await Simulation.createQueryBuilder()
         .select()
         .where("simulation.champ1Id = :champ1Id", { champ1Id: champ1.champId })
         .andWhere("simulation.champ2Id = :champ2Id", { champ2Id: champ2.champId })
         .andWhere("simulation.champ3Id = :champ3Id", { champ3Id: champ3.champId })
         .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
+        .andWhere('simulation.version = :version', { version })
         .getMany()
 }
 
 // 챔피언 조합 승률 관련
-exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) => {
+exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4, category, version) => {
     // TODO: 트랜젝션, matchId 업데이트
     const win = champ1.win
 
@@ -67,6 +68,8 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                 .andWhere("simulation.champ2Id = :champ2Id", { champ2Id: champ2.champId })
                 .andWhere("simulation.champ3Id = :champ3Id", { champ3Id: champ3.champId })
                 .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
+                .andWhere('simulation.category = :category', { category })
+                .andWhere('simulation.version = :version', { version })
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
@@ -87,6 +90,8 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
                 .andWhere("simulation.champ2Id = :champ2Id", { champ2Id: champ2.champId })
                 .andWhere("simulation.champ3Id = :champ3Id", { champ3Id: champ3.champId })
                 .andWhere("simulation.champ4Id = :champ4Id", { champ4Id: champ4.champId })
+                .andWhere('simulation.category = :category', { category })
+                .andWhere('simulation.version = :version', { version })
                 .execute()
 
             await MatchId.createQueryBuilder()
@@ -106,7 +111,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4) =
     }
 }
 
-exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, category) => {
+exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, category, version) => {
 
     const win = champ1.win
     let dbupdate
@@ -130,6 +135,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                     lose: 0,
                     sampleNum: 1,
                     category,
+                    version
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -157,6 +163,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                     lose: 1,
                     sampleNum: 1,
                     category,
+                    version
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -179,7 +186,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
 }
 
 exports.findRawSimulationData = async () => {
-    let data = await Simulation.createQueryBuilder().select().getMany()
+    let data = await Simulation.createQueryBuilder().select().orderBy({ "simulation.version": "ASC" }).getMany()
     return data
 }
 
@@ -192,6 +199,8 @@ exports.updateSimulationWinRate = async (value) => {
             .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
             .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
             .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
+            .andWhere("simulation_service.category = :category", { version: value.category })
+            .andWhere("simulation_service.version = :version", { version: value.version })
             .getOne()
 
         if (!existData) {
@@ -205,6 +214,8 @@ exports.updateSimulationWinRate = async (value) => {
                 .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
                 .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
                 .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
+                .andWhere("simulation_service.category = :category", { version: value.category })
+                .andWhere("simulation_service.version = :version", { version: value.version })
                 .execute()
             type = "update"
         }
@@ -226,6 +237,7 @@ exports.getSimulationData = async () => {
             "simulation_service.champ2Id",
             "simulation_service.champ3Id",
             "simulation_service.champ4Id",
+            "simulation_service.version"
         ])
         .getMany()
 }
@@ -238,6 +250,8 @@ exports.transferToService_Simulation = async (data) => {
         .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: data.champ2Id })
         .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
         .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
+        .andWhere('SIMULATION.category = :category', { category: data.category })
+        .andWhere('SIMULATION.version = :version', { version: data.version })
         .getMany()
     if (existData.length === 0) {
         result.type = "save"
@@ -262,6 +276,8 @@ exports.transferToService_Simulation = async (data) => {
             .andWhere("SIMULATION.champ2Id = :champ2Id", { champ2Id: data.champ2Id })
             .andWhere("SIMULATION.champ3Id = :champ3Id", { champ3Id: data.champ3Id })
             .andWhere("SIMULATION.champ4Id = :champ4Id", { champ4Id: data.champ4Id })
+            .andWhere('SIMULATION.category = :category', { category: data.category })
+            .andWhere('SIMULATION.version = :version', { version: data.version })
             .execute()
             .then(() => {
                 return { success: true }
