@@ -60,7 +60,7 @@ exports.successAnalyzed = async (matchId, option) => {
 exports.dropAnalyzed = async (matchId, option) => {
     return await MatchId.createQueryBuilder()
         .update()
-        .set(option.set)
+        .set({ rateAnalyzed: 2, banAnalyzed: 2, positionAnalyzed: 2, spellAnalyzed: 2 })
         .where("matchid.matchId = :matchId", { matchId })
         .execute()
 }
@@ -107,46 +107,13 @@ exports.oldVersionSet = async (champId) => {
         .execute()
 }
 
-// 챔피언 승/패 카운팅
-exports.createRate = async (champId, champName, version, history) => {
-    if (history) {
-        return ChampInfo.createQueryBuilder()
-            .insert()
-            .values({ champId, champName, version, win: 1, sampleNum: 1 })
-            .execute()
-    } else if (!history) {
-        return ChampInfo.createQueryBuilder()
-            .insert()
-            .values({ champId, champName, version, lose: 1, sampleNum: 1 })
-            .execute()
-    }
-}
-
-exports.updateRate = async (champId, version, updateOptionWinRate) => {
-    return ChampInfo.createQueryBuilder()
-        .update(ChampInfo)
-        .set(updateOptionWinRate.set)
-        .where("champId = :champId", { champId })
-        .andWhere("version = :version", { version })
-        .execute()
-}
-
-// 챔피언 밴 카운팅
-exports.addBanCnt = async (champId) => {
-    return ChampInfo.createQueryBuilder()
-        .update(ChampInfo)
-        .set({ banCount: () => "banCount+1" })
-        .where("champId = :champId", { champId })
-        .execute()
-}
-
 //챔피언 포지션 카운팅
 exports.addPositionCnt = async (champId, option) => {
     return ChampInfo.createQueryBuilder()
         .update(ChampInfo)
         .set(option.set)
         .where("champId = :champId", { champId })
-        .execute()
+    c
 }
 
 //챔피언 포지션 데이터 가져오기
