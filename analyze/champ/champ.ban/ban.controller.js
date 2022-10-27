@@ -1,4 +1,13 @@
-const { createBanCnt, updateBanCnt, deleteBanOldVersion, getBanVersion } = require("./ban.service")
+const {
+    createBanCnt,
+    updateBanCnt,
+    deleteBanOldVersion,
+    getBanVersion,
+    allBanVersion,
+    banInfo,
+    saveBanRate,
+} = require("./ban.service")
+
 const { successAnalyzed } = require("../champInfo.service")
 const logger = require("../../../log")
 
@@ -66,5 +75,42 @@ exports.banRate = async (data, key) => {
     } catch (err) {
         logger.error(err, { message: "- from banrate" })
         return
+    }
+}
+
+exports.saveBanRate = async () => {
+    try {
+        let dupBanVersion = []
+        const banAllVersion = await allBanVersion()
+
+        for (let bI of banAllVersion) {
+            dupBanVersion.push(bI.version)
+        }
+
+        const set = new Set(dupBanVersion)
+        const uniqBanVersion = [...set]
+
+        for (let bV of uniqBanVersion) {
+            const banInfos = await banInfo(bV)
+            for (let bIs of banInfos) {
+                const champId = bIs.champId
+                const sampleNum = bIs.sampleNum
+                const version = bIs.version
+                const banCount = bIs.banCount
+
+                if (version === "old") {
+                    continue
+                }
+
+                let banRate = (banCount / sampleNum) * 100
+                banRate = Number(banRate.toFixed(2))
+                await saveBanRate(champId, banRate, version)
+            }
+        }
+        return "벤 데이터 서비스 table 업데이트 완료"
+    } catch (err) {
+        logger.error(err, { message: "- from saveBanRate" })
+
+        return err
     }
 }

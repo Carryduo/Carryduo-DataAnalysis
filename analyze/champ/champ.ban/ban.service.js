@@ -1,5 +1,6 @@
 const { dataSource } = require("../../../orm")
 const ChampBan = dataSource.getRepository("champban")
+const ChampService = dataSource.getRepository("champ_service")
 
 exports.createBanCnt = async (champId, banCount, version) => {
     return ChampBan.createQueryBuilder()
@@ -29,4 +30,32 @@ exports.getBanVersion = async (champId, version) => {
         .where("champId = :champId", { champId })
         .andWhere("version = :version", { version })
         .getOne()
+}
+
+exports.allBanVersion = async () => {
+    return ChampBan.createQueryBuilder("ban").select("ban.version").getMany()
+}
+
+exports.banInfo = async (version) => {
+    return ChampBan.createQueryBuilder().where("version = :version", { version }).getMany()
+}
+
+exports.saveBanRate = async (champId, banRate, version) => {
+    const check = await ChampService.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .andWhere("version = :version", { version })
+        .getOne()
+    if (!check) {
+        await ChampService.createQueryBuilder()
+            .insert()
+            .values({ champId, ban_rate: banRate, version })
+            .execute()
+    } else if (check) {
+        await ChampService.createQueryBuilder()
+            .update(ChampService)
+            .set({ ban_rate: banRate })
+            .where("champId = :champId", { champId })
+            .andWhere("version = :version", { version })
+            .execute()
+    }
 }

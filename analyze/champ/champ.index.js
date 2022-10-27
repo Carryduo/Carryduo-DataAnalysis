@@ -5,11 +5,11 @@ const axios = require("axios")
 const { matchIdList } = require("./champInfo.service")
 
 const { rate } = require("./champ.rate/rate.controller")
-const { banRate } = require("./champ.ban/ban.controller")
+const { banRate, saveBanRate } = require("./champ.ban/ban.controller")
 const { position } = require("./champ.position/position.controller")
 const { spell } = require("./champ.spell/spell.controller")
 
-let key = 470
+let key = 0
 let status
 exports.startChampInfo = async () => {
     try {
