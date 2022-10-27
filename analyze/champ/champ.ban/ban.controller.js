@@ -91,16 +91,15 @@ exports.saveBanRate = async () => {
         const uniqBanVersion = [...set]
 
         for (let bV of uniqBanVersion) {
+            if (bV === "old") {
+                continue
+            }
             const banInfos = await banInfo(bV)
             for (let bIs of banInfos) {
                 const champId = bIs.champId
                 const sampleNum = bIs.sampleNum
                 const version = bIs.version
                 const banCount = bIs.banCount
-
-                if (version === "old") {
-                    continue
-                }
 
                 let banRate = (banCount / sampleNum) * 100
                 banRate = Number(banRate.toFixed(2))

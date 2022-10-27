@@ -1,4 +1,11 @@
-const { getRateVersion, createRate, updateRate, deleteRateOldVersion } = require("./rate.service")
+const {
+    getRateVersion,
+    createRate,
+    updateRate,
+    allWinRateVersion,
+    rateInfo,
+    saveWinRate,
+} = require("./rate.service")
 const logger = require("../../../log")
 
 exports.rate = async (data, key) => {
@@ -37,8 +44,6 @@ exports.rate = async (data, key) => {
                 await updateRate(champId, version, updateOptionWinRate)
             }
         }
-        await deleteRateOldVersion()
-
         // 카운팅 후 카운팅한 matchId 상태값 변경
         analyzedOption = {
             set: { rateAnalyzed: 1 },
@@ -47,5 +52,41 @@ exports.rate = async (data, key) => {
     } catch (err) {
         logger.error(err, { message: "- from rate" })
         return
+    }
+}
+
+exports.saveWinRate = async () => {
+    try {
+        let dupWinRateVersion = []
+        const WinRateAllVersion = await allWinRateVersion()
+
+        for (let WRAV of WinRateAllVersion) {
+            dupWinRateVersion.push(WRAV.version)
+        }
+
+        const set = new Set(dupWinRateVersion)
+        const uniqWinRateVersion = [...set]
+
+        for (let uv of uniqWinRateVersion) {
+            if (uv === "old") {
+                continue
+            }
+            const rateInfos = await rateInfo(uv)
+            for (let rIs of rateInfos) {
+                const champId = rIs.champId
+                const sampleNum = rIs.sampleNum
+                const version = rIs.version
+                const win = rIs.win
+
+                let winRate = (win / sampleNum) * 100
+                winRate = Number(winRate.toFixed(2))
+                await saveWinRate(champId, winRate, version)
+            }
+        }
+        return "승률 데이터 서비스 table 업데이트 완료"
+    } catch (err) {
+        logger.error(err, { message: "- from saveWinRate" })
+
+        return err
     }
 }
