@@ -9,8 +9,10 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: true,
+    logging: false,
     entities: [
+        require("./entity/champ.position.data"),
+        require("./entity/champ.ban.data"),
         require("./entity/match.id"),
         require("./entity/combination.data"),
         require("./entity/champ.info.data"),
