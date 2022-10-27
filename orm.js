@@ -9,7 +9,7 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [
         require("./entity/champ.position.data"),
         require("./entity/champ.ban.data"),
@@ -21,7 +21,7 @@ const dataSource = new typeorm.DataSource({
         require("./entity/simulation.service.data"),
         require("./entity/simulation.data"),
     ],
-    migrations: ["migrations/*.js"],
+    migrations: ["./migrations/*.js"],
     migrationsDir: ["./migrations"],
     migrationsTableName: "migration",
 })

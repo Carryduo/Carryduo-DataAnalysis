@@ -51,6 +51,10 @@ module.exports = new EntitySchema({
         subChampId: {
             type: 'varchar',
             require: true
+        },
+        version: {
+            type: 'varchar',
+            required: true
         }
     },
 })
