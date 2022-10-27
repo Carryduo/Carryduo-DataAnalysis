@@ -40,7 +40,7 @@ exports.rateInfo = async (version) => {
     return ChampWinRate.createQueryBuilder().where("version = :version", { version }).getMany()
 }
 
-exports.saveWinRate = async (champId, winRate, version) => {
+exports.saveWinPickRate = async (champId, winRate, pickRate, version) => {
     const check = await ChampService.createQueryBuilder()
         .where("champId = :champId", { champId })
         .andWhere("version = :version", { version })
@@ -48,12 +48,12 @@ exports.saveWinRate = async (champId, winRate, version) => {
     if (!check) {
         await ChampService.createQueryBuilder()
             .insert()
-            .values({ champId, win_rate: winRate, version })
+            .values({ champId, win_rate: winRate, pick_rate: pickRate, version })
             .execute()
     } else if (check) {
         await ChampService.createQueryBuilder()
             .update(ChampService)
-            .set({ win_rate: winRate })
+            .set({ win_rate: winRate, pick_rate: pickRate })
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
             .execute()

@@ -4,8 +4,11 @@ const {
     updateRate,
     allWinRateVersion,
     rateInfo,
-    saveWinRate,
+    saveWinPickRate,
 } = require("./rate.service")
+
+const { successAnalyzed } = require("../champInfo.service")
+
 const logger = require("../../../log")
 
 exports.rate = async (data, key) => {
@@ -77,15 +80,20 @@ exports.saveWinRate = async () => {
                 const sampleNum = rIs.sampleNum
                 const version = rIs.version
                 const win = rIs.win
+                const totalCnt = rateInfos.length
 
                 let winRate = (win / sampleNum) * 100
                 winRate = Number(winRate.toFixed(2))
-                await saveWinRate(champId, winRate, version)
+
+                let pickRate = (sampleNum / totalCnt) * 100
+                pickRate = Number(pickRate.toFixed(2))
+
+                await saveWinPickRate(champId, winRate, pickRate, version)
             }
         }
-        return "승률 데이터 서비스 table 업데이트 완료"
+        return "승/픽률 데이터 서비스 table 업데이트 완료"
     } catch (err) {
-        logger.error(err, { message: "- from saveWinRate" })
+        logger.error(err, { message: "- from saveWinPickRate" })
 
         return err
     }
