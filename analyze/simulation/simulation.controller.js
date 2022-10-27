@@ -1,6 +1,7 @@
 require("dotenv").config()
 const axios = require("axios")
 const { Logger } = require("mongodb")
+const { version } = require("mongoose")
 const logger = require("../../log")
 const { sleep } = require("../../timer/timer")
 const {
@@ -58,6 +59,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             console.log("게임 모드가 솔로랭크가 아닙니다")
             return key++
         }
+        let version = matchData.info.gameVersion.substr(0, 5)
         let team1top, team1jungle, team1middle, team1bottom, team1utility
         let team2jungle, team2middle, team2top, team2bottom, team2utility
         for (let i = 0; i < matchData.info.participants.length; i++) {
@@ -177,29 +179,32 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             team1top,
             team1jungle,
             team2top,
-            team2jungle
+            team2jungle,
+            version
         )
         const existMidJungleSimulation = await checkSimulationData(
             team1middle,
             team1jungle,
             team2middle,
-            team2jungle
+            team2jungle,
+            version
         )
         const existBottomDuoSimulation = await checkSimulationData(
             team1bottom,
             team1utility,
             team2bottom,
-            team2utility
+            team2utility,
+            version
         )
         if (existTopJungleSimulation.length === 0) {
-            await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0)
+            await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0, version)
         } else {
-            await updateSimulationData(matchId, team1top, team1jungle, team2top, team2jungle)
+            await updateSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0, version)
         }
         if (existMidJungleSimulation.length === 0) {
-            await saveSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle, 1)
+            await saveSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle, 1, version)
         } else {
-            await updateSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle)
+            await updateSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle, 1, version)
         }
         if (existBottomDuoSimulation.length === 0) {
             await saveSimulationData(
@@ -208,7 +213,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                 team1utility,
                 team2bottom,
                 team2utility,
-                2
+                2, version
             )
         } else {
             await updateSimulationData(
@@ -216,7 +221,7 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
                 team1bottom,
                 team1utility,
                 team2bottom,
-                team2utility
+                team2utility, 2, version
             )
         }
     } catch (err) {
@@ -261,6 +266,7 @@ exports.uploadSimulationWinRate = async () => {
                 champ4Name: value.champ4Name,
                 category: value.category,
                 sample_num: value.sampleNum,
+                version: value.version
             }
             return value
         })

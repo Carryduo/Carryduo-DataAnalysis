@@ -34,24 +34,24 @@ async function startAnalyze() {
         const start = performance.now()
 
         // 데이터 분석
-        await startChampInfo()
-        await combinationController.saveCombination()
-        await combinationController.uploadCombinationWinRate()
-        await combinationController.updateCombinationTierAndRank()
+        // await startChampInfo()
+        // await combinationController.saveCombination()
+        // await combinationController.uploadCombinationWinRate()
+        // await combinationController.updateCombinationTierAndRank()
 
         await simulationController.saveSimulation()
         await simulationController.uploadSimulationWinRate()
 
-        await sleep(5)
+        // await sleep(5)
 
-        console.log("======서비스 DB 이관========")
+        // console.log("======서비스 DB 이관========")
 
-        // 서비스 DB 이관
-        await serviceSaveRate()
-        await serviceSavePosition()
-        await serviceSaveChampSpell()
+        // // 서비스 DB 이관
+        // await serviceSaveRate()
+        // await serviceSavePosition()
+        // await serviceSaveChampSpell()
         await combinationController.transferCombinationStatToServiceDB()
-        await simulationController.transferSimulationToServiceDB()
+        // await simulationController.transferSimulationToServiceDB()
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
