@@ -65,48 +65,6 @@ exports.dropAnalyzed = async (matchId, option) => {
         .execute()
 }
 
-//챔피언 ID 저장
-exports.saveChampId = async (champName, champId) => {
-    return ChampInfo.createQueryBuilder()
-        .insert()
-        .values({
-            champName,
-            champId,
-        })
-        .execute()
-        .then((value) => {
-            return { code: 200, message: "정상" }
-        })
-        .catch((error) => {
-            console.log(error.errno)
-            if (error.errno === 1062) {
-                return { code: 1062, message: "중복값 에러" }
-            }
-        })
-}
-//챔피언 ID 수정
-exports.updateChampId = async (champName, champId) => {
-    return ChampInfo.createQueryBuilder()
-        .update(ChampInfo)
-        .set({ champId })
-        .where("champName = :champName", { champName })
-        .execute()
-}
-
-exports.oldVersionSet = async (champId) => {
-    await ChampInfo.createQueryBuilder()
-        .update()
-        .set({ version: "old" })
-        .where("champId = :champId", { champId })
-        .execute()
-
-    await ChampSpell.createQueryBuilder()
-        .update()
-        .set({ version: "old" })
-        .where("champId = :champId", { champId })
-        .execute()
-}
-
 //챔피언 포지션 데이터 가져오기
 exports.positionInfo = async (champId) => {
     return ChampInfo.createQueryBuilder()
@@ -117,57 +75,6 @@ exports.positionInfo = async (champId) => {
 
 exports.findSpellData = async () => {
     return await ChampSpell.createQueryBuilder().getRawMany()
-}
-
-//챔피언 스펠정보 저장
-exports.saveChampSpellInfo = async (champId, champName, spell1, spell2, matchId) => {
-    return ChampSpell.createQueryBuilder()
-        .insert()
-        .values({ champId, champName, spell1, spell2, sampleNum: 1 })
-        .execute()
-}
-
-//챔피언 스펠정보 업데이트
-exports.updateChampSpellInfo = async (champId, spell1, spell2, matchId) => {
-    return ChampSpell.createQueryBuilder()
-        .update(ChampSpell)
-        .set({ sampleNum: () => "sampleNum+1" })
-        .where("champId = :champId", { champId })
-        .andWhere(
-            new Brackets((qb) => {
-                qb.where("spell1 = :spell1", { spell1 })
-                    .andWhere("spell2 = :spell2", { spell2 })
-                    .orWhere(
-                        new Brackets((qb2) => {
-                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
-                                spell1,
-                            })
-                        })
-                    )
-            })
-        )
-        .execute()
-}
-
-//쳄피언 스펠정보 가져오기
-exports.findSpellInfoData = async (champId, spell1, spell2) => {
-    return ChampSpell.createQueryBuilder()
-        .where("champId = :champId", { champId })
-        .andWhere(
-            new Brackets((qb) => {
-                qb.where("spell1 = :spell1", { spell1 })
-                    .andWhere("spell2 = :spell2", { spell2 })
-                    .orWhere(
-                        new Brackets((qb2) => {
-                            qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
-                                spell1,
-                            })
-                        })
-                    )
-            })
-        )
-
-        .getRawOne()
 }
 
 //챔피언 게임 수 합산해서 가져오기

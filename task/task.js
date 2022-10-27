@@ -2,7 +2,7 @@ const { sleep } = require("../timer/timer")
 const { performance } = require("perf_hooks")
 
 const combinationController = require("../analyze/combination/combination.controller")
-const { startChampInfo } = require("../analyze/champ.info/champInfo.controller")
+const { startChampInfo } = require("../analyze/champ.info/champ.index")
 const { serviceSavePosition } = require("../analyze/champ.info/champ.service.data/champ.position")
 const { serviceSaveRate } = require("../analyze/champ.info/champ.service.data/champ.rate")
 const { serviceSaveChampSpell } = require("../analyze/champ.info/champ.service.data/champ.spell")
