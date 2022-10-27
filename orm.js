@@ -11,6 +11,8 @@ const dataSource = new typeorm.DataSource({
     synchronize: false,
     logging: false,
     entities: [
+        require("./entity/champ.service.data"),
+        require("./entity/champ.win.rate.data"),
         require("./entity/champ.position.data"),
         require("./entity/champ.ban.data"),
         require("./entity/match.id"),
