@@ -68,16 +68,18 @@ exports.getData = async (type) => {
         .getMany()
 }
 
-exports.checkCombinationData = async (mainChamp, subChamp) => {
+exports.checkCombinationData = async (mainChamp, subChamp, category, version) => {
     return await Combination.createQueryBuilder()
         .select()
         .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
         .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+        .andWhere('combination.category = :category', { category })
+        .andWhere('combination.version = :version', { version })
         .getMany()
 }
 
 // 챔피언 조합 승률 관련
-exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) => {
+exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, type, version) => {
     // TODO: 트랜젝션, matchId 업데이트
 
     let dbupdate
@@ -91,6 +93,8 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 })
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+                .andWhere('combination.category = :category', { category: type })
+                .andWhere('combination.version = :version', { version })
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
@@ -109,6 +113,8 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
                 })
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
+                .andWhere('combination.category = :category', { category: type })
+                .andWhere('combination.version = :version', { version })
                 .execute()
 
             await MatchId.createQueryBuilder()
@@ -129,7 +135,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category) =
     }
 }
 
-exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, type) => {
+exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, type, version) => {
 
     let dbupdate
     try {
@@ -146,6 +152,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     lose: 0,
                     sampleNum: 1,
                     category: type,
+                    version
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -169,6 +176,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     lose: 1,
                     sampleNum: 1,
                     category: type,
+                    version
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -208,6 +216,9 @@ exports.updateWinRate = async (value) => {
             .andWhere("combination_service.subChampId = :subChampId", {
                 subChampId: value.subChampId,
             })
+            .andWhere('combination_service.version = :version', {
+                version: value.version
+            })
             .getOne()
 
         if (!existData) {
@@ -223,6 +234,9 @@ exports.updateWinRate = async (value) => {
                 .andWhere("combination_service.subChampId = :subChampId", {
                     subChampId: value.subChampId,
                 })
+                .andWhere('combination_service.version = :version', {
+                    version: value.version
+                })
                 .execute()
             type = "update"
         }
@@ -234,18 +248,28 @@ exports.updateWinRate = async (value) => {
     }
 }
 
-exports.findCombinationCleansedData = async () => {
+exports.findVersion = async () => {
+    try {
+        return await Combination_Service.createQueryBuilder().select(['distinct combination_service.version']).getRawMany()
+    } catch (err) {
+        logger.error(err, { message: '챔피언 조합 승률 카테고리별 승률 데이터 조회 시 패치버전 조회 실패' })
+    }
+}
+exports.findCombinationCleansedData = async (version) => {
     try {
         const category0 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 0 })
+            .andWhere('combination_service.version = :version', { version })
             .select()
             .getMany()
         const category1 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 1 })
+            .andWhere('combination_service.version = :version', { version })
             .select()
             .getMany()
         const category2 = await Combination_Service.createQueryBuilder()
             .where("combination_service.category = :category", { category: 2 })
+            .andWhere('combination_service.version = :version', { version })
             .select()
             .getMany()
         return { category0, category1, category2 }
@@ -283,6 +307,7 @@ exports.getCombinationData = async () => {
                 "combination_service.sample_num",
                 "combination_service.mainChampId",
                 "combination_service.subChampId",
+                'combination_service.version'
             ])
             .getMany()
     } catch (error) {
