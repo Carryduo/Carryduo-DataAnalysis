@@ -107,15 +107,6 @@ exports.oldVersionSet = async (champId) => {
         .execute()
 }
 
-//챔피언 포지션 카운팅
-exports.addPositionCnt = async (champId, option) => {
-    return ChampInfo.createQueryBuilder()
-        .update(ChampInfo)
-        .set(option.set)
-        .where("champId = :champId", { champId })
-    c
-}
-
 //챔피언 포지션 데이터 가져오기
 exports.positionInfo = async (champId) => {
     return ChampInfo.createQueryBuilder()

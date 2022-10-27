@@ -4,14 +4,9 @@ const axios = require("axios")
 const {
     matchIdList,
     getVersion,
-    createRate,
-    updateRate,
     saveChampId,
     updateChampId,
     oldVersionSet,
-    createBanCnt,
-    updateBanCnt,
-    addPositionCnt,
     findSpellInfoData,
     updateChampSpellInfo,
     saveChampSpellInfo,
@@ -21,7 +16,8 @@ const {
 
 const { rate } = require("./champ.rate/rate.controller")
 const { banRate } = require("./champ.ban/ban.controller")
-
+const { position } = require("./champ.position/position.controller")
+const { spell } = require("./champ.spell/spell.controller")
 //라이엇 매치데이터 요청
 async function requestRiotAPI(matchId) {
     try {
@@ -57,7 +53,7 @@ async function requestRiotAPI(matchId) {
     }
 }
 
-let key = 496
+let key = 490
 let status
 //데이터 수집 및 분석 로직 실행
 exports.startChampInfo = async () => {
@@ -78,7 +74,7 @@ exports.startChampInfo = async () => {
             // await rate(matchData, key)
             // await banRate(matchData, key)
             // await position(matchData, key)
-            // await champSpell(matchData)
+            await spell(matchData)
             count++
             console.log(count + "경기수")
             key++
@@ -89,43 +85,6 @@ exports.startChampInfo = async () => {
     } catch (err) {
         logger.error(err, { message: "- from startChampInfo" })
         return err
-    }
-}
-
-//==========================================================================================================//
-//챔프 스펠 정보 저장
-async function champSpell(data) {
-    try {
-        let analyzedOption
-        let dropAnalyzedOption
-        console.log(
-            `============================================쳄프 스펠 저장 ${key}번============================================`
-        )
-        const matchId = data.metadata.matchId
-        const participants = data.info.participants
-
-        // 챔피언 스펠 정보 관련
-        for (let v of participants) {
-            const champId = v.championId
-            const champName = v.championName
-            const spell1 = v.summoner1Id
-            const spell2 = v.summoner2Id
-
-            const spellData = await findSpellInfoData(champId, spell1, spell2)
-            // 해당 하는 표본이 없을 경우 생성, 있을 경우 업데이트
-            if (!spellData) {
-                await saveChampSpellInfo(champId, champName, spell1, spell2)
-            } else if (spellData) {
-                await updateChampSpellInfo(champId, spell1, spell2)
-            }
-        }
-        analyzedOption = {
-            set: { spellAnalyzed: 1 },
-        }
-        await successAnalyzed(matchId, analyzedOption)
-    } catch (err) {
-        logger.error(err, { message: "- from champSpell" })
-        return
     }
 }
 
