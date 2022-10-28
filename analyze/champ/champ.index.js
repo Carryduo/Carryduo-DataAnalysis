@@ -4,7 +4,7 @@ const axios = require("axios")
 
 const { matchIdList } = require("./champInfo.service")
 
-const { rate } = require("./champ.rate/rate.controller")
+const { winRate } = require("./champ.rate/rate.controller")
 const { position } = require("./champ.position/position.controller")
 const { spell } = require("./champ.spell/spell.controller")
 
@@ -25,10 +25,8 @@ exports.startChampInfo = async () => {
                 key++
                 continue
             }
-            await rate(matchData, key)
-            await banRate(matchData, key)
-            await position(matchData, key)
-            await spell(matchData)
+            await winRate(matchData, key)
+
             count++
             console.log(count + "경기수")
             key++

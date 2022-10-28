@@ -38,7 +38,7 @@ exports.allWinRateVersion = async () => {
     return ChampWinRate.createQueryBuilder().select("distinct champ_win_rate.version").getRawMany()
 }
 
-exports.rateInfo = async (version) => {
+exports.WinrateInfo = async (version) => {
     return ChampWinRate.createQueryBuilder().where("version = :version", { version }).getMany()
 }
 

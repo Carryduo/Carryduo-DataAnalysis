@@ -3,7 +3,7 @@ const {
     createRate,
     updateRate,
     allWinRateVersion,
-    rateInfo,
+    WinrateInfo,
     matchTotalCnt,
     saveWinPickRate,
     createBanCnt,
@@ -80,7 +80,7 @@ exports.winPickRateSave = async () => {
             if (allVersion === "old") {
                 continue
             }
-            const rateInfos = await rateInfo(allVersion)
+            const rateInfos = await WinrateInfo(allVersion)
             for (let rIs of rateInfos) {
                 const champId = rIs.champId
                 const sampleNum = rIs.sampleNum
