@@ -4,6 +4,11 @@ module.exports = new EntitySchema({
     name: "CHAMPINFO", // Will use table name `category` as default behaviour.
     tableName: "CHAMPINFO", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
+        id: {
+            type: "varchar",
+            primary: true,
+            generated: "uuid",
+        },
         champId: {
             type: "varchar",
             primary: true,

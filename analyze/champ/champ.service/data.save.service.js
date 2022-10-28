@@ -5,7 +5,8 @@ const ChampSpell = dataSource.getRepository("champspell_service")
 const { dataSource_service } = require("../../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
-const ChampSkill = dataSource_service.getRepository("CHAMPSKILL")
+const ChampInfoService = dataSource_service.getRepository("CHAMPINFO")
+const ChampSkillService = dataSource_service.getRepository("CHAMPSKILL")
 
 exports.allRateVersion = async () => {
     return ChampInfo.createQueryBuilder().select("distinct champ_service.version").getRawMany()
@@ -112,5 +113,33 @@ exports.saveSpellDataToService = async (
             .andWhere("spell1 = :spell1", { spell1 })
             .andWhere("spell2 = :spell2", { spell2 })
             .execute()
+    }
+}
+
+exports.saveChampInfoService = async (
+    champId,
+    champ_name_en,
+    champ_name_ko,
+    champ_main_img,
+    champ_img
+) => {
+    console.log(champId, champ_name_en, champ_name_ko, champ_main_img, champ_img)
+    const check = await ChampInfoService.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .getOne()
+
+    if (!check) {
+        await ChampInfoService.createQueryBuilder()
+            .insert()
+            .values({
+                champId,
+                champ_name_en,
+                champ_name_ko,
+                champ_main_img,
+                champ_img,
+            })
+            .execute()
+    } else if (check) {
+        return
     }
 }

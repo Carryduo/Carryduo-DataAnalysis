@@ -11,6 +11,7 @@ const dataSource_service = new typeorm.DataSource({
     synchronize: false,
     logging: false,
     entities: [
+        require("./service.entity/champ.info"),
         require("./service.entity/champ"),
         require("./service.entity/champ.skill"),
         require("./service.entity/combination.stat"),

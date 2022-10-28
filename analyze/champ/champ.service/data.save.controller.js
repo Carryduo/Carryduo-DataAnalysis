@@ -1,3 +1,4 @@
+const axios = require("axios")
 const logger = require("../../../log")
 const {
     allRateVersion,
@@ -6,6 +7,7 @@ const {
     allSpellVersion,
     spellInfo,
     saveSpellDataToService,
+    saveChampInfoService,
 } = require("./data.save.service")
 
 exports.rateDataToService = async () => {
@@ -70,4 +72,39 @@ exports.spellDataToService = async () => {
     }
 }
 
-exports.champInfoToService = async () => {}
+exports.champInfoToService = async () => {
+    try {
+        let champName = []
+
+        const response = await axios.get(
+            `https://ddragon.leagueoflegends.com/cdn/12.17.1/data/ko_KR/champion.json`
+        )
+        const champData = response.data.data
+
+        champName.push(...Object.keys(champData))
+
+        for (let i of champName) {
+            const champ_name_en = i
+            const champId = response.data.data[i].key
+            const detailChamp = await axios.get(
+                `https://ddragon.leagueoflegends.com/cdn/12.20.1/data/ko_KR/champion/${champ_name_en}.json`
+            )
+            const champ_name_ko = detailChamp.data.data[champ_name_en].name
+            const champ_main_img = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champ_name_en}_0.jpg`
+            const champ_img = `https://ddragon.leagueoflegends.com/cdn/12.20.1/img/champion/${champ_name_en}.png`
+
+            await saveChampInfoService(
+                champId,
+                champ_name_en,
+                champ_name_ko,
+                champ_main_img,
+                champ_img
+            )
+        }
+        return
+    } catch (err) {
+        console.error(err)
+        logger.error(err, { message: "- from champInfoToService" })
+        return
+    }
+}
