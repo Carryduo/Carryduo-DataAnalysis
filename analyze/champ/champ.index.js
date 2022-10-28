@@ -5,7 +5,6 @@ const axios = require("axios")
 const { matchIdList } = require("./champInfo.service")
 
 const { rate } = require("./champ.rate/rate.controller")
-const { banRate, saveBanRate } = require("./champ.ban/ban.controller")
 const { position } = require("./champ.position/position.controller")
 const { spell } = require("./champ.spell/spell.controller")
 

@@ -65,14 +65,6 @@ exports.dropAnalyzed = async (matchId, option) => {
         .execute()
 }
 
-//챔피언 포지션 데이터 가져오기
-exports.positionInfo = async (champId) => {
-    return ChampInfo.createQueryBuilder()
-        .where("champId = :champId", { champId })
-        .select(["top", "jungle", "mid", "ad", "support"])
-        .getRawMany()
-}
-
 exports.findSpellData = async () => {
     return await ChampSpell.createQueryBuilder().getRawMany()
 }

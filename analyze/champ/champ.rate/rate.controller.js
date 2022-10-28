@@ -73,10 +73,10 @@ exports.winRate = async (data, key) => {
 exports.winPickRateSave = async () => {
     try {
         let dupWinRateVersion = []
-        const WinRateAllVersion = await allWinRateVersion()
+        const winRateAllVersion = await allWinRateVersion()
 
-        for (let WRAV of WinRateAllVersion) {
-            dupWinRateVersion.push(WRAV.version)
+        for (let wAV of winRateAllVersion) {
+            dupWinRateVersion.push(wAV.version)
         }
 
         const set = new Set(dupWinRateVersion)

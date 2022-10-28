@@ -1,6 +1,14 @@
-const { getPostionVersion, createPosition, updatePosition } = require("./position.service")
+const {
+    getPostionVersion,
+    createPosition,
+    updatePosition,
+    getPositionVersion,
+    getPositionTargetVersion,
+    savePositionRate,
+} = require("./position.service")
 const { successAnalyzed } = require("../champInfo.service")
 const logger = require("../../../log")
+
 exports.position = async (data, key) => {
     try {
         let analyzedOption
@@ -74,6 +82,65 @@ exports.position = async (data, key) => {
         // await successAnalyzed(matchId, analyzedOption)
     } catch (err) {
         logger.error(err, { message: "- from position" })
+        return
+    }
+}
+
+exports.positionSave = async () => {
+    try {
+        let dupPositionVersion = []
+        const positionAllVersion = await getPositionVersion()
+
+        for (let pAV of positionAllVersion) {
+            dupPositionVersion.push(pAV.version)
+        }
+
+        const set = new Set(dupPositionVersion)
+        const uniqPositionVersion = [...set]
+
+        for (let uv of uniqPositionVersion) {
+            if (uv === "old") {
+                continue
+            }
+            const positionInfos = await getPositionTargetVersion(uv)
+
+            for (let pIs of positionInfos) {
+                const champId = pIs.champId
+                const top = pIs.top
+                const jungle = pIs.jungle
+                const mid = pIs.mid
+                const ad = pIs.ad
+                const support = pIs.support
+                const totalRate = top + mid + jungle + ad + support
+                const version = pIs.version
+
+                let topRate = (top / totalRate) * 100
+                topRate = topRate.toFixed(2)
+
+                let jungleRate = (jungle / totalRate) * 100
+                jungleRate = jungleRate.toFixed(2)
+
+                let midRate = (mid / totalRate) * 100
+                midRate = midRate.toFixed(2)
+
+                let adRate = (ad / totalRate) * 100
+                adRate = adRate.toFixed(2)
+
+                let supportRate = (support / totalRate) * 100
+                supportRate = supportRate.toFixed(2)
+                await savePositionRate(
+                    champId,
+                    topRate,
+                    jungleRate,
+                    midRate,
+                    adRate,
+                    supportRate,
+                    version
+                )
+            }
+        }
+    } catch (err) {
+        logger.error(err, { message: "- from savePosition" })
         return
     }
 }
