@@ -35,11 +35,18 @@ exports.updateRate = async (champId, version, updateOptionWinRate) => {
 }
 
 exports.allWinRateVersion = async () => {
-    return ChampWinRate.createQueryBuilder("winRate").select("winRate.version").getMany()
+    return ChampWinRate.createQueryBuilder().select("distinct champ_win_rate.version").getRawMany()
 }
 
 exports.rateInfo = async (version) => {
     return ChampWinRate.createQueryBuilder().where("version = :version", { version }).getMany()
+}
+
+exports.matchTotalCnt = async (version) => {
+    return ChampWinRate.createQueryBuilder()
+        .where("version = :version", { version })
+        .select("SUM(sampleNum)", "total")
+        .getRawOne()
 }
 
 exports.saveWinPickRate = async (champId, winRate, pickRate, version) => {
@@ -94,7 +101,7 @@ exports.getBanVersion = async (champId, version) => {
 }
 
 exports.allBanVersion = async () => {
-    return ChampBan.createQueryBuilder("ban").select("ban.version").getMany()
+    return ChampBan.createQueryBuilder().select("distinct champban.version").getRawMany()
 }
 
 exports.banInfo = async (version) => {

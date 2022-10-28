@@ -2,7 +2,7 @@ const {
     getPostionVersion,
     createPosition,
     updatePosition,
-    getPositionVersion,
+    allPositionVersion,
     getPositionTargetVersion,
     savePositionRate,
 } = require("./position.service")
@@ -88,21 +88,15 @@ exports.position = async (data, key) => {
 
 exports.positionSave = async () => {
     try {
-        let dupPositionVersion = []
-        const positionAllVersion = await getPositionVersion()
+        const positionAllVersion = await allPositionVersion()
 
         for (let pAV of positionAllVersion) {
-            dupPositionVersion.push(pAV.version)
-        }
+            let allVersion = pAV.version
 
-        const set = new Set(dupPositionVersion)
-        const uniqPositionVersion = [...set]
-
-        for (let uv of uniqPositionVersion) {
-            if (uv === "old") {
+            if (allVersion === "old") {
                 continue
             }
-            const positionInfos = await getPositionTargetVersion(uv)
+            const positionInfos = await getPositionTargetVersion(allVersion)
 
             for (let pIs of positionInfos) {
                 const champId = pIs.champId
@@ -115,19 +109,20 @@ exports.positionSave = async () => {
                 const version = pIs.version
 
                 let topRate = (top / totalRate) * 100
-                topRate = topRate.toFixed(2)
+                topRate = Number(topRate.toFixed(2))
 
                 let jungleRate = (jungle / totalRate) * 100
-                jungleRate = jungleRate.toFixed(2)
+                jungleRate = Number(jungleRate.toFixed(2))
 
                 let midRate = (mid / totalRate) * 100
-                midRate = midRate.toFixed(2)
+                midRate = Number(midRate.toFixed(2))
 
                 let adRate = (ad / totalRate) * 100
-                adRate = adRate.toFixed(2)
+                adRate = Number(adRate.toFixed(2))
 
                 let supportRate = (support / totalRate) * 100
-                supportRate = supportRate.toFixed(2)
+                supportRate = Number(supportRate.toFixed(2))
+
                 await savePositionRate(
                     champId,
                     topRate,

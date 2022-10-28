@@ -2,7 +2,7 @@ const {
     findSpellInfo,
     saveChampSpellInfo,
     updateChampSpellInfo,
-    getAllSpellVersion,
+    allSpellVersion,
     findSpellData,
     spellTotalCnt,
     findSpellInfoData,
@@ -47,21 +47,14 @@ exports.spell = async (data, key) => {
 }
 
 exports.spellSave = async () => {
-    let dupSpellVersion = []
-    const spellAllVersion = await getAllSpellVersion()
+    const spellAllVersion = await allSpellVersion()
 
     for (let sAV of spellAllVersion) {
-        dupSpellVersion.push(sAV.version)
-    }
-
-    const set = new Set(dupSpellVersion)
-    const uniqSpellVersion = [...set]
-
-    for (let uv of uniqSpellVersion) {
-        if (uv === "old") {
+        let allVersion = sAV.version
+        if (allVersion === "old") {
             continue
         }
-        const spellData = await findSpellData(uv)
+        const spellData = await findSpellData(allVersion)
         for (let s of spellData) {
             const spell1 = s.spell1
             const spell2 = s.spell2

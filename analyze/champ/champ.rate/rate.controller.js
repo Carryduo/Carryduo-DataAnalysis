@@ -4,6 +4,7 @@ const {
     updateRate,
     allWinRateVersion,
     rateInfo,
+    matchTotalCnt,
     saveWinPickRate,
     createBanCnt,
     updateBanCnt,
@@ -72,32 +73,25 @@ exports.winRate = async (data, key) => {
 
 exports.winPickRateSave = async () => {
     try {
-        let dupWinRateVersion = []
         const winRateAllVersion = await allWinRateVersion()
 
         for (let wAV of winRateAllVersion) {
-            dupWinRateVersion.push(wAV.version)
-        }
-
-        const set = new Set(dupWinRateVersion)
-        const uniqWinRateVersion = [...set]
-
-        for (let uv of uniqWinRateVersion) {
-            if (uv === "old") {
+            let allVersion = wAV.version
+            if (allVersion === "old") {
                 continue
             }
-            const rateInfos = await rateInfo(uv)
+            const rateInfos = await rateInfo(allVersion)
             for (let rIs of rateInfos) {
                 const champId = rIs.champId
                 const sampleNum = rIs.sampleNum
                 const version = rIs.version
                 const win = rIs.win
-                const totalCnt = rateInfos.length
+                const matchTotal = await matchTotalCnt(version)
 
                 let winRate = (win / sampleNum) * 100
                 winRate = Number(winRate.toFixed(2))
 
-                let pickRate = (sampleNum / totalCnt) * 100
+                let pickRate = (sampleNum / matchTotal.total) * 100
                 pickRate = Number(pickRate.toFixed(2))
 
                 await saveWinPickRate(champId, winRate, pickRate, version)
@@ -186,21 +180,14 @@ exports.banRate = async (data, key) => {
 
 exports.banRateSave = async () => {
     try {
-        let dupBanVersion = []
         const banAllVersion = await allBanVersion()
 
-        for (let bI of banAllVersion) {
-            dupBanVersion.push(bI.version)
-        }
-
-        const set = new Set(dupBanVersion)
-        const uniqBanVersion = [...set]
-
-        for (let bV of uniqBanVersion) {
-            if (bV === "old") {
+        for (let bV of banAllVersion) {
+            let allVersion = bV.version
+            if (allVersion === "old") {
                 continue
             }
-            const banInfos = await banInfo(bV)
+            const banInfos = await banInfo(allVersion)
             for (let bIs of banInfos) {
                 const champId = bIs.champId
                 const sampleNum = bIs.sampleNum

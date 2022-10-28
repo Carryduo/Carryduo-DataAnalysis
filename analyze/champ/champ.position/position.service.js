@@ -22,8 +22,8 @@ exports.getPostionVersion = async (champId, version) => {
         .getOne()
 }
 
-exports.getPositionVersion = async () => {
-    return Position.createQueryBuilder("position").select("position.version").getMany()
+exports.allPositionVersion = async () => {
+    return Position.createQueryBuilder().select("distinct champ_position.version").getRawMany()
 }
 
 exports.getPositionTargetVersion = async (version) => {

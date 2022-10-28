@@ -53,8 +53,8 @@ exports.updateChampSpellInfo = async (champId, spell1, spell2, version) => {
         .execute()
 }
 
-exports.getAllSpellVersion = async () => {
-    return ChampSpell.createQueryBuilder("spell").select("spell.version").getMany()
+exports.allSpellVersion = async () => {
+    return ChampSpell.createQueryBuilder().select("distinct champspell.version").getRawMany()
 }
 
 exports.findSpellData = async (version) => {
