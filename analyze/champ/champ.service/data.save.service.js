@@ -5,7 +5,7 @@ const ChampSpell = dataSource.getRepository("champspell_service")
 const { dataSource_service } = require("../../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
-const ChampInfoService = dataSource_service.getRepository("CHAMPINFO")
+const ChampRateService = dataSource_service.getRepository("CHAMPRATE")
 const ChampSkillService = dataSource_service.getRepository("CHAMPSKILL")
 
 exports.allRateVersion = async () => {
@@ -28,43 +28,45 @@ exports.saveRateDataToService = async (
     support_rate,
     version
 ) => {
-    const check = await ChampService.createQueryBuilder()
-        .where("champId = :champId", { champId })
-        .andWhere("version = :version", { version })
-        .getOne()
-    if (!check) {
-        await ChampService.createQueryBuilder()
-            .insert()
-            .values({
-                champId,
-                win_rate,
-                ban_rate,
-                pick_rate,
-                top_rate,
-                jungle_rate,
-                mid_rate,
-                ad_rate,
-                support_rate,
-                version,
-            })
-            .execute()
-    } else if (check) {
-        await ChampService.createQueryBuilder()
-            .update(ChampService)
-            .set({
-                win_rate,
-                ban_rate,
-                pick_rate,
-                top_rate,
-                jungle_rate,
-                mid_rate,
-                ad_rate,
-                support_rate,
-            })
+    try {
+        const check = await ChampRateService.createQueryBuilder()
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
-            .execute()
-    }
+            .getOne()
+        if (!check) {
+            await ChampRateService.createQueryBuilder()
+                .insert()
+                .values({
+                    champId,
+                    win_rate,
+                    ban_rate,
+                    pick_rate,
+                    top_rate,
+                    jungle_rate,
+                    mid_rate,
+                    ad_rate,
+                    support_rate,
+                    version,
+                })
+                .execute()
+        } else if (check) {
+            await ChampRateService.createQueryBuilder()
+                .update(ChampRateService)
+                .set({
+                    win_rate,
+                    ban_rate,
+                    pick_rate,
+                    top_rate,
+                    jungle_rate,
+                    mid_rate,
+                    ad_rate,
+                    support_rate,
+                })
+                .where("champId = :champId", { champId })
+                .andWhere("version = :version", { version })
+                .execute()
+        }
+    } catch (err) {}
 }
 
 exports.allSpellVersion = async () => {
@@ -123,13 +125,12 @@ exports.saveChampInfoService = async (
     champ_main_img,
     champ_img
 ) => {
-    console.log(champId, champ_name_en, champ_name_ko, champ_main_img, champ_img)
-    const check = await ChampInfoService.createQueryBuilder()
+    const check = await ChampService.createQueryBuilder()
         .where("champId = :champId", { champId })
         .getOne()
 
     if (!check) {
-        await ChampInfoService.createQueryBuilder()
+        await ChampService.createQueryBuilder()
             .insert()
             .values({
                 champId,

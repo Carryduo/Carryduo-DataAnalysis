@@ -29,18 +29,18 @@ exports.rateDataToService = async () => {
                 const support_rate = dIs.support_rate
                 const version = dIs.version
 
-                // await saveRateDataToService(
-                //     champId,
-                //     win_rate,
-                //     ban_rate,
-                //     pick_rate,
-                //     top_rate,
-                //     jungle_rate,
-                //     mid_rate,
-                //     ad_rate,
-                //     support_rate,
-                //     version
-                // )
+                await saveRateDataToService(
+                    champId,
+                    win_rate,
+                    ban_rate,
+                    pick_rate,
+                    top_rate,
+                    jungle_rate,
+                    mid_rate,
+                    ad_rate,
+                    support_rate,
+                    version
+                )
             }
         }
     } catch (err) {

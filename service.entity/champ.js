@@ -81,7 +81,7 @@ module.exports = new EntitySchema({
             inverseSide: "CHAMP",
         },
         champId: {
-            target: "CHAMPINFO",
+            target: "CHAMPRATE",
             type: "one-to-one",
             joinColumn: "champId",
             cascade: true,
