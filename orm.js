@@ -9,7 +9,7 @@ const dataSource = new typeorm.DataSource({
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [
         require("./entity/champ.spell.service.data"),
         require("./entity/champ.service.data"),

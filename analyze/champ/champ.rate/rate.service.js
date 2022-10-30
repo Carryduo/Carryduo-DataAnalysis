@@ -27,7 +27,7 @@ exports.createRate = async (champId, version, win) => {
 
 exports.updateRate = async (champId, version, updateOptionWinRate) => {
     return ChampWinRate.createQueryBuilder()
-        .update(ChampInfo)
+        .update(ChampWinRate)
         .set(updateOptionWinRate.set)
         .where("champId = :champId", { champId })
         .andWhere("version = :version", { version })
