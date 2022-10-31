@@ -17,6 +17,8 @@ const {
     transferToService,
     updateWrongMatchDataAnalyzed,
     findVersion,
+    findVersionAndMatchId,
+    transferVersiontoMatchId,
 } = require("./combination.service")
 
 let key = 0
@@ -317,6 +319,7 @@ async function getMatchDataAndSaveCombination(matchIdList) {
         } else {
             await updateCombinationData(matchId, losebottom, loseutility, "lose", 2, version)
         }
+        console.log(`${key}번째 데이터 ( ${matchId}: 패치버전 ${version} 분석 완료`)
     } catch (err) {
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
@@ -337,6 +340,18 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             return key++
         }
     }
-    console.log(`${key}번째 데이터 분석 끝`)
     return key++
+}
+
+exports.transferVersiontoMatchId = async () => {
+    const data = await findVersionAndMatchId()
+    for (let i = 0; i <= data.length; i++) {
+        const matchId = data[i].matchId
+        const version = data[i].version
+        console.log(matchId, version)
+        await transferVersiontoMatchId(matchId, version)
+        console.log(`${i} 번째 테스크: ${matchId} version ${version} 업데이트 완료`)
+    }
+    console.log('end')
+    return
 }

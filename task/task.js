@@ -44,17 +44,17 @@ async function startAnalyze() {
         await combinationController.uploadCombinationWinRate()
         await combinationController.updateCombinationTierAndRank()
 
-        // await simulationController.saveSimulation()
-        // await simulationController.uploadSimulationWinRate()
+        // // await simulationController.saveSimulation()
+        // // await simulationController.uploadSimulationWinRate()
 
-        await sleep(5)
+        // await sleep(5)
 
-        console.log("======서비스 DB 이관========")
+        // console.log("======서비스 DB 이관========")
 
-        // 서비스 DB 이관
+        // // 서비스 DB 이관
         await saveChampDataToServiceDB()
         await combinationController.transferCombinationStatToServiceDB()
-        // await simulationController.transferSimulationToServiceDB()
+        // // await simulationController.transferSimulationToServiceDB()
 
         //함수 실행 시간 체크
         const end = performance.now()
