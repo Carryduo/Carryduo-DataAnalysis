@@ -53,7 +53,6 @@ async function startAnalyze() {
 
         // 서비스 DB 이관
         await saveChampDataToServiceDB()
-
         await combinationController.transferCombinationStatToServiceDB()
         await simulationController.transferSimulationToServiceDB()
 

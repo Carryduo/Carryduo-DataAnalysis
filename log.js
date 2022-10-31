@@ -23,7 +23,7 @@ const logger = winston.createLogger({
             datePattern: "YYYY-MM-DD",
             dirname: logDir + "/info",
             filename: `%DATE%.log`,
-            maxFiles: 30,
+            maxFiles: 7,
             zippedArchive: true,
         }),
         new winstonDaily({
@@ -31,7 +31,7 @@ const logger = winston.createLogger({
             datePattern: "YYYY-MM-DD",
             dirname: logDir + "/error",
             filename: `%DATE%.error.log`,
-            maxFiles: 30,
+            maxFiles: 7,
             zippedArchive: true,
         }),
     ],
