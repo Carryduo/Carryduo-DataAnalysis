@@ -6,10 +6,10 @@ const {
     getPositionTargetVersion,
     savePositionRate,
 } = require("./position.service")
-const { successAnalyzed } = require("../champInfo.service")
+const { successAnalyzed } = require("../champ.common.service")
 const logger = require("../../../log")
 
-exports.position = async (data, key) => {
+exports.position = async (data) => {
     try {
         let analyzedOption
         const matchId = data.metadata.matchId
@@ -79,14 +79,14 @@ exports.position = async (data, key) => {
         analyzedOption = {
             set: { positionAnalyzed: 1 },
         }
-        // await successAnalyzed(matchId, analyzedOption)
+        await successAnalyzed(matchId, analyzedOption)
     } catch (err) {
         logger.error(err, { message: "- from position" })
         return
     }
 }
 
-exports.positionSave = async () => {
+exports.positionCalculation = async () => {
     try {
         const positionAllVersion = await allPositionVersion()
 

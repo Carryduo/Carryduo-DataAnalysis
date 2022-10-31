@@ -8,14 +8,13 @@ const {
     saveWinPickRate,
     createBanCnt,
     updateBanCnt,
-    deleteBanOldVersion,
     getBanVersion,
     allBanVersion,
     banInfo,
     saveBanRate,
 } = require("./rate.service")
 
-const { successAnalyzed } = require("../champInfo.service")
+const { successAnalyzed } = require("../champ.common.service")
 
 const logger = require("../../../log")
 
@@ -71,7 +70,7 @@ exports.winRate = async (data, key) => {
     }
 }
 
-exports.winPickRateSave = async () => {
+exports.winPickRateCalculation = async () => {
     try {
         const winRateAllVersion = await allWinRateVersion()
 
@@ -111,11 +110,8 @@ exports.winPickRateSave = async () => {
  * pick rate save
  */
 
-exports.banRate = async (data, key) => {
+exports.banRate = async (data) => {
     try {
-        console.log(
-            `=============================================밴 카운팅 ${key}번============================================`
-        )
         const matchId = data.metadata.matchId
         const version = data.info.gameVersion.substring(0, 5)
         let champList = []
@@ -156,7 +152,7 @@ exports.banRate = async (data, key) => {
                 //update
                 if (champList.indexOf(nCL) === champList.lastIndexOf(nCL)) {
                     option = {
-                        set: { banCount: () => "banCount+1", sampleNum: () => "sampleNum+1" },
+                        set: { banCount: () => "+banCount1", sampleNum: () => "sampleNum+1" },
                     }
                     await updateBanCnt(nCL, option, version)
                 } else if (champList.indexOf(nCL) !== champList.lastIndexOf(nCL)) {
@@ -167,7 +163,6 @@ exports.banRate = async (data, key) => {
                 }
             }
         }
-        await deleteBanOldVersion()
         analyzedOption = {
             set: { banAnalyzed: 1 },
         }
@@ -178,7 +173,7 @@ exports.banRate = async (data, key) => {
     }
 }
 
-exports.banRateSave = async () => {
+exports.banRateCalculation = async () => {
     try {
         const banAllVersion = await allBanVersion()
 

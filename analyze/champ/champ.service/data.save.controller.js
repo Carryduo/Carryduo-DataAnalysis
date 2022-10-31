@@ -63,7 +63,14 @@ exports.spellDataToService = async () => {
                 const pick_rate = dIs.pick_rate
                 const sample_num = dIs.sample_num
                 const version = dIs.version
-                // await saveSpellDataToService(champId, spell1, spell2, pick_rate, sample_num, version)
+                await saveSpellDataToService(
+                    champId,
+                    spell1,
+                    spell2,
+                    pick_rate,
+                    sample_num,
+                    version
+                )
             }
         }
     } catch (err) {

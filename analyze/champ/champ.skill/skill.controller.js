@@ -3,7 +3,7 @@ const {
     targetChampionSkillInfoSave,
     getTooltip,
     editToolTip,
-} = require("./champInfo.service")
+} = require("./skill.service")
 const axios = require("axios")
 const logger = require("../../../log")
 

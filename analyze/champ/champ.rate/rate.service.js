@@ -86,13 +86,6 @@ exports.updateBanCnt = async (champId, option, version) => {
         .execute()
 }
 
-exports.deleteBanOldVersion = async () => {
-    return ChampBan.createQueryBuilder()
-        .delete()
-        .where("version NOT IN (:...version)", { version: ["12.20", "12.19"] })
-        .execute()
-}
-
 exports.getBanVersion = async (champId, version) => {
     return ChampBan.createQueryBuilder()
         .where("champId = :champId", { champId })
