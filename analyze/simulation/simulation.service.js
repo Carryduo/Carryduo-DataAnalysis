@@ -73,7 +73,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4, c
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ simulationAnalyzed: 1 })
+                .set({ simulationAnalyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -96,7 +96,7 @@ exports.updateSimulationData = async (matchId, champ1, champ2, champ3, champ4, c
 
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ simulationAnalyzed: 1 })
+                .set({ simulationAnalyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -140,7 +140,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                 .execute()
             await MatchId.createQueryBuilder()
                 .update(matchid)
-                .set({ simulationAnalyzed: 1 })
+                .set({ simulationAnalyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -168,7 +168,7 @@ exports.saveSimulationData = async (matchId, champ1, champ2, champ3, champ4, cat
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ simulationAnalyzed: 1 })
+                .set({ simulationAnalyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {

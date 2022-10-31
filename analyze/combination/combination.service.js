@@ -98,7 +98,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ analyzed: 1 })
+                .set({ analyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -119,7 +119,7 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
 
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ analyzed: 1 })
+                .set({ analyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -157,7 +157,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ analyzed: 1 })
+                .set({ analyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -181,7 +181,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
-                .set({ analyzed: 1 })
+                .set({ analyzed: 1, version })
                 .where("matchid.matchId = :matchId", { matchId })
                 .execute()
                 .then(() => {
@@ -370,6 +370,21 @@ exports.transferToService = async (data) => {
     }
 }
 
+exports.findVersionAndMatchId = async () => {
+    return await Combination.createQueryBuilder().select(['combination.matchId', 'combination.version']).getMany()
+}
+
+exports.transferVersiontoMatchId = async (matchId, version) => {
+    try {
+        await MatchId.createQueryBuilder()
+            .update()
+            .set({ version })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
+    } catch (err) {
+        console.log(err)
+    }
+}
 exports.disconnect = async () => {
     await queryRunner.release()
 }

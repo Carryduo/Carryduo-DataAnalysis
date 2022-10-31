@@ -72,5 +72,9 @@ module.exports = new EntitySchema({
             require: true,
             default: 0,
         },
+        version: {
+            type: 'varchar',
+            required: true
+        }
     },
 })
