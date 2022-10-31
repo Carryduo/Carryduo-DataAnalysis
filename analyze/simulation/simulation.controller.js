@@ -1,7 +1,5 @@
 require("dotenv").config()
 const axios = require("axios")
-const { Logger } = require("mongodb")
-const { version } = require("mongoose")
 const logger = require("../../log")
 const { sleep } = require("../../timer/timer")
 const {

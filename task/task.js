@@ -44,8 +44,8 @@ async function startAnalyze() {
         await combinationController.uploadCombinationWinRate()
         await combinationController.updateCombinationTierAndRank()
 
-        await simulationController.saveSimulation()
-        await simulationController.uploadSimulationWinRate()
+        // await simulationController.saveSimulation()
+        // await simulationController.uploadSimulationWinRate()
 
         await sleep(5)
 
@@ -53,6 +53,7 @@ async function startAnalyze() {
 
         // 서비스 DB 이관
         await saveChampDataToServiceDB()
+
         await combinationController.transferCombinationStatToServiceDB()
         await simulationController.transferSimulationToServiceDB()
 

@@ -199,7 +199,7 @@ exports.updateSimulationWinRate = async (value) => {
             .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
             .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
             .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
-            .andWhere("simulation_service.category = :category", { version: value.category })
+            .andWhere("simulation_service.category = :category", { category: value.category })
             .andWhere("simulation_service.version = :version", { version: value.version })
             .getOne()
 
@@ -214,7 +214,7 @@ exports.updateSimulationWinRate = async (value) => {
                 .andWhere("simulation_service.champ2Id = :champ2Id", { champ2Id: value.champ2Id })
                 .andWhere("simulation_service.champ3Id = :champ3Id", { champ3Id: value.champ3Id })
                 .andWhere("simulation_service.champ4Id = :champ4Id", { champ4Id: value.champ4Id })
-                .andWhere("simulation_service.category = :category", { version: value.category })
+                .andWhere("simulation_service.category = :category", { category: value.category })
                 .andWhere("simulation_service.version = :version", { version: value.version })
                 .execute()
             type = "update"

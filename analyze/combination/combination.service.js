@@ -290,6 +290,7 @@ exports.updateCombinationTier = async (value) => {
             .andWhere("combination_service.subChampId = :subChampId", {
                 subChampId: value.subChampId,
             })
+            .andWhere('combination_service.version = :version', { version: value.version })
             .execute()
     } catch (err) {
         logger.error(err, { message: `챔피언 조합 승률 티어, 랭크 삽입 실패` })
