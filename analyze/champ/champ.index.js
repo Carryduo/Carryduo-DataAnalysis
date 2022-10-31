@@ -18,7 +18,6 @@ let key = 0
 let status
 exports.startChampDataSave = async () => {
     try {
-        let count = 0
         const data = await matchIdList()
         logger.info(data.length, { message: "- 승/밴/픽, 스펠, 포지션 데이터분석 matchId 개수" })
         while (key !== data.length) {
@@ -31,13 +30,11 @@ exports.startChampDataSave = async () => {
                 key++
                 continue
             }
-            await position(matchData)
-            await winRate(matchData)
-            await banRate(matchData)
-            await spell(matchData)
+            await position(matchData, key)
+            await winRate(matchData, key)
+            await banRate(matchData, key)
+            await spell(matchData, key)
 
-            count++
-            console.log(count + "경기수")
             key++
         }
         key = 0

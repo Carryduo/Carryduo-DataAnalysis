@@ -110,8 +110,11 @@ exports.winPickRateCalculation = async () => {
  * pick rate save
  */
 
-exports.banRate = async (data) => {
+exports.banRate = async (data, key) => {
     try {
+        console.log(
+            `============================================밴 카운팅 ${key}번============================================`
+        )
         const matchId = data.metadata.matchId
         const version = data.info.gameVersion.substring(0, 5)
         let champList = []
@@ -124,7 +127,6 @@ exports.banRate = async (data) => {
                 const champId = b.championId
 
                 if (champId === -1) {
-                    console.log(champId)
                     continue
                 }
                 champList.push(champId)
@@ -152,7 +154,7 @@ exports.banRate = async (data) => {
                 //update
                 if (champList.indexOf(nCL) === champList.lastIndexOf(nCL)) {
                     option = {
-                        set: { banCount: () => "+banCount1", sampleNum: () => "sampleNum+1" },
+                        set: { banCount: () => "+banCount+1", sampleNum: () => "sampleNum+1" },
                     }
                     await updateBanCnt(nCL, option, version)
                 } else if (champList.indexOf(nCL) !== champList.lastIndexOf(nCL)) {
@@ -183,13 +185,14 @@ exports.banRateCalculation = async () => {
                 continue
             }
             const banInfos = await banInfo(allVersion)
+            const matchTotal = await matchTotalCnt(allVersion)
+
             for (let bIs of banInfos) {
                 const champId = bIs.champId
-                const sampleNum = bIs.sampleNum
                 const version = bIs.version
                 const banCount = bIs.banCount
 
-                let banRate = (banCount / sampleNum) * 100
+                let banRate = (banCount / matchTotal) * 100
                 banRate = Number(banRate.toFixed(2))
                 await saveBanRate(champId, banRate, version)
             }

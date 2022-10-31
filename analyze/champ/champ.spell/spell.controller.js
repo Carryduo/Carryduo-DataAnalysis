@@ -9,11 +9,14 @@ const {
     saveSpellData,
     updateChampSpellData,
 } = require("./spell.service")
-const { successAnalyzed } = require("../champInfo.service")
+const { successAnalyzed } = require("../champ.common.service")
 const logger = require("../../../log")
 
-exports.spell = async (data) => {
+exports.spell = async (data, key) => {
     try {
+        console.log(
+            `============================================스펠 카운팅 ${key}번============================================`
+        )
         let analyzedOption
 
         const matchId = data.metadata.matchId

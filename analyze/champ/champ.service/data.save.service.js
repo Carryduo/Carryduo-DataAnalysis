@@ -6,7 +6,6 @@ const { dataSource_service } = require("../../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
 const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
 const ChampRateService = dataSource_service.getRepository("CHAMPRATE")
-const ChampSkillService = dataSource_service.getRepository("CHAMPSKILL")
 
 exports.allRateVersion = async () => {
     return ChampInfo.createQueryBuilder().select("distinct champ_service.version").getRawMany()
