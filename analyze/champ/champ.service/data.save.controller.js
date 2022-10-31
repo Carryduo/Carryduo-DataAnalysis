@@ -16,6 +16,10 @@ exports.rateDataToService = async () => {
 
         for (let rAV of rateAllVersion) {
             let allVersion = rAV.version
+
+            if (allVersion === "old") {
+                continue
+            }
             const dataInfos = await rateInfo(allVersion)
             for (let dIs of dataInfos) {
                 const champId = dIs.champId
@@ -55,6 +59,10 @@ exports.spellDataToService = async () => {
 
         for (let sAV of spellAllVersion) {
             let allVersion = sAV.version
+
+            if (allVersion === "old") {
+                continue
+            }
             const dataInfos = await spellInfo(allVersion)
             for (let dIs of dataInfos) {
                 const champId = dIs.champId

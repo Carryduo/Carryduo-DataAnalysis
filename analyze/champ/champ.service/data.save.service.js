@@ -89,6 +89,8 @@ exports.saveSpellDataToService = async (
     const check = await ChampSpellService.createQueryBuilder()
         .where("champId = :champId", { champId })
         .andWhere("version = :version", { version })
+        .andWhere("spell1 = :spell1", { spell1 })
+        .andWhere("spell2 = :spell2", { spell2 })
         .getOne()
     if (!check) {
         await ChampSpellService.createQueryBuilder()

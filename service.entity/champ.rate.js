@@ -36,5 +36,8 @@ module.exports = new EntitySchema({
         support_rate: {
             type: "int",
         },
+        version: {
+            type: "varchar",
+        },
     },
 })
