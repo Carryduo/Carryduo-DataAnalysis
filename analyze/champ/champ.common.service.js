@@ -40,3 +40,11 @@ exports.dropAnalyzed = async (matchId, option) => {
         .where("matchid.matchId = :matchId", { matchId })
         .execute()
 }
+
+exports.saveMatchIdVersion = async (matchId, version) => {
+    return await MatchId.createQueryBuilder()
+        .update()
+        .set({ version })
+        .where("matchid.matchId = :matchId", { matchId })
+        .execute()
+}

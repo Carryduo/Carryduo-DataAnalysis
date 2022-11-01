@@ -2,7 +2,7 @@ const { sleep } = require("../../timer/timer")
 const logger = require("../../log")
 const axios = require("axios")
 
-const { matchIdList, dropAnalyzed } = require("./champ.common.service")
+const { matchIdList, saveMatchIdVersion, dropAnalyzed } = require("./champ.common.service")
 const {
     winRate,
     banRate,
@@ -41,7 +41,7 @@ exports.startChampDataSave = async () => {
         logger.info("승/밴/픽, 스펠, 포지션 데이터분석완료")
         return
     } catch (err) {
-        logger.error(err, { message: "- from startChampInfo" })
+        logger.error(err, { message: "- from startChampDataSave" })
         return err
     }
 }
@@ -57,6 +57,8 @@ async function requestRiotAPI(matchId) {
             await dropAnalyzed(matchId)
             return "next"
         }
+        const version = matchData.info.gameVersion.substring(0, 5)
+        await saveMatchIdVersion(matchId, version)
         return matchData
     } catch (err) {
         if (!err.response) {

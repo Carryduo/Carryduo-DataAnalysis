@@ -47,9 +47,9 @@ async function startAnalyze() {
         // // await simulationController.saveSimulation()
         // // await simulationController.uploadSimulationWinRate()
 
-        // await sleep(5)
+        await sleep(5)
 
-        // console.log("======서비스 DB 이관========")
+        console.log("======서비스 DB 이관========")
 
         // // 서비스 DB 이관
         await saveChampDataToServiceDB()
