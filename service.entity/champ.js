@@ -16,6 +16,10 @@ module.exports = new EntitySchema({
             type: "varchar",
             require: true,
         },
+        champ_main_img: {
+            type: "varchar",
+            require: true,
+        },
         champ_img: {
             type: "varchar",
             require: true,
@@ -52,6 +56,10 @@ module.exports = new EntitySchema({
             type: "int",
             require: false,
         },
+        version: {
+            type: "varchar",
+            require: true,
+        },
     },
     relations: {
         champId: {
@@ -70,19 +78,9 @@ module.exports = new EntitySchema({
             eager: true,
             inverseSide: "CHAMP",
         },
-    },
-    relations: {
         champId: {
             target: "CHAMPSPELL",
             type: "one-to-many",
-            joinColumn: "champId",
-            cascade: true,
-            eager: true,
-            inverseSide: "CHAMP",
-        },
-        champId: {
-            target: "CHAMPRATE",
-            type: "one-to-one",
             joinColumn: "champId",
             cascade: true,
             eager: true,

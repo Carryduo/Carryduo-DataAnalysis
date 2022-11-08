@@ -1,5 +1,6 @@
 const axios = require("axios")
 const logger = require("../../../log")
+const { champSkillSave, fixTooltip } = require("../champ.skill/skill.controller")
 const {
     allRateVersion,
     rateInfo,
@@ -7,7 +8,9 @@ const {
     allSpellVersion,
     spellInfo,
     saveSpellDataToService,
+    checkChamp,
     saveChampInfoService,
+    updateChampInfoService,
 } = require("./data.save.service")
 
 exports.rateDataToService = async () => {
@@ -87,36 +90,44 @@ exports.spellDataToService = async () => {
     }
 }
 
+//TODO: 요청 url 최신 버전 적용
 exports.champInfoToService = async () => {
     try {
         let champName = []
 
         const response = await axios.get(
-            `https://ddragon.leagueoflegends.com/cdn/12.17.1/data/ko_KR/champion.json`
+            `http://ddragon.leagueoflegends.com/cdn/12.21.1/data/ko_KR/champion.json`
         )
         const champData = response.data.data
-
         champName.push(...Object.keys(champData))
 
         for (let i of champName) {
             const champ_name_en = i
             const champId = response.data.data[i].key
             const detailChamp = await axios.get(
-                `https://ddragon.leagueoflegends.com/cdn/12.20.1/data/ko_KR/champion/${champ_name_en}.json`
+                `https://ddragon.leagueoflegends.com/cdn/12.21.1/data/ko_KR/champion/${champ_name_en}.json`
             )
             const champ_name_ko = detailChamp.data.data[champ_name_en].name
             const champ_main_img = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champ_name_en}_0.jpg`
-            const champ_img = `https://ddragon.leagueoflegends.com/cdn/12.20.1/img/champion/${champ_name_en}.png`
-
-            await saveChampInfoService(
-                champId,
-                champ_name_en,
-                champ_name_ko,
-                champ_main_img,
-                champ_img
-            )
+            const champ_img = `https://ddragon.leagueoflegends.com/cdn/12.21.1/img/champion/${champ_name_en}.png`
+            const existChamp = await checkChamp(champId)
+            if (!existChamp) {
+                await saveChampInfoService(
+                    champId,
+                    champ_name_en,
+                    champ_name_ko,
+                    champ_main_img,
+                    champ_img
+                )
+                await champSkillSave(detailChamp, champId, champ_name_en, true)
+            } else {
+                await updateChampInfoService(champId, champ_main_img, champ_img)
+                await champSkillSave(detailChamp, champId, champ_name_en, false)
+            }
         }
-        return
+        await fixTooltip()
+        console.log("champInfoToService 완료")
+        return "champInfoToService 완료"
     } catch (err) {
         console.error(err)
         logger.error(err, { message: "- from champInfoToService" })

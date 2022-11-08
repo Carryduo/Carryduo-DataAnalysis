@@ -119,6 +119,17 @@ exports.saveSpellDataToService = async (
     }
 }
 
+exports.checkChamp = async (champId) => {
+    try {
+        return await ChampService.createQueryBuilder()
+            .where("champId = :champId", { champId })
+            .select("champId")
+            .getRawOne()
+    } catch (err) {
+        console.log(err)
+    }
+}
+
 exports.saveChampInfoService = async (
     champId,
     champ_name_en,
@@ -126,22 +137,24 @@ exports.saveChampInfoService = async (
     champ_main_img,
     champ_img
 ) => {
-    const check = await ChampService.createQueryBuilder()
+    await ChampService.createQueryBuilder()
+        .insert()
+        .values({
+            champId,
+            champ_name_en,
+            champ_name_ko,
+            champ_main_img,
+            champ_img,
+        })
+        .execute()
+}
+exports.updateChampInfoService = async (champId, champ_main_img, champ_img) => {
+    await ChampService.createQueryBuilder()
+        .update(ChampService)
+        .set({
+            champ_main_img,
+            champ_img,
+        })
         .where("champId = :champId", { champId })
-        .getOne()
-
-    if (!check) {
-        await ChampService.createQueryBuilder()
-            .insert()
-            .values({
-                champId,
-                champ_name_en,
-                champ_name_ko,
-                champ_main_img,
-                champ_img,
-            })
-            .execute()
-    } else if (check) {
-        return
-    }
+        .execute()
 }

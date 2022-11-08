@@ -1,22 +1,8 @@
 const { dataSource_service } = require("../../../service.orm")
-const ChampService = dataSource_service.getRepository("CHAMP")
-const ChampSkill = dataSource_service.getRepository("CHAMPSKILL")
-
-exports.targetChampionInfoSave = async (data) => {
-    return ChampService.createQueryBuilder()
-        .insert()
-        .values({
-            id: data.championId,
-            champNameEn: data.championNameEn,
-            champNameKo: data.championNameKo,
-            champMainImg: data.championMainImg,
-            champImg: data.championImg,
-        })
-        .execute()
-}
+const ChampSkill = dataSource_service.getRepository("CHAMPSKILLINFO")
 
 exports.targetChampionSkillInfoSave = async (
-    championId,
+    champId,
     qSkillInfo,
     wSkillInfo,
     eSkillInfo,
@@ -26,60 +12,127 @@ exports.targetChampionSkillInfoSave = async (
     await ChampSkill.createQueryBuilder()
         .insert()
         .values({
-            champId: championId,
-            skillId: qSkillInfo.id,
-            skillName: qSkillInfo.name,
-            skillDesc: qSkillInfo.desc,
-            skillToolTip: qSkillInfo.tooltip,
-            skillImg: qSkillInfo.image,
+            champId,
+            skill_id: qSkillInfo.id,
+            skill_name: qSkillInfo.name,
+            skill_desc: qSkillInfo.desc,
+            skill_tool_tip: qSkillInfo.tooltip,
+            skill_img: qSkillInfo.image,
         })
         .execute()
 
     await ChampSkill.createQueryBuilder()
         .insert()
         .values({
-            champId: championId,
-            skillId: wSkillInfo.id,
-            skillName: wSkillInfo.name,
-            skillDesc: wSkillInfo.desc,
-            skillToolTip: wSkillInfo.tooltip,
-            skillImg: wSkillInfo.image,
+            champId,
+            skill_id: wSkillInfo.id,
+            skill_name: wSkillInfo.name,
+            skill_desc: wSkillInfo.desc,
+            skill_tool_tip: wSkillInfo.tooltip,
+            skill_img: wSkillInfo.image,
         })
         .execute()
 
     await ChampSkill.createQueryBuilder()
         .insert()
         .values({
-            champId: championId,
-            skillId: eSkillInfo.id,
-            skillName: eSkillInfo.name,
-            skillDesc: eSkillInfo.desc,
-            skillToolTip: eSkillInfo.tooltip,
-            skillImg: eSkillInfo.image,
+            champId,
+            skill_id: eSkillInfo.id,
+            skill_name: eSkillInfo.name,
+            skill_desc: eSkillInfo.desc,
+            skill_tool_tip: eSkillInfo.tooltip,
+            skill_img: eSkillInfo.image,
         })
         .execute()
 
     await ChampSkill.createQueryBuilder()
         .insert()
         .values({
-            champId: championId,
-            skillId: rSkillInfo.id,
-            skillName: rSkillInfo.name,
-            skillDesc: rSkillInfo.desc,
-            skillToolTip: rSkillInfo.tooltip,
-            skillImg: rSkillInfo.image,
+            champId,
+            skill_id: rSkillInfo.id,
+            skill_name: rSkillInfo.name,
+            skill_desc: rSkillInfo.desc,
+            skill_tool_tip: rSkillInfo.tooltip,
+            skill_img: rSkillInfo.image,
         })
         .execute()
 
     await ChampSkill.createQueryBuilder()
         .insert()
         .values({
-            champId: championId,
-            skillId: passiveInfo.id,
-            skillName: passiveInfo.name,
-            skillDesc: passiveInfo.desc,
-            skillImg: passiveInfo.image,
+            champId,
+            skill_id: passiveInfo.id,
+            skill_name: passiveInfo.name,
+            skill_desc: passiveInfo.desc,
+            skill_img: passiveInfo.image,
         })
+        .execute()
+}
+
+exports.targetChampionSkillInfoUpdate = async (
+    champId,
+    qSkillInfo,
+    wSkillInfo,
+    eSkillInfo,
+    rSkillInfo,
+    passiveInfo
+) => {
+    await ChampSkill.createQueryBuilder()
+        .update(ChampSkill)
+        .set({
+            skill_name: qSkillInfo.name,
+            skill_desc: qSkillInfo.desc,
+            skill_tool_tip: qSkillInfo.tooltip,
+            skill_img: qSkillInfo.image,
+        })
+        .where("champId = :champId", { champId })
+        .andWhere("skill_id = :skillId", { skillId: qSkillInfo.id })
+        .execute()
+    await ChampSkill.createQueryBuilder()
+        .update(ChampSkill)
+        .set({
+            skill_name: wSkillInfo.name,
+            skill_desc: wSkillInfo.desc,
+            skill_tool_tip: wSkillInfo.tooltip,
+            skill_img: wSkillInfo.image,
+        })
+        .where("champId = :champId", { champId })
+        .andWhere("skill_id = :skillId", { skillId: wSkillInfo.id })
+        .execute()
+    await ChampSkill.createQueryBuilder()
+        .update(ChampSkill)
+        .set({
+            skill_id: eSkillInfo.id,
+            skill_name: eSkillInfo.name,
+            skill_desc: eSkillInfo.desc,
+            skill_tool_tip: eSkillInfo.tooltip,
+            skill_img: eSkillInfo.image,
+        })
+        .where("champId = :champId", { champId })
+        .andWhere("skill_id = :skillId", { skillId: eSkillInfo.id })
+        .execute()
+    await ChampSkill.createQueryBuilder()
+        .update(ChampSkill)
+        .set({
+            skill_id: rSkillInfo.id,
+            skill_name: rSkillInfo.name,
+            skill_desc: rSkillInfo.desc,
+            skill_tool_tip: rSkillInfo.tooltip,
+            skill_img: rSkillInfo.image,
+        })
+        .where("champId = :champId", { champId })
+        .andWhere("skill_id = :skillId", { skillId: rSkillInfo.id })
+        .execute()
+    await ChampSkill.createQueryBuilder()
+        .update(ChampSkill)
+        .set({
+            skill_id: passiveInfo.id,
+            skill_name: passiveInfo.name,
+            skill_desc: passiveInfo.desc,
+            skill_img: passiveInfo.image,
+        })
+        .where("champId = :champId", { champId })
+        .andWhere("skill_id = :skillId", { skillId: passiveInfo.id })
         .execute()
 }
 
@@ -87,12 +140,13 @@ exports.getTooltip = async () => {
     return await ChampSkill.createQueryBuilder().select().getMany()
 }
 
-exports.editToolTip = async (champId, skillToolTip, skillDesc) => {
+exports.editToolTip = async (skill_id, champId, skill_tool_tip, skill_desc) => {
     try {
         await ChampSkill.createQueryBuilder()
-            .update()
-            .set({ skillToolTip, skillDesc })
+            .update(ChampSkill)
+            .set({ skill_tool_tip, skill_desc })
             .where("champId = :champId", { champId })
+            .andWhere("skill_id = :skill_id", { skill_id })
             .execute()
     } catch (error) {
         console.log(error)
