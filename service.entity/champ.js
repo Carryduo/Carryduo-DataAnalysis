@@ -62,37 +62,29 @@ module.exports = new EntitySchema({
         },
     },
     relations: {
-        champId: {
-            target: "COMBINATION_STAT",
-            type: "one-to-many",
-            joinColumn: ["mainChampId", "subChampId"],
+        champrate: {
+            target: "CHAMPRATE",
+            type: "one-to-one",
             cascade: true,
             eager: true,
-            inverseSide: "CHAMP",
+        },
+        combination: {
+            target: "COMBINATION_STAT",
+            type: "one-to-many",
+            cascade: true,
+            eager: true,
         },
         champId: {
             target: "SIMULATION",
             type: "one-to-many",
-            joinColumn: ["champ1Id", "champ2Id", "champ3Id", "champ4Id"],
             cascade: true,
             eager: true,
-            inverseSide: "CHAMP",
         },
         champId: {
             target: "CHAMPSPELL",
             type: "one-to-many",
-            joinColumn: "champId",
             cascade: true,
             eager: true,
-            inverseSide: "CHAMP",
-        },
-        champId: {
-            target: "CHAMPRATE",
-            type: "one-to-one",
-            joinColumn: "champId",
-            cascade: true,
-            eager: true,
-            inverseSide: "CHAMP",
         },
     },
 })

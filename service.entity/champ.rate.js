@@ -40,4 +40,14 @@ module.exports = new EntitySchema({
             type: "varchar",
         },
     },
+    relations: {
+        champId: {
+            target: 'CHAMP',
+            type: 'one-to-one',
+            joinColumn: {
+                name: 'champId',
+                referencedColumnName: 'champId'
+            },
+        }
+    }
 })

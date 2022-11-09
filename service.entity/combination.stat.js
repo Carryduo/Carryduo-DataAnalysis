@@ -63,4 +63,22 @@ module.exports = new EntitySchema({
             require: true
         }
     },
+    relations: {
+        mainChampId: {
+            target: 'CHAMP',
+            type: 'many-to-one',
+            joinColumn: {
+                name: 'mainChampId',
+                referencedColumnName: 'champId'
+            },
+        },
+        subChampId: {
+            target: 'CHAMP',
+            type: 'many-to-one',
+            joinColumn: {
+                name: 'subChampId',
+                referencedColumnName: 'champId'
+            },
+        }
+    }
 })
