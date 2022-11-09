@@ -46,9 +46,6 @@ exports.champSkillSave = async (detailChamp, champId, key, skillImg, passiveImg,
             desc: passive.description,
             image: passiveImg.replace("Anivia_P.png", `${passive.image.full}`),
         }
-        if (champId === "1") {
-            console.log(qSkill.image, wSkill.image, eSkill.image, rSkill.image, passiveSkill.image)
-        }
         if (status) {
             await targetChampionSkillInfoSave(champId, qSkill, wSkill, eSkill, rSkill, passiveSkill)
         } else if (!status) {
