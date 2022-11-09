@@ -88,7 +88,7 @@ module.exports = new EntitySchema({
         },
         champId: {
             target: "CHAMPRATE",
-            type: "one-to-one",
+            type: "one-to-many",
             joinColumn: "champId",
             cascade: true,
             eager: true,
