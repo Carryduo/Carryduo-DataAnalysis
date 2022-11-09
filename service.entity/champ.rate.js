@@ -43,7 +43,7 @@ module.exports = new EntitySchema({
     relations: {
         champId: {
             target: 'CHAMP',
-            type: 'one-to-one',
+            type: 'many-to-one',
             joinColumn: {
                 name: 'champId',
                 referencedColumnName: 'champId'

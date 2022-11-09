@@ -64,7 +64,7 @@ module.exports = new EntitySchema({
     relations: {
         champrate: {
             target: "CHAMPRATE",
-            type: "one-to-one",
+            type: "one-to-many",
             cascade: true,
             eager: true,
         },
@@ -86,5 +86,6 @@ module.exports = new EntitySchema({
             cascade: true,
             eager: true,
         },
-    },
-})
+    }
+}
+)
