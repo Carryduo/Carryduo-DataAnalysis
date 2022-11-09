@@ -148,11 +148,10 @@ exports.saveChampInfoService = async (
         })
         .execute()
 }
-exports.updateChampInfoService = async (champId, champ_main_img, champ_img) => {
+exports.updateChampInfoService = async (champId, champ_img) => {
     await ChampService.createQueryBuilder()
         .update(ChampService)
         .set({
-            champ_main_img,
             champ_img,
         })
         .where("champId = :champId", { champId })

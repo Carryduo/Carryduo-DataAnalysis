@@ -7,7 +7,7 @@ const {
 const logger = require("../../../log")
 
 //챔피언 정보 및 스킬정보 서비스DB 저장 로직
-exports.champSkillSave = async (detailChamp, champId, key, status) => {
+exports.champSkillSave = async (detailChamp, champId, key, skillImg, passiveImg, status) => {
     try {
         const spells = detailChamp.data.data[key].spells
         const passive = detailChamp.data.data[key].passive
@@ -17,34 +17,37 @@ exports.champSkillSave = async (detailChamp, champId, key, status) => {
             name: spells[0].name,
             desc: spells[0].description,
             tooltip: spells[0].tooltip,
-            image: `https://ddragon.leagueoflegends.com/cdn/12.21.1/img/spell/${spells[0].image.full}`,
+            image: skillImg.replace("FlashFrost.png", `${spells[0].image.full}`),
         }
         const wSkill = {
             id: "w",
             name: spells[1].name,
             desc: spells[1].description,
             tooltip: spells[1].tooltip,
-            image: `https://ddragon.leagueoflegends.com/cdn/12.21.1/img/spell/${spells[1].image.full}`,
+            image: skillImg.replace("FlashFrost.png", `${spells[1].image.full}`),
         }
         const eSkill = {
             id: "e",
             name: spells[2].name,
             desc: spells[2].description,
             tooltip: spells[2].tooltip,
-            image: `https://ddragon.leagueoflegends.com/cdn/12.21.1/img/spell/${spells[2].image.full}`,
+            image: skillImg.replace("FlashFrost.png", `${spells[2].image.full}`),
         }
         const rSkill = {
             id: "r",
             name: spells[3].name,
             desc: spells[3].description,
             tooltip: spells[3].tooltip,
-            image: `https://ddragon.leagueoflegends.com/cdn/12.21.1/img/spell/${spells[3].image.full}`,
+            image: skillImg.replace("FlashFrost.png", `${spells[3].image.full}`),
         }
         const passiveSkill = {
             id: "passive",
             name: passive.name,
             desc: passive.description,
-            image: `http://ddragon.leagueoflegends.com/cdn/12.21.1/img/passive/${passive.image.full}`,
+            image: passiveImg.replace("Anivia_P.png", `${passive.image.full}`),
+        }
+        if (champId === "1") {
+            console.log(qSkill.image, wSkill.image, eSkill.image, rSkill.image, passiveSkill.image)
         }
         if (status) {
             await targetChampionSkillInfoSave(champId, qSkill, wSkill, eSkill, rSkill, passiveSkill)
