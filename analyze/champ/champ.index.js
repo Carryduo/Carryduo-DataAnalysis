@@ -26,9 +26,11 @@ exports.startChampDataSave = async () => {
                 continue
             }
             const matchData = await requestRiotAPI(data[key].matchid_matchId)
-            if (matchData === "next") {
-                key++
+            if (matchData === "next" || matchData === "drop") {
+                console.log("비정상 matchData skip")
                 continue
+            } else if (matchData === 403) {
+                return
             }
             await position(matchData, key)
             await winRate(matchData, key)
@@ -55,8 +57,10 @@ async function requestRiotAPI(matchId) {
 
         if (matchData.info.gameMode !== "CLASSIC" && matchData.info.queueId !== 420) {
             await dropAnalyzed(matchId)
+            key++
             return "next"
         }
+
         const version = matchData.info.gameVersion.substring(0, 5)
         await saveMatchIdVersion(matchId, version)
         return matchData
@@ -71,23 +75,24 @@ async function requestRiotAPI(matchId) {
             return
         } else if (err.response.status === 403) {
             logger.error(err, { message: key + "api키 갱신 필요!" })
-            return
+            return 403
         } else {
-            logger.error(err)
+            logger.error(err, { message: `- from requestRiotAPI matchId: ${matchId} ` })
             status = err.response.status
-            return key++
+            key++
+            return "drop"
         }
     }
 }
 
 exports.startChampCalculation = async () => {
     try {
-        logger.info('champ 승/밴/포지션 픽/스펠 승률 변환 시작')
+        logger.info("champ 승/밴/포지션 픽/스펠 승률 변환 시작")
         await positionCalculation()
         await winPickRateCalculation()
         await banRateCalculation()
         await spellCaculation()
-        logger.info('champ 승/밴/포지션 픽/스펠 승률 변환 완료')
+        logger.info("champ 승/밴/포지션 픽/스펠 승률 변환 완료")
     } catch (err) {
         logger.error(err, { message: "- from startChampCalculation" })
     }

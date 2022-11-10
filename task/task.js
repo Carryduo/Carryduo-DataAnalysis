@@ -3,6 +3,8 @@ const { performance } = require("perf_hooks")
 
 const { testRiotRequest } = require("../analyze/common.request")
 
+const { champInfoToService } = require("../analyze/champ/champ.service/data.save.controller")
+
 const combinationController = require("../analyze/combination/combination.controller")
 const simulationController = require("../analyze/simulation/simulation.controller")
 const dataRetirementController = require("../analyze/data-retirement/data.retirement.controller")
@@ -37,16 +39,15 @@ async function startAnalyze() {
     try {
         const start = performance.now()
 
-        // TODO: 챔피안 기본정보 update 로직 넣기
         // 데이터 분석
 
+        // await champInfoToService()
         // await startChampDataSave()
         // await startChampCalculation()
 
         // await combinationController.saveCombination()
         // await combinationController.uploadCombinationWinRate()
         // await combinationController.updateCombinationTierAndRank()
-
 
         // await sleep(5)
 
