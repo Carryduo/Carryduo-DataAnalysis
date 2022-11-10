@@ -40,28 +40,28 @@ async function startAnalyze() {
         // TODO: 챔피안 기본정보 update 로직 넣기
         // 데이터 분석
 
-        await startChampDataSave()
-        await startChampCalculation()
+        // await startChampDataSave()
+        // await startChampCalculation()
 
-        await combinationController.saveCombination()
-        await combinationController.uploadCombinationWinRate()
-        await combinationController.updateCombinationTierAndRank()
+        // await combinationController.saveCombination()
+        // await combinationController.uploadCombinationWinRate()
+        // await combinationController.updateCombinationTierAndRank()
 
 
-        await sleep(5)
+        // await sleep(5)
 
-        console.log("======서비스 DB 이관========")
+        // console.log("======서비스 DB 이관========")
 
-        // 서비스 DB 이관
-        await saveChampDataToServiceDB()
-        await combinationController.transferCombinationStatToServiceDB()
+        // // 서비스 DB 이관
+        // await saveChampDataToServiceDB()
+        // await combinationController.transferCombinationStatToServiceDB()
 
         // 오래된 데이터 삭제
         await dataRetirementController.deleteOutdatedData("combination")
-        await dataRetirementController.deleteOutdatedData("winRate")
-        await dataRetirementController.deleteOutdatedData("banRate")
-        await dataRetirementController.deleteOutdatedData("position")
-        await dataRetirementController.deleteOutdatedData("spell")
+        // await dataRetirementController.deleteOutdatedData("winRate")
+        // await dataRetirementController.deleteOutdatedData("banRate")
+        // await dataRetirementController.deleteOutdatedData("position")
+        // await dataRetirementController.deleteOutdatedData("spell")
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
