@@ -5,6 +5,7 @@ const { testRiotRequest } = require("../analyze/common.request")
 
 const combinationController = require("../analyze/combination/combination.controller")
 const simulationController = require("../analyze/simulation/simulation.controller")
+const dataRetirementController = require("../analyze/data-retirement/data.retirement.controller")
 
 const {
     startChampDataSave,
@@ -36,7 +37,9 @@ async function startAnalyze() {
     try {
         const start = performance.now()
 
+        // TODO: 챔피안 기본정보 update 로직 넣기
         // 데이터 분석
+
         await startChampDataSave()
         await startChampCalculation()
 
@@ -44,18 +47,21 @@ async function startAnalyze() {
         await combinationController.uploadCombinationWinRate()
         await combinationController.updateCombinationTierAndRank()
 
-        // // await simulationController.saveSimulation()
-        // // await simulationController.uploadSimulationWinRate()
 
         await sleep(5)
 
         console.log("======서비스 DB 이관========")
 
-        // // 서비스 DB 이관
+        // 서비스 DB 이관
         await saveChampDataToServiceDB()
         await combinationController.transferCombinationStatToServiceDB()
-        // // await simulationController.transferSimulationToServiceDB()
 
+        // 오래된 데이터 삭제
+        await dataRetirementController.deleteOutdatedData("combination")
+        await dataRetirementController.deleteOutdatedData("winRate")
+        await dataRetirementController.deleteOutdatedData("banRate")
+        await dataRetirementController.deleteOutdatedData("position")
+        await dataRetirementController.deleteOutdatedData("spell")
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
