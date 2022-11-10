@@ -13,28 +13,52 @@ module.exports = new EntitySchema({
             type: "varchar",
         },
         win_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         ban_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         pick_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         top_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         jungle_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         mid_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         ad_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         support_rate: {
-            type: "int",
+            type: "decimal",
+            precision: 5,
+            scale: 2,
+            require: true,
         },
         version: {
             type: "varchar",
@@ -42,12 +66,12 @@ module.exports = new EntitySchema({
     },
     relations: {
         champId: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champId',
-                referencedColumnName: 'champId'
+                name: "champId",
+                referencedColumnName: "champId",
             },
-        }
-    }
+        },
+    },
 })

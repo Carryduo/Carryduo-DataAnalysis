@@ -5,7 +5,9 @@ const { dataParsing } = require("../crawling/crawling")
 const {
     allRateVersion,
     rateInfo,
+    rateDataCheck,
     saveRateDataToService,
+    updateRateDataToService,
     allSpellVersion,
     spellInfo,
     saveSpellDataToService,
@@ -36,19 +38,36 @@ exports.rateDataToService = async () => {
                 const ad_rate = dIs.ad_rate
                 const support_rate = dIs.support_rate
                 const version = dIs.version
-
-                await saveRateDataToService(
-                    champId,
-                    win_rate,
-                    ban_rate,
-                    pick_rate,
-                    top_rate,
-                    jungle_rate,
-                    mid_rate,
-                    ad_rate,
-                    support_rate,
-                    version
-                )
+                const existData = await rateDataCheck(champId, version)
+                if (!existData) {
+                    console.log("saveRateDataToService create")
+                    await saveRateDataToService(
+                        champId,
+                        win_rate,
+                        ban_rate,
+                        pick_rate,
+                        top_rate,
+                        jungle_rate,
+                        mid_rate,
+                        ad_rate,
+                        support_rate,
+                        version
+                    )
+                } else if (existData) {
+                    console.log("saveRateDataToService update")
+                    await updateRateDataToService(
+                        champId,
+                        win_rate,
+                        ban_rate,
+                        pick_rate,
+                        top_rate,
+                        jungle_rate,
+                        mid_rate,
+                        ad_rate,
+                        support_rate,
+                        version
+                    )
+                }
             }
         }
     } catch (err) {

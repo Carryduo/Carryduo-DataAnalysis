@@ -15,6 +15,13 @@ exports.rateInfo = async (version) => {
     return ChampInfo.createQueryBuilder().where("version = :version", { version }).getMany()
 }
 
+exports.rateDataCheck = async (champId, version) => {
+    return ChampRateService.createQueryBuilder()
+        .where("champId = :champId", { champId })
+        .andWhere("version = :version", { version })
+        .getOne()
+}
+
 exports.saveRateDataToService = async (
     champId,
     win_rate,
@@ -28,44 +35,56 @@ exports.saveRateDataToService = async (
     version
 ) => {
     try {
-        const check = await ChampRateService.createQueryBuilder()
+        await ChampRateService.createQueryBuilder()
+            .insert()
+            .values({
+                champId,
+                win_rate,
+                ban_rate,
+                pick_rate,
+                top_rate,
+                jungle_rate,
+                mid_rate,
+                ad_rate,
+                support_rate,
+                version,
+            })
+            .execute()
+    } catch (err) {
+        console.log(err)
+    }
+}
+exports.updateRateDataToService = async (
+    champId,
+    win_rate,
+    ban_rate,
+    pick_rate,
+    top_rate,
+    jungle_rate,
+    mid_rate,
+    ad_rate,
+    support_rate,
+    version
+) => {
+    try {
+        await ChampRateService.createQueryBuilder()
+            .update(ChampRateService)
+            .set({
+                win_rate,
+                ban_rate,
+                pick_rate,
+                top_rate,
+                jungle_rate,
+                mid_rate,
+                ad_rate,
+                support_rate,
+            })
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
-            .getOne()
-        if (!check) {
-            await ChampRateService.createQueryBuilder()
-                .insert()
-                .values({
-                    champId,
-                    win_rate,
-                    ban_rate,
-                    pick_rate,
-                    top_rate,
-                    jungle_rate,
-                    mid_rate,
-                    ad_rate,
-                    support_rate,
-                    version,
-                })
-                .execute()
-        } else if (check) {
-            await ChampRateService.createQueryBuilder()
-                .update(ChampRateService)
-                .set({
-                    win_rate,
-                    ban_rate,
-                    pick_rate,
-                    top_rate,
-                    jungle_rate,
-                    mid_rate,
-                    ad_rate,
-                    support_rate,
-                })
-                .where("champId = :champId", { champId })
-                .andWhere("version = :version", { version })
-                .execute()
-        }
-    } catch (err) {}
+            .execute()
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 exports.allSpellVersion = async () => {
