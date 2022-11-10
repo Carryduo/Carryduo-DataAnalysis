@@ -24,42 +24,6 @@ module.exports = new EntitySchema({
             type: "varchar",
             require: true,
         },
-        win_rate: {
-            type: "int",
-            require: false,
-        },
-        ban_rate: {
-            type: "int",
-            require: false,
-        },
-        pick_rate: {
-            type: "int",
-            require: false,
-        },
-        top_rate: {
-            type: "int",
-            require: false,
-        },
-        jungle_rate: {
-            type: "int",
-            require: false,
-        },
-        mid_rate: {
-            type: "int",
-            require: false,
-        },
-        ad_rate: {
-            type: "int",
-            require: false,
-        },
-        support_rate: {
-            type: "int",
-            require: false,
-        },
-        version: {
-            type: "varchar",
-            require: true,
-        },
     },
     relations: {
         champrate: {
@@ -74,18 +38,17 @@ module.exports = new EntitySchema({
             cascade: true,
             eager: true,
         },
-        champId: {
+        simulation: {
             target: "SIMULATION",
             type: "one-to-many",
             cascade: true,
             eager: true,
         },
-        champId: {
+        spell: {
             target: "CHAMPSPELL",
             type: "one-to-many",
             cascade: true,
             eager: true,
         },
-    }
-}
-)
+    },
+})

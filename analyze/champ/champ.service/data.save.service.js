@@ -106,7 +106,7 @@ exports.saveSpellDataToService = async (
             .execute()
     } else if (check) {
         await ChampSpellService.createQueryBuilder()
-            .update(ChampService)
+            .update(ChampSpellService)
             .set({
                 pick_rate,
                 sample_num,

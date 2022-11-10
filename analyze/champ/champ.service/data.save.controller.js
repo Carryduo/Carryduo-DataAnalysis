@@ -91,7 +91,6 @@ exports.spellDataToService = async () => {
     }
 }
 
-//TODO: 요청 url 최신 버전 적용
 exports.champInfoToService = async () => {
     try {
         let champName = []
