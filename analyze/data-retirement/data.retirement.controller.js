@@ -12,6 +12,8 @@ const {
     deleteOutdatedData_position,
     findVersion_spell,
     deleteOutdatedData_spell,
+    findVersion_champ_service,
+    deleteOutdatedData_champ_service,
 } = require("./data.retirement.service")
 
 exports.deleteOutdatedData = async (table) => {
@@ -42,6 +44,10 @@ exports.deleteOutdatedData = async (table) => {
             case "spell":
                 findVersion = findVersion_spell
                 deleteOutdatedData = deleteOutdatedData_spell
+                break
+            case "champ_service":
+                findVersion = findVersion_champ_service
+                deleteOutdatedData = deleteOutdatedData_champ_service
                 break
             case "matchId":
                 findVersion = findVersion_matchId

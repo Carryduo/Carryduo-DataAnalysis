@@ -1,5 +1,4 @@
 const { dataSource } = require("../../orm")
-const { dataSource_service } = require("../../service.orm")
 const combination = dataSource.getRepository("combination")
 const combination_service = dataSource.getRepository("combination_service")
 const simulation = dataSource.getRepository("simulation")
@@ -10,11 +9,12 @@ const position = dataSource.getRepository("champ_position")
 const spell = dataSource.getRepository("champspell")
 const spell_service = dataSource.getRepository("champspell_service")
 const champ_service = dataSource.getRepository("champ_service")
+
+const { dataSource_service } = require("../../service.orm")
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
+const rate_stat = dataSource_service.getRepository("CHAMPRATE")
+const spell_stat = dataSource_service.getRepository("CHAMPSPELL")
 
-
-// TODO: position, winrate, banrate, spell 삭제로직에 nestDB 쿼리도 추가
-// TODO: deleteOutdatedData_combination 메소드 참고하기.
 exports.findVersion_combination = async () => {
     return await combination_stat
         .createQueryBuilder()
@@ -83,11 +83,6 @@ exports.deleteOutdatedData_winRate = async (version) => {
             .delete()
             .where("champ_win_rate.version = :version", { version })
             .execute()
-        await champ_service
-            .createQueryBuilder()
-            .delete()
-            .where("champ_service.version = :version", { version })
-            .execute()
         return
     } catch (err) {
         console.log(err)
@@ -104,11 +99,6 @@ exports.deleteOutdatedData_banRate = async (version) => {
             .createQueryBuilder()
             .delete()
             .where("champban.version = :version", { version })
-            .execute()
-        await champ_service
-            .createQueryBuilder()
-            .delete()
-            .where("champ_service.version = :version", { version })
             .execute()
         return
     } catch (err) {
@@ -130,11 +120,6 @@ exports.deleteOutdatedData_position = async (version) => {
             .delete()
             .where("champ_position.version = :version", { version })
             .execute()
-        await champ_service
-            .createQueryBuilder("champ")
-            .delete()
-            .where("champ_service.version = :version", { version })
-            .execute()
         return
     } catch (err) {
         console.log(err)
@@ -153,9 +138,39 @@ exports.deleteOutdatedData_spell = async (version) => {
             .where("champspell.version = :version", { version })
             .execute()
         await spell_service
-            .createQueryBuilder("spell_service")
+            .createQueryBuilder()
             .delete()
             .where("champspell_service.version = :version", { version })
+            .execute()
+        await spell_stat
+            .createQueryBuilder()
+            .delete()
+            .where("CHAMPSPELL.version = :version", { version })
+            .execute()
+        return
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+exports.findVersion_champ_service = async () => {
+    return await champ_service
+        .createQueryBuilder("champ")
+        .select(["DISTINCT champ.version"])
+        .getRawMany()
+}
+exports.deleteOutdatedData_champ_service = async (version) => {
+    try {
+        console.log(version)
+        await champ_service
+            .createQueryBuilder()
+            .delete()
+            .where("champ_service.version = :version", { version })
+            .execute()
+        await rate_stat
+            .createQueryBuilder()
+            .delete()
+            .where("CHAMPRATE.version = :version", { version })
             .execute()
         return
     } catch (err) {
