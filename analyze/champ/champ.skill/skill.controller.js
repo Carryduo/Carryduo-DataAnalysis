@@ -82,10 +82,8 @@ exports.fixTooltip = async () => {
             await editToolTip(skill_id, champId, skill_tool_tip, skill_desc)
         }
     } catch (err) {
-        return err
+        logger.error(err, { message: "- from fixTooltip" })
     }
-
-    return { succes: true }
 }
 
 function validateToolTip(value) {
