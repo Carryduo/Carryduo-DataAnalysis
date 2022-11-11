@@ -6,7 +6,6 @@ const { testRiotRequest } = require("../analyze/common.request")
 const { champInfoToService } = require("../analyze/champ/champ.service/data.save.controller")
 
 const combinationController = require("../analyze/combination/combination.controller")
-const simulationController = require("../analyze/simulation/simulation.controller")
 const dataRetirementController = require("../analyze/data-retirement/data.retirement.controller")
 
 const {
