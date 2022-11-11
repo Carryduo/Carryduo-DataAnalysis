@@ -216,6 +216,9 @@ exports.updateWinRate = async (value) => {
             .andWhere("combination_service.subChampId = :subChampId", {
                 subChampId: value.subChampId,
             })
+            .andWhere('combination_service.category = :category', {
+                category: value.category
+            })
             .andWhere('combination_service.version = :version', {
                 version: value.version
             })
@@ -230,6 +233,9 @@ exports.updateWinRate = async (value) => {
                 .set(value)
                 .where("combination_service.mainChampId = :mainChampId", {
                     mainChampId: value.mainChampId,
+                })
+                .andWhere('combination_service.category = :category', {
+                    category: value.category
                 })
                 .andWhere("combination_service.subChampId = :subChampId", {
                     subChampId: value.subChampId,
@@ -289,6 +295,9 @@ exports.updateCombinationTier = async (value) => {
             })
             .andWhere("combination_service.subChampId = :subChampId", {
                 subChampId: value.subChampId,
+            })
+            .andWhere('combination_service.category = :category', {
+                category: value.category
             })
             .andWhere('combination_service.version = :version', { version: value.version })
             .execute()
@@ -387,4 +396,51 @@ exports.transferVersiontoMatchId = async (matchId, version) => {
 }
 exports.disconnect = async () => {
     await queryRunner.release()
+}
+
+exports.deleteOldVersionData = async () => {
+    await Combination
+        .createQueryBuilder()
+        .delete()
+        .where("combination.version = :version", { version: 'old' })
+        .execute()
+    await Combination_Service
+        .createQueryBuilder()
+        .delete()
+        .where("combination_service.version = :version", { version: 'old' })
+        .execute()
+    await combination_stat
+        .createQueryBuilder()
+        .delete()
+        .where("COMBINATION_STAT.version = :version", { version: 'old' })
+        .execute()
+}
+
+exports.checkRank = async (mainChampId, subChampId, category, version) => {
+    return await Combination_Service.createQueryBuilder().select()
+        .where("combination_service.mainChampId = :mainChampId", { mainChampId })
+        .andWhere("combination_service.subChampId = :subChampId", { subChampId })
+        .andWhere("combination_service.category = :category", { category })
+        .andWhere("combination_service.version = :version", { version })
+        .getOne()
+}
+
+exports.updateNotRankedData = async (mainChampId, subChampId, category, version) => {
+    await Combination_Service.createQueryBuilder()
+        .update()
+        .set({
+            tier: 0,
+            rank_in_category: 0
+        })
+        .where("combination_service.mainChampId = :mainChampId", {
+            mainChampId
+        })
+        .andWhere("combination_service.subChampId = :subChampId", {
+            subChampId
+        })
+        .andWhere('combination_service.category = :category', {
+            category
+        })
+        .andWhere('combination_service.version = :version', { version })
+        .execute()
 }

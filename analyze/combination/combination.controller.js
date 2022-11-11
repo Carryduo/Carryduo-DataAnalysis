@@ -19,6 +19,8 @@ const {
     findVersion,
     findVersionAndMatchId,
     transferVersiontoMatchId,
+    checkRank,
+    updateNotRankedData
 } = require("./combination.service")
 
 let key = 0
@@ -76,8 +78,14 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
             for (let category of categories) {
                 for (let i = 0; i < category.length; i++) {
                     if (category[i].sample_num < 10) {
-                        category[i].rank_in_category = 0
+                        console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 미만, 오류 검토')
+
+                        if (category[i].tier !== 0 && category[i].rank_in_category !== 0) {
+                            await updateNotRankedData(category[i].mainChampId, category[i].subChampId, category[i].category, category[i].version)
+                            console.log(category[i].mainChampId, category[i].subChampId, category[i].category, category[i].version, '티어 삽입 오류 수정 완료')
+                        }
                     } else {
+                        console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 이상, rankList에 삽입')
                         // 표본 5 이상인 것은 새로운 배열로 만들어서, 승률로 sort하기
                         rankList.push(category[i])
                     }
@@ -106,7 +114,7 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
                 // 표본이 10 이상인 것들만 삽입된 rankList를 combination에 삽입
                 for (let k = 0; k < rankList.length; k++) {
                     await updateCombinationTier(rankList[k])
-                    console.log(k, '번째 티어/랭크 삽입 완료')
+                    console.log(`패치버전: ${version}`, `라인: ${rankList[k].category}`, k, '번째 티어/랭크 삽입 완료')
                 }
                 // rankList 카테고리 초기화
                 rankList = []
@@ -115,6 +123,7 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
         logger.info('챔피언 조합 승률 데이터 티어, 랭크 삽입')
         return
     } catch (err) {
+        console.log(err)
         logger.error(err, { message: '-from 챔피언 조합 승률 데이터 티어, 랭크 삽입' })
     }
 }
