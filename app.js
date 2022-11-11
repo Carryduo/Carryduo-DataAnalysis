@@ -12,5 +12,5 @@ const scheduler = new ToadScheduler()
 db.connect()
 ServiceDB.connectService()
 // // 데이터 분석
-const job = new SimpleIntervalJob({ minutes: 60, runImmediately: true }, task)
+const job = new SimpleIntervalJob({ minutes: 90, runImmediately: true }, task)
 scheduler.addSimpleIntervalJob(job)
