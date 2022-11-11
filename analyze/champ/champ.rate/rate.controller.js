@@ -192,14 +192,14 @@ exports.banRateCalculation = async () => {
                 const version = bIs.version
                 const banCount = bIs.banCount
 
-                let banRate = (banCount / matchTotal) * 100
+                let banRate = (banCount / matchTotal.total) * 100
                 banRate = Number(banRate.toFixed(2))
                 await saveBanRate(champId, banRate, version)
             }
         }
         return "벤 데이터 서비스 table 업데이트 완료"
     } catch (err) {
-        logger.error(err, { message: "- from saveBanRate" })
+        logger.error(err, { message: "- from banRateCalculation" })
 
         return err
     }
