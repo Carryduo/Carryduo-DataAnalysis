@@ -34,6 +34,7 @@ exports.getMatchId = async () => {
         .andWhere("matchid.analyzed = :analyzed", {
             analyzed: 0,
         })
+        .orderBy('matchid.createdAt', 'DESC')
         .limit(500)
         .getMany()
 }
