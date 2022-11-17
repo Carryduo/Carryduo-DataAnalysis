@@ -16,9 +16,9 @@ const rate_stat = dataSource_service.getRepository("CHAMPRATE")
 const spell_stat = dataSource_service.getRepository("CHAMPSPELL")
 
 exports.findVersion_combination = async () => {
-    return await combination_stat
+    return await combination
         .createQueryBuilder()
-        .select(["DISTINCT COMBINATION_STAT.version"])
+        .select(["DISTINCT combination.version"])
         .getRawMany()
 }
 
@@ -35,6 +35,22 @@ exports.deleteOutdatedData_combination = async (version) => {
             .delete()
             .where("combination_service.version = :version", { version })
             .execute()
+        return
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+exports.findVersion_combination_service = async () => {
+    return await combination_stat
+        .createQueryBuilder()
+        .select(["DISTINCT COMBINATION_STAT.version"])
+        .getRawMany()
+}
+
+exports.deleteOutdatedData_combination_service = async (version) => {
+    try {
+        console.log(version)
         await combination_stat
             .createQueryBuilder()
             .delete()

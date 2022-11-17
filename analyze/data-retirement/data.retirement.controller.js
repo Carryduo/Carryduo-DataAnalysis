@@ -2,6 +2,8 @@ const logger = require("../../log")
 const {
     findVersion_combination,
     deleteOutdatedData_combination,
+    findVersion_combination_service,
+    deleteOutdatedData_combination_service,
     findVersion_simulation,
     deleteOutdatedData_simulation,
     findVersion_winRate,
@@ -24,6 +26,10 @@ exports.deleteOutdatedData = async (table) => {
             case "combination":
                 findVersion = findVersion_combination
                 deleteOutdatedData = deleteOutdatedData_combination
+                break
+            case "combination_service":
+                findVersion = findVersion_combination_service
+                deleteOutdatedData = deleteOutdatedData_combination_service
                 break
             case "simulation":
                 findVersion = findVersion_simulation

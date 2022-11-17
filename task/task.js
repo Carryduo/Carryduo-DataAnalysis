@@ -50,30 +50,27 @@ async function startAnalyze() {
         await combinationController.updateCombinationTierAndRank()
 
         await sleep(5)
-
-        console.log("======서비스 DB 이관========")
-
-        // // 서비스 DB 이관
+        // 오래된 데이터 삭제
+        await dataRetirementController.deleteOutdatedData("combination")
+        await dataRetirementController.deleteOutdatedData("winRate")
+        await dataRetirementController.deleteOutdatedData("banRate")
+        await dataRetirementController.deleteOutdatedData("position")
+        await dataRetirementController.deleteOutdatedData("spell")
+        // // 서비스 DB 이관 및 서비스 DB에서 오래된 데이터 삭제
         if (transferStatus === 8) {
             await saveChampDataToServiceDB()
             await combinationController.transferCombinationStatToServiceDB()
-
-            // 오래된 데이터 삭제
-            await dataRetirementController.deleteOutdatedData("combination")
-            await dataRetirementController.deleteOutdatedData("winRate")
-            await dataRetirementController.deleteOutdatedData("banRate")
-            await dataRetirementController.deleteOutdatedData("position")
-            await dataRetirementController.deleteOutdatedData("spell")
             await dataRetirementController.deleteOutdatedData("champ_service")
-
+            await dataRetirementController.deleteOutdatedData("combination_service")
             transferStatus = -1
         }
         transferStatus += 1
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
-        const ConversionRunningTime = (runningTime / (1000 * 60)) % 60
-        logger.info(`=== 데이터 분석 ${ConversionRunningTime}분 소요`)
+        const ConversionRunningTime = String((runningTime / (1000 * 60)) / 60).split('.')[0]
+        const ConversionRunningMinute = (runningTime / (1000 * 60)) % 60
+        logger.info(`=== 서비스 이관 paramater: ${transferStatus}/ 데이터 분석 ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요`)
     } catch (err) {
         logger.error(err, { message: "- from startAnalyze" })
     }
