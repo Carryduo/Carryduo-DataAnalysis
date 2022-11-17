@@ -34,6 +34,7 @@ const task = new AsyncTask(
     }
 )
 
+let transferStatus = 0
 async function startAnalyze() {
     try {
         const start = performance.now()
@@ -53,16 +54,21 @@ async function startAnalyze() {
         console.log("======서비스 DB 이관========")
 
         // // 서비스 DB 이관
-        await saveChampDataToServiceDB()
-        await combinationController.transferCombinationStatToServiceDB()
+        if (transferStatus === 8) {
+            await saveChampDataToServiceDB()
+            await combinationController.transferCombinationStatToServiceDB()
 
-        // 오래된 데이터 삭제
-        await dataRetirementController.deleteOutdatedData("combination")
-        await dataRetirementController.deleteOutdatedData("winRate")
-        await dataRetirementController.deleteOutdatedData("banRate")
-        await dataRetirementController.deleteOutdatedData("position")
-        await dataRetirementController.deleteOutdatedData("spell")
-        await dataRetirementController.deleteOutdatedData("champ_service")
+            // 오래된 데이터 삭제
+            await dataRetirementController.deleteOutdatedData("combination")
+            await dataRetirementController.deleteOutdatedData("winRate")
+            await dataRetirementController.deleteOutdatedData("banRate")
+            await dataRetirementController.deleteOutdatedData("position")
+            await dataRetirementController.deleteOutdatedData("spell")
+            await dataRetirementController.deleteOutdatedData("champ_service")
+
+            transferStatus = -1
+        }
+        transferStatus += 1
         //함수 실행 시간 체크
         const end = performance.now()
         const runningTime = end - start
