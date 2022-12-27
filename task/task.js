@@ -14,66 +14,82 @@ const {
     saveChampDataToServiceDB,
 } = require("../analyze/champ/champ.index")
 
-const { AsyncTask } = require("toad-scheduler")
-
 const logger = require("../log")
 
-const task = new AsyncTask(
-    "task",
-    async () => {
-        const response = await testRiotRequest()
-        //데이터 분석 로직 수행
-        if (response) {
-            return await startAnalyze()
-        } else {
-            logger.info("라이엇API키 만료")
-        }
-    },
-    (err) => {
-        logger.error(err, { message: "- from task" })
+const db = require("../orm")
+const ServiceDB = require("../service.orm");
+
+process.on('message', async function (m) {
+    const start = performance.now()
+    let done
+    const response = await testRiotRequest()
+    const cpuUsage = process.cpuUsage()
+    if (m === 'connect') {
+        await db.connect()
+        await ServiceDB.connectService()
+        done = 'connect'
     }
-)
 
-let transferStatus = 0
-async function startAnalyze() {
-    try {
-        const start = performance.now()
-
-        // 데이터 분석
-
-        await champInfoToService()
-        await startChampDataSave()
-        await startChampCalculation()
-
-        await combinationController.saveCombination()
-        await combinationController.uploadCombinationWinRate()
-        await combinationController.updateCombinationTierAndRank()
-
-        await sleep(5)
-        // 오래된 데이터 삭제
-        await dataRetirementController.deleteOutdatedData("combination")
-        await dataRetirementController.deleteOutdatedData("winRate")
-        await dataRetirementController.deleteOutdatedData("banRate")
-        await dataRetirementController.deleteOutdatedData("position")
-        await dataRetirementController.deleteOutdatedData("spell")
-        // // 서비스 DB 이관 및 서비스 DB에서 오래된 데이터 삭제
-        if (transferStatus === 8) {
-            await saveChampDataToServiceDB()
-            await combinationController.transferCombinationStatToServiceDB()
-            await dataRetirementController.deleteOutdatedData("champ_service")
-            await dataRetirementController.deleteOutdatedData("combination_service")
-            transferStatus = -1
+    if (response) {
+        if (m.parameter === 6) {
+            await sleep(10)
+            await analyzedData()
+            console.log('분석 작업 완료')
+            console.log(process.cpuUsage(cpuUsage))
+            done = 'analyze'
         }
-        transferStatus += 1
-        //함수 실행 시간 체크
+        else if (m.parameter === 12) {
+            await sleep(10)
+            await transferData()
+            console.log('이관 작업 완료')
+            console.log(process.cpuUsage(cpuUsage))
+            done = 'transfer'
+        } else {
+            await sleep(10)
+            await collectData()
+            console.log('수집 작업 완료')
+            console.log(process.cpuUsage(cpuUsage))
+            done = 'collect'
+
+        }
         const end = performance.now()
         const runningTime = end - start
         const ConversionRunningTime = String((runningTime / (1000 * 60)) / 60).split('.')[0]
         const ConversionRunningMinute = (runningTime / (1000 * 60)) % 60
-        logger.info(`=== 서비스 이관 paramater: ${transferStatus}/ 데이터 분석 ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요`)
-    } catch (err) {
-        logger.error(err, { message: "- from startAnalyze" })
+        logger.info(`===${m.parameter} 번째 작업:${done} ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요===`)
+        process.send({ parameter: m.parameter, done })
     }
+    else {
+        process.send({ parameter: m.parameter, done: 'API expiration' })
+    }
+})
+
+async function collectData() {
+    // await champInfoToService()
+    await startChampDataSave()
+    await combinationController.saveCombination()
 }
 
-module.exports = { task, startAnalyze }
+async function analyzedData() {
+    await startChampCalculation()
+    await combinationController.uploadCombinationWinRate()
+    await combinationController.updateCombinationTierAndRank()
+}
+
+async function transferData() {
+    // 오래된 데이터 삭제
+    await dataRetirementController.deleteOutdatedData("combination")
+    await dataRetirementController.deleteOutdatedData("winRate")
+    await dataRetirementController.deleteOutdatedData("banRate")
+    await dataRetirementController.deleteOutdatedData("position")
+    await dataRetirementController.deleteOutdatedData("spell")
+    // // 서비스 DB 이관 및 서비스 DB에서 오래된 데이터 삭제
+    await saveChampDataToServiceDB()
+    await combinationController.transferCombinationStatToServiceDB()
+    await dataRetirementController.deleteOutdatedData("champ_service")
+    await dataRetirementController.deleteOutdatedData("combination_service")
+}
+
+process.on('exit', () => {
+    console.log('dataAnalyze process out')
+})

@@ -159,7 +159,7 @@ exports.saveCombination = async (req, res, next) => {
         logger.info('매치데이터 조회 및 챔피언 조합 승률 분석 완료')
         key = 0
         return
-    } catch (error) {
+    } catch (err) {
         logger.error(err, { message: '-from saveCombination' })
         return
     }

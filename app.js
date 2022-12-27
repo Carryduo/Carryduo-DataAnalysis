@@ -4,7 +4,7 @@ const ServiceDB = require("./service.orm")
 
 const { ToadScheduler, SimpleIntervalJob } = require("toad-scheduler")
 
-const { task } = require("./task/task")
+const { task } = require("./task")
 
 const scheduler = new ToadScheduler()
 
