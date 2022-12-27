@@ -162,10 +162,8 @@ exports.champInfoToService = async () => {
         }
 
         await fixTooltip()
-        console.log("champInfoToService 완료")
         return "champInfoToService 완료"
     } catch (err) {
-        console.error(err)
         logger.error(err, { message: "- from champInfoToService" })
         return
     }
