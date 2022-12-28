@@ -27,7 +27,7 @@ exports.startChampDataSave = async () => {
             }
             const matchData = await requestRiotAPI(data[key].matchid_matchId)
             if (matchData === "next" || matchData === "drop") {
-                console.log("비정상 matchData skip")
+                // console.log("비정상 matchData skip")
                 continue
             } else if (matchData === 403) {
                 return

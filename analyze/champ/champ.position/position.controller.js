@@ -11,9 +11,9 @@ const logger = require("../../../log")
 
 exports.position = async (data, key) => {
     try {
-        console.log(
-            `============================================포지션 카운팅 ${key}번============================================`
-        )
+        // console.log(
+        //     `============================================포지션 카운팅 ${key}번============================================`
+        // )
         let analyzedOption
         const matchId = data.metadata.matchId
         const version = data.info.gameVersion.substring(0, 5)

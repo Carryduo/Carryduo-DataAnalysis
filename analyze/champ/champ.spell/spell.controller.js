@@ -14,9 +14,9 @@ const logger = require("../../../log")
 
 exports.spell = async (data, key) => {
     try {
-        console.log(
-            `============================================스펠 카운팅 ${key}번============================================`
-        )
+        // console.log(
+        //     `============================================스펠 카운팅 ${key}번============================================`
+        // )
         let analyzedOption
 
         const matchId = data.metadata.matchId

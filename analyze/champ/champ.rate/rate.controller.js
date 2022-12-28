@@ -26,9 +26,9 @@ const logger = require("../../../log")
 exports.winRate = async (data, key) => {
     try {
         let analyzedOption
-        console.log(
-            `============================================승/패/ 카운팅 ${key}번============================================`
-        )
+        // console.log(
+        //     `============================================승/패/ 카운팅 ${key}번============================================`
+        // )
         const matchId = data.metadata.matchId
 
         const participants = data.info.participants
@@ -112,9 +112,9 @@ exports.winPickRateCalculation = async () => {
 
 exports.banRate = async (data, key) => {
     try {
-        console.log(
-            `============================================밴 카운팅 ${key}번============================================`
-        )
+        // console.log(
+        //     `============================================밴 카운팅 ${key}번============================================`
+        // )
         const matchId = data.metadata.matchId
         const version = data.info.gameVersion.substring(0, 5)
         let champList = []
