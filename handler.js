@@ -69,4 +69,4 @@ taskProcess.on("message", function (m) {
 });
 
 // db 연결부터 taskProcess 작업 시작
-taskProcess.send({ parameter: 0, done: 'collect' });
+taskProcess.send({ parameter: 0 });
