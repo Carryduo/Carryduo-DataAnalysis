@@ -1,6 +1,5 @@
 require("dotenv").config()
 const axios = require("axios")
-const { version } = require("mongoose")
 const logger = require("../../log")
 const { sleep } = require("../../timer/timer")
 const {
@@ -8,7 +7,6 @@ const {
     saveCombinationData,
     checkCombinationData,
     updateCombinationData,
-    getData,
     updateWinRate,
     findRawCombinationData,
     findCombinationCleansedData,
