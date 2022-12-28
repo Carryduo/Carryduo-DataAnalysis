@@ -23,7 +23,7 @@ taskProcess.on("message", function (m) {
             );
             return;
         }
-        if (m.done === "collect") {
+        else if (m.done === "collect") {
             console.log(m);
             setTimeout(function () {
                 taskProcess.send({ parameter: m.parameter + 1 });
@@ -34,7 +34,7 @@ taskProcess.on("message", function (m) {
             );
             return;
         }
-        if (m.done === "analyze") {
+        else if (m.done === "analyze") {
             console.log(m);
             setTimeout(function () {
                 taskProcess.send({ parameter: m.parameter + 1 });
@@ -45,7 +45,7 @@ taskProcess.on("message", function (m) {
             );
             return;
         }
-        if (m.done === "transfer") {
+        else if (m.done === "transfer") {
             console.log(m);
             m.parameter = 1;
             setTimeout(function () {
@@ -57,7 +57,7 @@ taskProcess.on("message", function (m) {
             );
             return;
         }
-        if (m.done === "API expiration") {
+        else if (m.done === "API expiration") {
             throw new Error("API expiration");
         }
     } catch (error) {
@@ -69,4 +69,4 @@ taskProcess.on("message", function (m) {
 });
 
 // db 연결부터 taskProcess 작업 시작
-taskProcess.send("connect");
+taskProcess.send({ parameter: 0, done: 'collect' });

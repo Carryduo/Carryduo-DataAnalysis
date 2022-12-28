@@ -24,26 +24,29 @@ process.on('message', async function (m) {
     let done
     const response = await testRiotRequest()
     const cpuUsage = process.cpuUsage()
-    if (m === 'connect') {
-        await db.connect()
-        await ServiceDB.connectService()
-        done = 'connect'
-    }
-
+    console.log(m)
     if (response) {
-        if (m.parameter === 6) {
+        if (m.parameter === 0) {
+            await db.connect()
+            await ServiceDB.connectService()
+            console.log('DB 연결 작업 완료')
+            done = 'connect'
+        }
+        else if (m.parameter === 6) {
             await sleep(10)
             await analyzedData()
             console.log('분석 작업 완료')
             console.log(process.cpuUsage(cpuUsage))
             done = 'analyze'
-        } else if (m.parameter === 12) {
+        }
+        else if (m.parameter === 12) {
             await sleep(10)
             await transferData()
             console.log('이관 작업 완료')
             console.log(process.cpuUsage(cpuUsage))
             done = 'transfer'
-        } else {
+        }
+        else {
             await sleep(10)
             await collectData()
             console.log('수집 작업 완료')
@@ -57,10 +60,10 @@ process.on('message', async function (m) {
         logger.info(
             `===${m.parameter} 번째 작업:${done} ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요===`
         )
-        process.send({ parameter: m.parameter, done })
     } else {
-        process.send({ parameter: m.parameter, done: 'API expiration' })
+        done = 'API expiration'
     }
+    process.send({ parameter: m.parameter, done })
 })
 
 async function collectData() {
