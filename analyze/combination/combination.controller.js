@@ -26,20 +26,10 @@ const {
 let key = 0
 let status
 
-// 챔피언 조합승률 관련
-exports.getAnalysis = async (req, res, next) => {
-    const { type } = req.params
-    console.log(type)
-    const data = await getData(type)
-    console.log(data)
-    res.status(200).json({ data })
-}
-
 exports.uploadCombinationWinRate = async (req, res, next) => {
     try {
         logger.info('챔피언 조합 승률 로우 데이터 승률로 변환 시작')
         let data = await findRawCombinationData()
-        console.log(data.length)
         data = data.map((value) => {
             value = {
                 winrate: value.win / value.sampleNum,
@@ -52,8 +42,7 @@ exports.uploadCombinationWinRate = async (req, res, next) => {
             return value
         })
         for (let i = 0; i < data.length; i++) {
-            const result = await updateWinRate(data[i])
-            console.log(`${i}번째 챔피언 조합승률 로우 데이터 승률 변환 완료`)
+            await updateWinRate(data[i])
         }
         logger.info('챔피언 조합 승률 로우 데이터 승률로 변환 완료')
         return
@@ -78,14 +67,14 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
             for (let category of categories) {
                 for (let i = 0; i < category.length; i++) {
                     if (category[i].sample_num < 10) {
-                        console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 미만, 오류 검토')
+                        // console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 미만, 오류 검토')
 
                         if (category[i].tier !== 0 && category[i].rank_in_category !== 0) {
                             await updateNotRankedData(category[i].mainChampId, category[i].subChampId, category[i].category, category[i].version)
-                            console.log(category[i].mainChampId, category[i].subChampId, category[i].category, category[i].version, '티어 삽입 오류 수정 완료')
+                            // console.log(category[i].mainChampId, category[i].subChampId, category[i].category, category[i].version, '티어 삽입 오류 수정 완료')
                         }
                     } else {
-                        console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 이상, rankList에 삽입')
+                        // console.log(`패치버전 : ${version}`, `라인: ${category[i].category}`, '표본 10 이상, rankList에 삽입')
                         // 표본 5 이상인 것은 새로운 배열로 만들어서, 승률로 sort하기
                         rankList.push(category[i])
                     }
@@ -114,7 +103,7 @@ exports.updateCombinationTierAndRank = async (req, res, next) => {
                 // 표본이 10 이상인 것들만 삽입된 rankList를 combination에 삽입
                 for (let k = 0; k < rankList.length; k++) {
                     await updateCombinationTier(rankList[k])
-                    console.log(`패치버전: ${version}`, `라인: ${rankList[k].category}`, k, '번째 티어/랭크 삽입 완료')
+                    // console.log(`패치버전: ${version}`, `라인: ${rankList[k].category}`, k, '번째 티어/랭크 삽입 완료')
                 }
                 // rankList 카테고리 초기화
                 rankList = []
@@ -135,7 +124,7 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
         let result
         for (let i = 0; i < dataList.length; i++) {
             await transferToService(dataList[i])
-            console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)
+            // console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)
         }
         logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
     }
@@ -170,19 +159,19 @@ async function getMatchDataAndSaveCombination(matchIdList) {
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division
-        console.log(`${key}번째 데이터 분석 시작`, matchId, tier, division)
+        // console.log(`${key}번째 데이터 분석 시작`, matchId, tier, division)
         const matchDataApiUrl = `https://asia.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${process.env.KEY}`
         const response = await axios.get(matchDataApiUrl)
         const matchData = response.data
         if (matchData.info.gameMode !== "CLASSIC") {
             // TODO: 수정해야함
             await updateWrongMatchDataAnalyzed(matchId)
-            console.log("게임 모드가 CLASSIC이 아닙니다")
+            // console.log("게임 모드가 CLASSIC이 아닙니다")
             return key++
         }
         if (matchData.info.queueId !== 420) {
             await updateWrongMatchDataAnalyzed(matchId)
-            console.log("게임 모드가 솔로랭크가 아닙니다")
+            // console.log("게임 모드가 솔로랭크가 아닙니다")
             return key++
         }
         let version = matchData.info.gameVersion.substr(0, 5)
@@ -284,7 +273,7 @@ async function getMatchDataAndSaveCombination(matchIdList) {
             !losemiddle ||
             !loseutility
         ) {
-            console.log("@@@@@@@@@@@@@@@@@여기서 멈췄어")
+            // console.log("@@@@@@@@@@@@@@@@@여기서 멈췄어")
             await updateWrongMatchDataAnalyzed(matchId)
             return key++
         }
@@ -328,7 +317,7 @@ async function getMatchDataAndSaveCombination(matchIdList) {
         } else {
             await updateCombinationData(matchId, losebottom, loseutility, "lose", 2, version)
         }
-        console.log(`${key}번째 데이터 ( ${matchId}: 패치버전 ${version} 분석 완료`)
+        // console.log(`${key}번째 데이터 ( ${matchId}: 패치버전 ${version} 분석 완료`)
     } catch (err) {
         if (!err.response) {
             console.log("라이엇으로부터 err.response가 없다! ")
@@ -357,10 +346,10 @@ exports.transferVersiontoMatchId = async () => {
     for (let i = 0; i <= data.length; i++) {
         const matchId = data[i].matchId
         const version = data[i].version
-        console.log(matchId, version)
+        // console.log(matchId, version)
         await transferVersiontoMatchId(matchId, version)
-        console.log(`${i} 번째 테스크: ${matchId} version ${version} 업데이트 완료`)
+        // console.log(`${i} 번째 테스크: ${matchId} version ${version} 업데이트 완료`)
     }
-    console.log('end')
+    // console.log('end')
     return
 }

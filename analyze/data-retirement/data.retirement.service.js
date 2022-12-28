@@ -24,7 +24,7 @@ exports.findVersion_combination = async () => {
 
 exports.deleteOutdatedData_combination = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await combination
             .createQueryBuilder()
             .delete()
@@ -50,7 +50,7 @@ exports.findVersion_combination_service = async () => {
 
 exports.deleteOutdatedData_combination_service = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await combination_stat
             .createQueryBuilder()
             .delete()
@@ -71,7 +71,7 @@ exports.findVersion_simulation = async () => {
 
 exports.deleteOutdatedData_simulation = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await simulation
             .createQueryBuilder()
             .delete()
@@ -93,7 +93,7 @@ exports.findVersion_winRate = async () => {
 }
 exports.deleteOutdatedData_winRate = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await winRate
             .createQueryBuilder()
             .delete()
@@ -110,7 +110,7 @@ exports.findVersion_banRate = async () => {
 }
 exports.deleteOutdatedData_banRate = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await banRate
             .createQueryBuilder()
             .delete()
@@ -130,7 +130,7 @@ exports.findVersion_position = async () => {
 }
 exports.deleteOutdatedData_position = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await position
             .createQueryBuilder()
             .delete()
@@ -147,7 +147,7 @@ exports.findVersion_spell = async () => {
 }
 exports.deleteOutdatedData_spell = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await spell
             .createQueryBuilder()
             .delete()
@@ -177,7 +177,7 @@ exports.findVersion_champ_service = async () => {
 }
 exports.deleteOutdatedData_champ_service = async (version) => {
     try {
-        console.log(version)
+        // console.log(version)
         await champ_service
             .createQueryBuilder()
             .delete()

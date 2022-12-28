@@ -46,7 +46,7 @@ exports.updateWrongMatchDataAnalyzed = async (matchId) => {
             .set({ analyzed: 2 })
             .where("matchid.matchId = :matchId", { matchId })
             .execute()
-        console.log("무의미한 MatchData 처리 완료")
+        // console.log("무의미한 MatchData 처리 완료")
         return
     } catch (err) {
         logger.error(err, { message: 'from matchId 예외처리' })

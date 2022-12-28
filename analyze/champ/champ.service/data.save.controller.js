@@ -162,6 +162,9 @@ exports.champInfoToService = async () => {
         }
 
         await fixTooltip()
+        logger.info(
+            `챔피언 이미지 업데이트 완료`
+        )
         return "champInfoToService 완료"
     } catch (err) {
         logger.error(err, { message: "- from champInfoToService" })

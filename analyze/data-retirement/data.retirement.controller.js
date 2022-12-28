@@ -99,11 +99,11 @@ exports.deleteOutdatedData = async (table) => {
         })
         recentVersions.push(...lastVersions)
         // 최신 3개 버전 제외하고 삭제하는 로직
-        console.log(recentVersions)
+        // console.log(recentVersions)
         for (let i = 3; i < recentVersions.length; i++) {
             let version = recentVersions[i]
             await deleteOutdatedData(version)
-            console.log(`패치버전 ${version} 데이터 ${table}에서 제거 완료`)
+            // console.log(`패치버전 ${version} 데이터 ${table}에서 제거 완료`)
         }
         logger.info(`outdated한 패치버전 ${table} 데이터 제거 완료`)
     } catch (err) {
