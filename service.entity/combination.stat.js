@@ -46,6 +46,16 @@ module.exports = new EntitySchema({
             scale: 4,
             require: true,
         },
+        win: {
+            type: "int",
+            require: true,
+            default: 0
+        },
+        lose: {
+            type: 'int',
+            require: true,
+            default: 0
+        },
         sample_num: {
             type: "int",
             require: true,

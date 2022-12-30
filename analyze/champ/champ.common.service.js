@@ -24,6 +24,7 @@ exports.matchIdList = async () => {
                     })
                 })
             )
+            .orderBy('matchid.createdAt', 'DESC')
             .limit(500)
             .getRawMany()
     } catch (err) {

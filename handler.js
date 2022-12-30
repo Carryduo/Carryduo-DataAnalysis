@@ -48,9 +48,10 @@ taskProcess.on("message", function (m) {
         else if (m.done === "transfer") {
             console.log(m);
             m.parameter = 1;
+            // 이관 후엔 10분 뒤에 시작
             setTimeout(function () {
                 taskProcess.send({ parameter: m.parameter });
-            }, 10000);
+            }, 600000);
             console.log(
                 "부모프로세스에서 이관 작업 완료 신호 받았다: ",
                 process.cpuUsage(cpuUsage)

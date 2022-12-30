@@ -74,8 +74,8 @@ async function collectData() {
 
 async function analyzedData() {
     await startChampCalculation()
-    await combinationController.uploadCombinationWinRate()
-    await combinationController.updateCombinationTierAndRank()
+    // await combinationController.uploadCombinationWinRate()
+    // await combinationController.updateCombinationTierAndRank()
 }
 
 async function transferData() {
@@ -88,8 +88,8 @@ async function transferData() {
     // // 서비스 DB 이관 및 서비스 DB에서 오래된 데이터 삭제
     await saveChampDataToServiceDB()
     await combinationController.transferCombinationStatToServiceDB()
-    await dataRetirementController.deleteOutdatedData('champ_service')
     await dataRetirementController.deleteOutdatedData('combination_service')
+    await dataRetirementController.deleteOutdatedData('champ_service')
 }
 
 process.on('exit', () => {

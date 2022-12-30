@@ -119,7 +119,6 @@ exports.transferCombinationStatToServiceDB = async (req, res, next) => {
     try {
         logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
         const dataList = await getCombinationData()
-        let result
         for (let i = 0; i < dataList.length; i++) {
             await transferToService(dataList[i])
             // console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)

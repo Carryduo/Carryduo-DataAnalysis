@@ -309,18 +309,27 @@ exports.updateCombinationTier = async (value) => {
 
 exports.getCombinationData = async () => {
     try {
-        return Combination_Service.createQueryBuilder()
-            .select([
-                "combination_service.tier",
-                "combination_service.category",
-                "combination_service.rank_in_category",
-                "combination_service.winrate",
-                "combination_service.sample_num",
-                "combination_service.mainChampId",
-                "combination_service.subChampId",
-                'combination_service.version'
-            ])
-            .getMany()
+        return Combination.createQueryBuilder().select([
+            'combination.sampleNum as sample_num',
+            'combination.version as version',
+            'combination.mainChampId as mainChampId',
+            'combination.subChampId as subChampId',
+            'combination.win as win',
+            'combination.lose as lose',
+            'combination.category as category',
+        ]).getRawMany()
+        // return Combination_Service.createQueryBuilder()
+        //     .select([
+        //         "combination_service.tier",
+        //         "combination_service.category",
+        //         "combination_service.rank_in_category",
+        //         "combination_service.winrate",
+        //         "combination_service.sample_num",
+        //         "combination_service.mainChampId",
+        //         "combination_service.subChampId",
+        //         'combination_service.version'
+        //     ])
+        //     .getMany()
     } catch (error) {
         logger.error(err, { message: `챔피언 조합승률 데이터 조회 실패(서비스DB 이관)` })
     }
@@ -328,6 +337,7 @@ exports.getCombinationData = async () => {
 
 exports.transferToService = async (data) => {
     try {
+
         let result = { type: "none", success: "none" }
         const existData = await combination_stat
             .createQueryBuilder()
