@@ -337,7 +337,6 @@ exports.getCombinationData = async () => {
 
 exports.transferToService = async (data) => {
     try {
-
         let result = { type: "none", success: "none" }
         const existData = await combination_stat
             .createQueryBuilder()

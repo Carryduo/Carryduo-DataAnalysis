@@ -28,22 +28,8 @@ module.exports = new EntitySchema({
             require: false,
             default: null,
         },
-        tier: {
-            type: "int",
-            require: true,
-        },
         category: {
             type: "int",
-            require: true,
-        },
-        rank_in_category: {
-            type: "int",
-            require: true,
-        },
-        winrate: {
-            type: "float",
-            precision: 7,
-            scale: 4,
             require: true,
         },
         win: {
