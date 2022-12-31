@@ -1,22 +1,16 @@
 // 데이터분석 DB
-
 const { dataSource } = require("../../orm")
 const { dataSource_service } = require("../../service.orm")
-const { Brackets, MoreThan } = require("typeorm")
+const { Brackets } = require("typeorm")
 const queryRunner = dataSource.createQueryRunner()
-
 const MatchId = dataSource.getRepository("matchid")
-const matchid = require("../../entity/match.id")
-
 const Combination = dataSource.getRepository("combination")
-const combination = require("../../entity/combination.data")
-
-const Combination_Service = dataSource.getRepository("combination_service")
-const combinationServiceData = require("../../entity/combination.service.data")
-const logger = require("../../log")
 
 // 서비스 DB
 const combination_stat = dataSource_service.getRepository("COMBINATION_STAT")
+
+// 로깅
+const logger = require("../../log")
 
 // 매치 아이디 가져오기
 exports.getMatchId = async () => {
@@ -51,22 +45,6 @@ exports.updateWrongMatchDataAnalyzed = async (matchId) => {
     } catch (err) {
         logger.error(err, { message: 'from matchId 예외처리' })
     }
-}
-
-exports.getData = async (type) => {
-    return await Combination_Service.createQueryBuilder()
-        .select()
-        .where("combination_service.category = :category", { category: type })
-        .andWhere(
-            new Brackets((qb3) => {
-                qb3.where({
-                    sample_num: MoreThan(9),
-                })
-            })
-        )
-        .orderBy({ "combination_service.rank_in_category": "ASC" })
-        .limit(30)
-        .getMany()
 }
 
 exports.checkCombinationData = async (mainChamp, subChamp, category, version) => {
@@ -206,106 +184,6 @@ exports.findRawCombinationData = async () => {
     }
 }
 
-exports.updateWinRate = async (value) => {
-    let type
-    try {
-        const existData = await Combination_Service.createQueryBuilder()
-            .select()
-            .where("combination_service.mainChampId = :mainChampId", {
-                mainChampId: value.mainChampId,
-            })
-            .andWhere("combination_service.subChampId = :subChampId", {
-                subChampId: value.subChampId,
-            })
-            .andWhere('combination_service.category = :category', {
-                category: value.category
-            })
-            .andWhere('combination_service.version = :version', {
-                version: value.version
-            })
-            .getOne()
-
-        if (!existData) {
-            await Combination_Service.createQueryBuilder().insert().values(value).execute()
-            type = "save"
-        } else {
-            await Combination_Service.createQueryBuilder()
-                .update()
-                .set(value)
-                .where("combination_service.mainChampId = :mainChampId", {
-                    mainChampId: value.mainChampId,
-                })
-                .andWhere('combination_service.category = :category', {
-                    category: value.category
-                })
-                .andWhere("combination_service.subChampId = :subChampId", {
-                    subChampId: value.subChampId,
-                })
-                .andWhere('combination_service.version = :version', {
-                    version: value.version
-                })
-                .execute()
-            type = "update"
-        }
-
-        return { type, success: true }
-    } catch (err) {
-        logger.error(err, { message: `챔피언 조합 승률 변환 실패(승률 변환)` })
-        return { type, success: false }
-    }
-}
-
-exports.findVersion = async () => {
-    try {
-        return await Combination_Service.createQueryBuilder().select(['distinct combination_service.version']).getRawMany()
-    } catch (err) {
-        logger.error(err, { message: '챔피언 조합 승률 카테고리별 승률 데이터 조회 시 패치버전 조회 실패' })
-    }
-}
-exports.findCombinationCleansedData = async (version) => {
-    try {
-        const category0 = await Combination_Service.createQueryBuilder()
-            .where("combination_service.category = :category", { category: 0 })
-            .andWhere('combination_service.version = :version', { version })
-            .select()
-            .getMany()
-        const category1 = await Combination_Service.createQueryBuilder()
-            .where("combination_service.category = :category", { category: 1 })
-            .andWhere('combination_service.version = :version', { version })
-            .select()
-            .getMany()
-        const category2 = await Combination_Service.createQueryBuilder()
-            .where("combination_service.category = :category", { category: 2 })
-            .andWhere('combination_service.version = :version', { version })
-            .select()
-            .getMany()
-        return { category0, category1, category2 }
-    } catch (err) {
-        logger.error(err, { message: `챔피언 조합 승률 카테고리별 승률 데이터 조회 실패` })
-
-    }
-}
-
-exports.updateCombinationTier = async (value) => {
-    try {
-        await Combination_Service.createQueryBuilder()
-            .update()
-            .set(value)
-            .where("combination_service.mainChampId = :mainChampId", {
-                mainChampId: value.mainChampId,
-            })
-            .andWhere("combination_service.subChampId = :subChampId", {
-                subChampId: value.subChampId,
-            })
-            .andWhere('combination_service.category = :category', {
-                category: value.category
-            })
-            .andWhere('combination_service.version = :version', { version: value.version })
-            .execute()
-    } catch (err) {
-        logger.error(err, { message: `챔피언 조합 승률 티어, 랭크 삽입 실패` })
-    }
-}
 
 exports.getCombinationData = async () => {
     try {
@@ -318,18 +196,7 @@ exports.getCombinationData = async () => {
             'combination.lose as lose',
             'combination.category as category',
         ]).getRawMany()
-        // return Combination_Service.createQueryBuilder()
-        //     .select([
-        //         "combination_service.tier",
-        //         "combination_service.category",
-        //         "combination_service.rank_in_category",
-        //         "combination_service.winrate",
-        //         "combination_service.sample_num",
-        //         "combination_service.mainChampId",
-        //         "combination_service.subChampId",
-        //         'combination_service.version'
-        //     ])
-        //     .getMany()
+
     } catch (error) {
         logger.error(err, { message: `챔피언 조합승률 데이터 조회 실패(서비스DB 이관)` })
     }
@@ -414,43 +281,9 @@ exports.deleteOldVersionData = async () => {
         .delete()
         .where("combination.version = :version", { version: 'old' })
         .execute()
-    await Combination_Service
-        .createQueryBuilder()
-        .delete()
-        .where("combination_service.version = :version", { version: 'old' })
-        .execute()
     await combination_stat
         .createQueryBuilder()
         .delete()
         .where("COMBINATION_STAT.version = :version", { version: 'old' })
-        .execute()
-}
-
-exports.checkRank = async (mainChampId, subChampId, category, version) => {
-    return await Combination_Service.createQueryBuilder().select()
-        .where("combination_service.mainChampId = :mainChampId", { mainChampId })
-        .andWhere("combination_service.subChampId = :subChampId", { subChampId })
-        .andWhere("combination_service.category = :category", { category })
-        .andWhere("combination_service.version = :version", { version })
-        .getOne()
-}
-
-exports.updateNotRankedData = async (mainChampId, subChampId, category, version) => {
-    await Combination_Service.createQueryBuilder()
-        .update()
-        .set({
-            tier: 0,
-            rank_in_category: 0
-        })
-        .where("combination_service.mainChampId = :mainChampId", {
-            mainChampId
-        })
-        .andWhere("combination_service.subChampId = :subChampId", {
-            subChampId
-        })
-        .andWhere('combination_service.category = :category', {
-            category
-        })
-        .andWhere('combination_service.version = :version', { version })
         .execute()
 }

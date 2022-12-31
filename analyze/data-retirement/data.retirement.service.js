@@ -1,6 +1,5 @@
 const { dataSource } = require("../../orm")
 const combination = dataSource.getRepository("combination")
-const combination_service = dataSource.getRepository("combination_service")
 const simulation = dataSource.getRepository("simulation")
 const simulation_service = dataSource.getRepository("simulation_service")
 const winRate = dataSource.getRepository("champ_win_rate")
@@ -30,11 +29,7 @@ exports.deleteOutdatedData_combination = async (version) => {
             .delete()
             .where("combination.version = :version", { version })
             .execute()
-        await combination_service
-            .createQueryBuilder()
-            .delete()
-            .where("combination_service.version = :version", { version })
-            .execute()
+
         return
     } catch (err) {
         console.log(err)
@@ -191,5 +186,79 @@ exports.deleteOutdatedData_champ_service = async (version) => {
         return
     } catch (err) {
         console.log(err)
+    }
+}
+
+exports.getMainpageData_analysisDB = async (version) => {
+    try {
+        const category0 =
+            await combination.createQueryBuilder()
+                .select()
+                .where('combination.category = :category', { category: 0 })
+                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 10 })
+                .andWhere('combination.version = :version', { version })
+                .orderBy('combination.win/combination.sampleNum', 'DESC')
+                .limit(30)
+                .getMany()
+        const category1 =
+            await combination.createQueryBuilder()
+                .select()
+                .where('combination.category = :category', { category: 1 })
+                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 10 })
+                .andWhere('combination.version = :version', { version })
+                .orderBy('combination.win/combination.sampleNum', 'DESC')
+                .limit(30)
+                .getMany()
+
+        const category2 =
+            await combination.createQueryBuilder()
+                .select()
+                .where('combination.category = :category', { category: 2 })
+                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 10 })
+                .andWhere('combination.version = :version', { version })
+                .orderBy('combination.win/combination.sampleNum', 'DESC')
+                .limit(30)
+                .getMany()
+        return { category0: category0.length, category1: category1.length, category2: category2.length }
+    } catch (err) {
+        console.log(err)
+        return
+    }
+}
+
+exports.getMainpageData_serviceDB = async (version) => {
+    try {
+        const category0 =
+            await combination_stat.createQueryBuilder()
+                .select()
+                .where('COMBINATION_STAT.category = :category', { category: 0 })
+                .andWhere('COMBINATION_STAT.sample_num >= :sample_num', { sample_num: 10 })
+                .andWhere('COMBINATION_STAT.version = :version', { version })
+                .orderBy('COMBINATION_STAT.win/COMBINATION_STAT.sample_num', 'DESC')
+                .limit(30)
+                .getMany()
+        const category1 =
+            await combination_stat.createQueryBuilder()
+                .select()
+                .where('COMBINATION_STAT.category = :category', { category: 1 })
+                .andWhere('COMBINATION_STAT.sample_num >= :sample_num', { sample_num: 10 })
+                .andWhere('COMBINATION_STAT.version = :version', { version })
+                .orderBy('COMBINATION_STAT.win/COMBINATION_STAT.sample_num', 'DESC')
+                .limit(30)
+                .getMany()
+
+        const category2 =
+            await combination_stat.createQueryBuilder()
+                .select()
+                .where('COMBINATION_STAT.category = :category', { category: 2 })
+                .andWhere('COMBINATION_STAT.sample_num >= :sample_num', { sample_num: 10 })
+                .andWhere('COMBINATION_STAT.version = :version', { version })
+                .orderBy('COMBINATION_STAT.win/COMBINATION_STAT.sample_num', 'DESC')
+                .limit(30)
+                .getMany()
+        return { category0: category0.length, category1: category1.length, category2: category2.length }
+    } catch (err) {
+        console.log(err)
+        return
     }
 }

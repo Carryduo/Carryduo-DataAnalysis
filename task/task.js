@@ -74,8 +74,6 @@ async function collectData() {
 
 async function analyzedData() {
     await startChampCalculation()
-    // await combinationController.uploadCombinationWinRate()
-    // await combinationController.updateCombinationTierAndRank()
 }
 
 async function transferData() {

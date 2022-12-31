@@ -16,44 +16,54 @@ const {
     deleteOutdatedData_spell,
     findVersion_champ_service,
     deleteOutdatedData_champ_service,
+    getMainpageData_analysisDB,
+    getMainpageData_serviceDB,
 } = require("./data.retirement.service")
 
 exports.deleteOutdatedData = async (table) => {
     try {
-        let findVersion, deleteOutdatedData
+        let findVersion, deleteOutdatedData, getMainPageData
 
         switch (table) {
             case "combination":
                 findVersion = findVersion_combination
                 deleteOutdatedData = deleteOutdatedData_combination
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "combination_service":
                 findVersion = findVersion_combination_service
                 deleteOutdatedData = deleteOutdatedData_combination_service
+                getMainPageData = getMainpageData_serviceDB
                 break
             case "simulation":
                 findVersion = findVersion_simulation
                 deleteOutdatedData = deleteOutdatedData_simulation
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "winRate":
                 findVersion = findVersion_winRate
                 deleteOutdatedData = deleteOutdatedData_winRate
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "banRate":
                 findVersion = findVersion_banRate
                 deleteOutdatedData = deleteOutdatedData_banRate
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "position":
                 findVersion = findVersion_position
                 deleteOutdatedData = deleteOutdatedData_position
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "spell":
                 findVersion = findVersion_spell
                 deleteOutdatedData = deleteOutdatedData_spell
+                getMainPageData = getMainpageData_analysisDB
                 break
             case "champ_service":
                 findVersion = findVersion_champ_service
                 deleteOutdatedData = deleteOutdatedData_champ_service
+                getMainPageData = getMainpageData_serviceDB
                 break
             case "matchId":
                 findVersion = findVersion_matchId
@@ -99,10 +109,18 @@ exports.deleteOutdatedData = async (table) => {
         })
         recentVersions.push(...lastVersions)
         // 최신 2개 버전 제외하고 삭제하는 로직
-        for (let i = 2; i < recentVersions.length; i++) {
+        console.log(recentVersions)
+        const status = await getMainPageData(recentVersions[0])
+        let startPoint
+        if (status.category0 === 30 && status.category1 === 30 && status.category2) {
+            startPoint = 1
+        }
+        else {
+            startPoint = 2
+        }
+        for (let i = startPoint; i < recentVersions.length; i++) {
             let version = recentVersions[i]
             await deleteOutdatedData(version)
-            // console.log(`패치버전 ${version} 데이터 ${table}에서 제거 완료`)
         }
         logger.info(`outdated한 패치버전 ${table} 데이터 제거 완료`)
     } catch (err) {
