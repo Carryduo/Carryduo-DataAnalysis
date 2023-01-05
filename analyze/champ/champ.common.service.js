@@ -1,9 +1,9 @@
-const { dataSource } = require("../../orm")
-const { Brackets } = require("typeorm")
+const { dataSource } = require('../../orm')
+const { Brackets } = require('typeorm')
 
-const MatchId = dataSource.getRepository("matchid")
+const MatchId = dataSource.getRepository('matchid')
 
-const logger = require("../../log")
+const logger = require('../../log')
 
 exports.matchIdList = async () => {
     try {
@@ -11,16 +11,16 @@ exports.matchIdList = async () => {
             .select()
             .where(
                 new Brackets((qb) => {
-                    qb.where("rateAnalyzed = :result", { result: 0 })
-                        .andWhere("spellAnalyzed = :result", { result: 0 })
-                        .andWhere("banAnalyzed = :result", { result: 0 })
-                        .andWhere("positionAnalyzed = :result", { result: 0 })
+                    qb.where('rateAnalyzed = :result', { result: 0 })
+                        .andWhere('spellAnalyzed = :result', { result: 0 })
+                        .andWhere('banAnalyzed = :result', { result: 0 })
+                        .andWhere('positionAnalyzed = :result', { result: 0 })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
-                    qb.where("tier = :tier", { tier: "DIAMOND" }).orWhere("tier = :tier2", {
-                        tier2: "PLATINUM",
+                    qb.where('tier = :tier', { tier: 'DIAMOND' }).orWhere('tier = :tier2', {
+                        tier2: 'PLATINUM',
                     })
                 })
             )
@@ -37,7 +37,7 @@ exports.successAnalyzed = async (matchId, option) => {
         return await MatchId.createQueryBuilder()
             .update()
             .set(option.set)
-            .where("matchid.matchId = :matchId", { matchId })
+            .where('matchid.matchId = :matchId', { matchId })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from successAnalyzed` })
@@ -49,7 +49,7 @@ exports.dropAnalyzed = async (matchId, option) => {
         return await MatchId.createQueryBuilder()
             .update()
             .set({ rateAnalyzed: 2, banAnalyzed: 2, positionAnalyzed: 2, spellAnalyzed: 2 })
-            .where("matchid.matchId = :matchId", { matchId })
+            .where('matchid.matchId = :matchId', { matchId })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from dropAnalyzed` })
@@ -61,7 +61,7 @@ exports.saveMatchIdVersion = async (matchId, version) => {
         return await MatchId.createQueryBuilder()
             .update()
             .set({ version })
-            .where("matchid.matchId = :matchId", { matchId })
+            .where('matchid.matchId = :matchId', { matchId })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from saveMatchIdVersion` })

@@ -1,7 +1,28 @@
-const { dataSource_service } = require("../../../service.orm")
-const ChampSkill = dataSource_service.getRepository("CHAMPSKILLINFO")
+const { dataSource_service } = require('../../../service.orm')
+const ChampSkill = dataSource_service.getRepository('CHAMPSKILLINFO')
 
-const logger = require("../../../log")
+const logger = require('../../../log')
+
+exports.createNewChampSkillData = async (newChampId, skill_img) => {
+    try {
+        const skillId = ['q', 'w', 'e', 'r', 'passive']
+        for (let n of newChampId) {
+            for (let s of skillId) {
+                await ChampSkill.createQueryBuilder()
+                    .insert()
+                    .values({
+                        champId: n,
+                        skill_id: s,
+                        skill_name: 'Updating',
+                        skill_desc: 'Updating',
+                        skill_tool_tip: 'Updating',
+                        skill_img,
+                    })
+                    .execute()
+            }
+        }
+    } catch (err) {}
+}
 
 exports.targetChampionSkillInfoSave = async (
     champId,
@@ -92,8 +113,8 @@ exports.targetChampionSkillInfoUpdate = async (
                 skill_tool_tip: qSkillInfo.tooltip,
                 skill_img: qSkillInfo.image,
             })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skillId", { skillId: qSkillInfo.id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skillId', { skillId: qSkillInfo.id })
             .execute()
         await ChampSkill.createQueryBuilder()
             .update(ChampSkill)
@@ -103,8 +124,8 @@ exports.targetChampionSkillInfoUpdate = async (
                 skill_tool_tip: wSkillInfo.tooltip,
                 skill_img: wSkillInfo.image,
             })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skillId", { skillId: wSkillInfo.id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skillId', { skillId: wSkillInfo.id })
             .execute()
         await ChampSkill.createQueryBuilder()
             .update(ChampSkill)
@@ -115,8 +136,8 @@ exports.targetChampionSkillInfoUpdate = async (
                 skill_tool_tip: eSkillInfo.tooltip,
                 skill_img: eSkillInfo.image,
             })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skillId", { skillId: eSkillInfo.id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skillId', { skillId: eSkillInfo.id })
             .execute()
         await ChampSkill.createQueryBuilder()
             .update(ChampSkill)
@@ -127,8 +148,8 @@ exports.targetChampionSkillInfoUpdate = async (
                 skill_tool_tip: rSkillInfo.tooltip,
                 skill_img: rSkillInfo.image,
             })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skillId", { skillId: rSkillInfo.id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skillId', { skillId: rSkillInfo.id })
             .execute()
         await ChampSkill.createQueryBuilder()
             .update(ChampSkill)
@@ -138,8 +159,8 @@ exports.targetChampionSkillInfoUpdate = async (
                 skill_desc: passiveInfo.desc,
                 skill_img: passiveInfo.image,
             })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skillId", { skillId: passiveInfo.id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skillId', { skillId: passiveInfo.id })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from targetChampionSkillInfoUpdate` })
@@ -159,8 +180,8 @@ exports.editToolTip = async (skill_id, champId, skill_tool_tip, skill_desc) => {
         await ChampSkill.createQueryBuilder()
             .update(ChampSkill)
             .set({ skill_tool_tip, skill_desc })
-            .where("champId = :champId", { champId })
-            .andWhere("skill_id = :skill_id", { skill_id })
+            .where('champId = :champId', { champId })
+            .andWhere('skill_id = :skill_id', { skill_id })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from editToolTip` })
