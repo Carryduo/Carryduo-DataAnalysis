@@ -86,7 +86,7 @@ exports.fixTooltip = async () => {
     }
 }
 
-function validateToolTip(value) {
+exports.validateToolTip = (value) => {
     const data = value.split("")
     const checkUnique = /[<>/:*#'="-]/
     const checkEng = /[a-zA-Z]/
