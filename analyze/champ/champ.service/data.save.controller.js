@@ -1,9 +1,9 @@
-require('dotenv').config()
-const axios = require('axios')
-const logger = require('../../../log')
-const { champSkillSave, fixTooltip } = require('../champ.skill/skill.controller')
-const { createNewChampSkillData } = require('../champ.skill/skill.service')
-const { dataParsing } = require('../crawling/crawling')
+require("dotenv").config()
+const axios = require("axios")
+const logger = require("../../../log")
+const { champSkillSave, fixTooltip } = require("../champ.skill/skill.controller")
+const { createNewChampSkillData } = require("../champ.skill/skill.service")
+const { dataParsing } = require("../crawling/crawling")
 const {
     allRateVersion,
     rateInfo,
@@ -19,7 +19,7 @@ const {
     champIdList,
     findNewChampId,
     createNewChamp,
-} = require('./data.save.service')
+} = require("./data.save.service")
 
 exports.rateDataToService = async () => {
     try {
@@ -28,7 +28,7 @@ exports.rateDataToService = async () => {
         for (let rAV of rateAllVersion) {
             let allVersion = rAV.version
 
-            if (allVersion === 'old') {
+            if (allVersion === "old") {
                 continue
             }
             const dataInfos = await rateInfo(allVersion)
@@ -45,7 +45,7 @@ exports.rateDataToService = async () => {
                 const version = dIs.version
                 const existData = await rateDataCheck(champId, version)
                 if (!existData) {
-                    console.log('saveRateDataToService create')
+                    console.log("saveRateDataToService create")
                     await saveRateDataToService(
                         champId,
                         win_rate,
@@ -59,7 +59,7 @@ exports.rateDataToService = async () => {
                         version
                     )
                 } else if (existData) {
-                    console.log('saveRateDataToService update')
+                    console.log("saveRateDataToService update")
                     await updateRateDataToService(
                         champId,
                         win_rate,
@@ -76,7 +76,7 @@ exports.rateDataToService = async () => {
             }
         }
     } catch (err) {
-        logger.error(err, { message: '- from rateDataToService' })
+        logger.error(err, { message: "- from rateDataToService" })
         return
     }
 }
@@ -88,7 +88,7 @@ exports.spellDataToService = async () => {
         for (let sAV of spellAllVersion) {
             let allVersion = sAV.version
 
-            if (allVersion === 'old') {
+            if (allVersion === "old") {
                 continue
             }
             const dataInfos = await spellInfo(allVersion)
@@ -99,28 +99,22 @@ exports.spellDataToService = async () => {
                 const pick_rate = dIs.pick_rate
                 const sample_num = dIs.sample_num
                 const version = dIs.version
-                await saveSpellDataToService(
-                    champId,
-                    spell1,
-                    spell2,
-                    pick_rate,
-                    sample_num,
-                    version
-                )
+                await saveSpellDataToService(champId, spell1, spell2, pick_rate, sample_num, version)
             }
         }
     } catch (err) {
-        logger.error(err, { message: '- from spellDataToService' })
+        logger.error(err, { message: "- from spellDataToService" })
         return
     }
 }
 
 exports.champInfoToService = async () => {
     try {
+        //신규 챔피언 추가시 예외처리
         const champIds = await champIdList()
         const champIdResponse = await findNewChampId(champIds)
         const newChampId = []
-        for (n in response) {
+        for (n in champIdResponse) {
             newChampId.push(...champIdResponse[n])
         }
         const setChampIds = new Set(newChampId.map((v) => Number(v[Object.keys(v)])))
@@ -133,6 +127,7 @@ exports.champInfoToService = async () => {
             await createNewChampSkillData(result, skill_img)
         }
 
+        //챔피언 정보 DB 생성 및 업데이트
         let champName = []
 
         const champDataUrl = process.env.CHAMP_DATA_URL
@@ -141,6 +136,7 @@ exports.champInfoToService = async () => {
         const skillImg = process.env.SKILL_IMG
         const passiveImg = process.env.PASSIVE_IMG
 
+        //챔피언 정보 요청
         const response = await axios.get(champDataUrl)
 
         const champData = response.data.data
@@ -149,47 +145,27 @@ exports.champInfoToService = async () => {
             const champ_name_en = i
             const champId = response.data.data[i].key
 
-            const detailUrl = champDetailDataUrl.replace('Aatrox.json', `${champ_name_en}.json`)
+            const detailUrl = champDetailDataUrl.replace("Aatrox.json", `${champ_name_en}.json`)
             const detailChamp = await axios.get(detailUrl)
 
             const champ_name_ko = detailChamp.data.data[champ_name_en].name
             const champ_main_img = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champ_name_en}_0.jpg`
-            const champ_img = champImg.replace('Aatrox.png', `${champ_name_en}.png`)
+            const champ_img = champImg.replace("Aatrox.png", `${champ_name_en}.png`)
             const existChamp = await checkChamp(champId)
             if (!existChamp) {
-                await saveChampInfoService(
-                    champId,
-                    champ_name_en,
-                    champ_name_ko,
-                    champ_main_img,
-                    champ_img
-                )
-                await champSkillSave(
-                    detailChamp,
-                    champId,
-                    champ_name_en,
-                    skillImg,
-                    passiveImg,
-                    true
-                )
+                await saveChampInfoService(champId, champ_name_en, champ_name_ko, champ_main_img, champ_img)
+                await champSkillSave(detailChamp, champId, champ_name_en, skillImg, passiveImg, true)
             } else {
                 await updateChampInfoService(champId, champ_img)
-                await champSkillSave(
-                    detailChamp,
-                    champId,
-                    champ_name_en,
-                    skillImg,
-                    passiveImg,
-                    false
-                )
+                await champSkillSave(detailChamp, champId, champ_name_en, skillImg, passiveImg, false)
             }
         }
 
         await fixTooltip()
         logger.info(`챔피언 이미지 업데이트 완료`)
-        return 'champInfoToService 완료'
+        return "champInfoToService 완료"
     } catch (err) {
-        logger.error(err, { message: '- from champInfoToService' })
+        logger.error(err, { message: "- from champInfoToService" })
         return
     }
 }
