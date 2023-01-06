@@ -262,12 +262,13 @@ exports.saveChampInfoService = async (
         logger.error(err, { message: ` - from saveChampInfoService` })
     }
 }
-exports.updateChampInfoService = async (champId, champ_img) => {
+exports.updateChampInfoService = async (champId, champ_main_img, champ_img) => {
     try {
         await ChampService.createQueryBuilder()
             .update(ChampService)
             .set({
                 champ_img,
+                champ_main_img
             })
             .where('champId = :champId', { champId })
             .execute()
