@@ -1,4 +1,5 @@
 const childProcess = require("child_process");
+const logger = require("./log");
 
 require("dotenv").config();
 // 프로세스 PORK
@@ -60,9 +61,12 @@ taskProcess.on("message", function (m) {
         }
         else if (m.done === "API expiration") {
             throw new Error("API expiration");
+        } else if (m.done === 'error') {
+            throw new Error('error from task')
         }
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
+        logger.error(err, { message: '-from handler' })
         // 자식, 부모 프로세스 종료
         process.kill(taskProcess.pid);
         process.exit();

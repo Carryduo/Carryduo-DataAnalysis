@@ -83,39 +83,45 @@ exports.fixTooltip = async () => {
         }
     } catch (err) {
         logger.error(err, { message: "- from fixTooltip" })
+        return err
     }
 }
 
 exports.validateToolTip = (value) => {
-    const data = value.split("")
-    const checkUnique = /[<>/:*#'="-]/
-    const checkEng = /[a-zA-Z]/
-    const checkNum = /[0-9]/
-    const result = []
+    try {
+        const data = value.split("")
+        const checkUnique = /[<>/:*#'="-]/
+        const checkEng = /[a-zA-Z]/
+        const checkNum = /[0-9]/
+        const result = []
 
-    for (let i = 0; i < data.length; i++) {
-        if (!checkUnique.test(data[i])) {
-            if (!checkEng.test(data[i])) {
-                if (checkNum.test(data[i])) {
-                    data[i] = ""
+        for (let i = 0; i < data.length; i++) {
+            if (!checkUnique.test(data[i])) {
+                if (!checkEng.test(data[i])) {
+                    if (checkNum.test(data[i])) {
+                        data[i] = ""
+                    }
+                    result.push(data[i])
                 }
-                result.push(data[i])
             }
         }
-    }
-    let secondData = result.join("")
+        let secondData = result.join("")
 
-    while (secondData.includes("{{") && secondData.includes("}}")) {
-        replace(secondData)
+        while (secondData.includes("{{") && secondData.includes("}}")) {
+            replace(secondData)
+        }
+        function replace(value) {
+            secondData = value
+                .replace("{{", "!")
+                .replace("}}", "?")
+                .replace("!  ?", "?")
+                .replace("!", "")
+                .replace(".?", ".")
+            return
+        }
+        return secondData
+    } catch (err) {
+        logger.error(err, { message: '-from validateTooltip' })
+        return err
     }
-    function replace(value) {
-        secondData = value
-            .replace("{{", "!")
-            .replace("}}", "?")
-            .replace("!  ?", "?")
-            .replace("!", "")
-            .replace(".?", ".")
-        return
-    }
-    return secondData
 }
