@@ -4,7 +4,6 @@ const logger = require('../../../log')
 require('dotenv').config()
 const s3 = new aws.S3({ accessKeyId: process.env.ACCESS_ID, secretAccessKey: process.env.SECRET_KEY })
 
-test()
 exports.uploadChampImgToS3 = async (version, champCommonImgKey, champMainImgKey, champId, champ_name_ko, champ_name_en) => {
     // 공통, 메인 이미지 get
     try {
