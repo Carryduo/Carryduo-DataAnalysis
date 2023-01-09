@@ -36,7 +36,6 @@ process.on('message', async function (m) {
             else if (m.parameter === 6) {
                 done = 'analyze'
                 await sleep(10)
-                await checkVersionForImageUpdate(done)
                 await analyzedData()
                 console.log('분석 작업 완료')
                 console.log(process.cpuUsage(cpuUsage))
@@ -52,7 +51,6 @@ process.on('message', async function (m) {
             else {
                 done = 'collect'
                 await sleep(10)
-                await checkVersionForImageUpdate(done)
                 await collectData()
                 console.log('수집 작업 완료')
                 console.log(process.cpuUsage(cpuUsage))
