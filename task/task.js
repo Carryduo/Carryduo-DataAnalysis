@@ -43,6 +43,7 @@ process.on('message', async function (m) {
             else if (m.parameter === 12) {
                 done = 'transfer'
                 await sleep(10)
+                await updateNewChampDefaultImage()
                 await checkVersionForImageUpdate(done)
                 await transferData()
                 console.log('이관 작업 완료')
@@ -114,7 +115,7 @@ async function analyzedData() {
 async function transferData() {
     // 오래된 데이터 삭제
     try {
-        await updateNewChampDefaultImage()
+
         await dataRetirementController.deleteOutdatedData('combination')
         await dataRetirementController.deleteOutdatedData('winRate')
         await dataRetirementController.deleteOutdatedData('banRate')
