@@ -108,11 +108,12 @@ exports.deleteOutdatedData = async (table) => {
             return String(b).split(".")[1] - String(a).split(".")[1]
         })
         recentVersions.push(...lastVersions)
-        loggerinfo(`${table}에 남아있는 패치버전: ${recentVersions}`)
+        // 최신 2개 버전 제외하고 삭제하는 로직
+        logger.info(`${table}에 남아있는 패치버전: ${recentVersions}`)
         const status = await getMainPageData(recentVersions[0])
         let startPoint
 
-        // 최신 2개 버전 제외하고 삭제하는 로직
+        console.log(status)
         if (status.category0 === 30 && status.category1 === 30 && status.category2) {
             startPoint = 1
         }
