@@ -103,6 +103,7 @@ async function collectData() {
 
 async function analyzedData() {
     try {
+        await updateNewChampDefaultImage()
         await startChampCalculation()
     } catch (err) {
         logger.error(err, { message: 'from analyedData' })
@@ -113,6 +114,7 @@ async function analyzedData() {
 async function transferData() {
     // 오래된 데이터 삭제
     try {
+        await updateNewChampDefaultImage()
         await dataRetirementController.deleteOutdatedData('combination')
         await dataRetirementController.deleteOutdatedData('winRate')
         await dataRetirementController.deleteOutdatedData('banRate')
