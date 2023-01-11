@@ -154,7 +154,9 @@ exports.checkVersion = async () => {
         const originData = await findVersion_combination_service()
         const dbVersionList = getRecentDBversion(originData)
 
-        const dbVersion = dbVersionList[0]
+        // const dbVersion = dbVersionList[0]
+        const dbVersion = '12.23'
+
         // 패치버전 크기 비교
         const recentRiotVersion_year = Number(recentRiotVersion.split('.')[0])
         const dbVrsion_year = Number(dbVersion.split('.')[0])
@@ -171,11 +173,23 @@ exports.checkVersion = async () => {
                 oldVersion = dbVersion
             } else if (recentRiotVersion_week === dbVersion_week) {
                 param = 0
+                version = recentRiotVersion
+                oldVersion = dbVersion
             } else {
                 param = 2
+                version = recentRiotVersion
+                oldVersion = dbVersion
             }
         } else {
             param = 2
+            version = recentRiotVersion
+            oldVersion = dbVersion
+        }
+        if (version[version.length - 1] === '.') {
+            version = version.slice(0, -1)
+        }
+        if (oldVersion[oldVersion.length - 1] === '.') {
+            oldVersion = oldVersion.slice(0, -1)
         }
         return { param, version, oldVersion }
     } catch (err) {
