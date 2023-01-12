@@ -234,7 +234,6 @@ exports.getMainpageData_serviceDB = async (version) => {
                 .where('COMBINATION_STAT.category = :category', { category: 0 })
                 .andWhere('COMBINATION_STAT.version = :version', { version })
                 .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
                 .orderBy({ '(COMBINATION_STAT.sample_num) * 0.3 + (COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 100 * 0.7': 'DESC' })
                 .limit(30)
                 .getMany()
