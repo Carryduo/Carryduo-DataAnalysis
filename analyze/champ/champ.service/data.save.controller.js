@@ -154,8 +154,7 @@ exports.checkVersion = async () => {
         const originData = await findVersion_combination_service()
         const dbVersionList = getRecentDBversion(originData)
 
-        // const dbVersion = dbVersionList[0]
-        const dbVersion = '12.23'
+        const dbVersion = dbVersionList[0]
 
         // 패치버전 크기 비교
         const recentRiotVersion_year = Number(recentRiotVersion.split('.')[0])
