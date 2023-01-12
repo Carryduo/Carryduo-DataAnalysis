@@ -120,7 +120,7 @@ exports.deleteOutdatedData = async (table) => {
         }
         for (let i = startPoint; i < recentVersions.length; i++) {
             let version = recentVersions[i]
-            // await deleteOutdatedData(version)
+            await deleteOutdatedData(version)
         }
         logger.info(`outdated한 패치버전 ${table} 데이터 제거 완료`)
     } catch (err) {
