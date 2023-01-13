@@ -28,7 +28,7 @@ taskProcess.on("message", function (m) {
             console.log(m);
             setTimeout(function () {
                 taskProcess.send({ parameter: m.parameter + 1 });
-            }, 10000);
+            }, 120000);
             console.log(
                 "부모프로세스에서 수집 작업 완료 신호 받았다: ",
                 process.cpuUsage(cpuUsage)
@@ -39,7 +39,7 @@ taskProcess.on("message", function (m) {
             console.log(m);
             setTimeout(function () {
                 taskProcess.send({ parameter: m.parameter + 1 });
-            }, 10000);
+            }, 120000);
             console.log(
                 "부모프로세스에서 분석 작업 완료 신호 받았다: ",
                 process.cpuUsage(cpuUsage)
