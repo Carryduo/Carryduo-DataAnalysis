@@ -2,7 +2,9 @@ const axios = require('axios')
 const aws = require('aws-sdk')
 const logger = require('../../../log')
 require('dotenv').config()
-const s3 = new aws.S3({ accessKeyId: process.env.ACCESS_ID, secretAccessKey: process.env.SECRET_KEY })
+// const s3 = new aws.S3({ accessKeyId: process.env.ACCESS_ID, secretAccessKey: process.env.SECRET_KEY })
+aws.config.update({ region: 'ap-northeast-2' })
+const s3 = new aws.S3({ apiVersion: '2006-03-01' })
 
 exports.uploadChampImgToS3 = async (version, champCommonImgKey, champMainImgKey, champId, champ_name_ko, champ_name_en) => {
     // 공통, 메인 이미지 get
@@ -107,15 +109,32 @@ exports.uploadPassiveImgToS3 = async (version, passive, champName, passive_id) =
 // S3에서 이전 패치버전 폴더는 삭제합니다.
 exports.deleteOutdatedS3Bucket = async (oldVersion) => {
     try {
-        const params = {
-            Bucket: `${process.env.BUCKET}`,
-            Key: `${oldVersion}/`
+        const data = await getObjectsFromS3Bucket(oldVersion)
+
+        for (let i = 0; i < data.Contents.length; i++) {
+            const params = {
+                Bucket: `${process.env.BUCKET}`,
+                Key: data.Contents[i].Key
+            }
+            s3.deleteObject(params, (err, result) => {
+                if (err) return err
+            })
         }
-        s3.deleteObject(params, (err, result) => {
-            if (err) return err
-        })
+
+        const status = await getObjectsFromS3Bucket(oldVersion)
+
+        if (status.Contents.length !== 0) {
+            logger.info(`${oldVersion} 폴더 삭제를 재실행합니다`)
+            await this.deleteOutdatedS3Bucket(oldVersion)
+        } else {
+            return
+        }
     } catch (err) {
         logger.error(err, { message: '- from deleteOutdatedS3Bucket' })
         return err
     }
+}
+
+async function getObjectsFromS3Bucket(oldVersion) {
+    return await s3.listObjectsV2({ Bucket: `${process.env.BUCKET}`, Prefix: `${oldVersion}/` }).promise()
 }

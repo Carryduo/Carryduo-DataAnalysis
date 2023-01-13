@@ -115,7 +115,6 @@ async function analyzedData() {
 async function transferData() {
     // 오래된 데이터 삭제
     try {
-
         await dataRetirementController.deleteOutdatedData('combination')
         await dataRetirementController.deleteOutdatedData('winRate')
         await dataRetirementController.deleteOutdatedData('banRate')

@@ -6,6 +6,7 @@ test.js
 
 #text
 /text
+child.error.handler
 
 *.json
 
