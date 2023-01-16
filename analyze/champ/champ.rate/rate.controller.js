@@ -23,12 +23,10 @@ const logger = require("../../../log")
  * win rate save
  */
 
-exports.winRate = async (data, key) => {
+exports.winRate = async (data) => {
     try {
         let analyzedOption
-        // console.log(
-        //     `============================================승/패/ 카운팅 ${key}번============================================`
-        // )
+
         const matchId = data.metadata.matchId
 
         const participants = data.info.participants
@@ -37,7 +35,7 @@ exports.winRate = async (data, key) => {
         for (let v of participants) {
             let updateOptionWinRate
             let win
-
+            const position = v.teamPosition
             if (v.win) {
                 win = true
                 updateOptionWinRate = {
@@ -51,12 +49,12 @@ exports.winRate = async (data, key) => {
             }
 
             const champId = v.championId
-            const findVersion = await getRateVersion(champId, version)
+            const findVersion = await getRateVersion(champId, version, position)
 
             if (!findVersion) {
-                await createRate(champId, version, win)
+                await createRate(champId, version, win, position)
             } else if (findVersion) {
-                await updateRate(champId, version, updateOptionWinRate)
+                await updateRate(champId, version, updateOptionWinRate, position)
             }
         }
         // 카운팅 후 카운팅한 matchId 상태값 변경
@@ -75,25 +73,25 @@ exports.winPickRateCalculation = async () => {
         const winRateAllVersion = await allWinRateVersion()
 
         for (let wAV of winRateAllVersion) {
-            let allVersion = wAV.version
-            if (allVersion === "old") {
+            const version = wAV.version
+            if (version === "old") {
                 continue
             }
-            const rateInfos = await WinrateInfo(allVersion)
+            const matchTotal = await matchTotalCnt(version)
+            const rateInfos = await WinrateInfo(version)
+
             for (let rIs of rateInfos) {
                 const champId = rIs.champId
                 const sampleNum = rIs.sampleNum
-                const version = rIs.version
                 const win = rIs.win
-                const matchTotal = await matchTotalCnt(version)
+                const position = rIs.position
 
                 let winRate = (win / sampleNum) * 100
                 winRate = Number(winRate.toFixed(2))
 
                 let pickRate = (sampleNum / matchTotal.total) * 100
                 pickRate = Number(pickRate.toFixed(2))
-
-                await saveWinPickRate(champId, winRate, pickRate, version)
+                await saveWinPickRate(champId, winRate, pickRate, version, position)
             }
         }
         return "승/픽률 데이터 서비스 table 업데이트 완료"
@@ -110,11 +108,8 @@ exports.winPickRateCalculation = async () => {
  * pick rate save
  */
 
-exports.banRate = async (data, key) => {
+exports.banRate = async (data) => {
     try {
-        // console.log(
-        //     `============================================밴 카운팅 ${key}번============================================`
-        // )
         const matchId = data.metadata.matchId
         const version = data.info.gameVersion.substring(0, 5)
         let champList = []
