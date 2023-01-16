@@ -5,23 +5,21 @@ const ChampSpellService = dataSource.getRepository("champspell_service")
 
 const logger = require("../../../log")
 
-exports.findSpellInfo = async (champId, spell1, spell2, version) => {
+exports.findSpellInfo = async (champId, spell1, spell2, version, position) => {
     try {
         return ChampSpell.createQueryBuilder()
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("spell1 = :spell1", { spell1 })
                         .andWhere("spell2 = :spell2", { spell2 })
                         .orWhere(
                             new Brackets((qb2) => {
-                                qb2.where("spell1 = :spell2", { spell2 }).andWhere(
-                                    "spell2 = :spell1",
-                                    {
-                                        spell1,
-                                    }
-                                )
+                                qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                    spell1,
+                                })
                             })
                         )
                 })
@@ -33,36 +31,31 @@ exports.findSpellInfo = async (champId, spell1, spell2, version) => {
     }
 }
 
-exports.saveChampSpellInfo = async (champId, spell1, spell2, version) => {
+exports.saveChampSpellInfo = async (champId, spell1, spell2, version, position) => {
     try {
-        return ChampSpell.createQueryBuilder()
-            .insert()
-            .values({ champId, spell1, spell2, sampleNum: 1, version })
-            .execute()
+        return ChampSpell.createQueryBuilder().insert().values({ champId, spell1, spell2, sampleNum: 1, version, position }).execute()
     } catch (err) {
         logger.error(err, { message: ` - from saveChampSpellInfo` })
     }
 }
 
-exports.updateChampSpellInfo = async (champId, spell1, spell2, version) => {
+exports.updateChampSpellInfo = async (champId, spell1, spell2, version, position) => {
     try {
         return ChampSpell.createQueryBuilder()
             .update(ChampSpell)
             .set({ sampleNum: () => "sampleNum+1" })
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("spell1 = :spell1", { spell1 })
                         .andWhere("spell2 = :spell2", { spell2 })
                         .orWhere(
                             new Brackets((qb2) => {
-                                qb2.where("spell1 = :spell2", { spell2 }).andWhere(
-                                    "spell2 = :spell1",
-                                    {
-                                        spell1,
-                                    }
-                                )
+                                qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                    spell1,
+                                })
                             })
                         )
                 })
@@ -83,20 +76,19 @@ exports.allSpellVersion = async () => {
 
 exports.findSpellData = async (version) => {
     try {
-        return await ChampSpell.createQueryBuilder()
-            .where("version = :version", { version })
-            .getMany()
+        return await ChampSpell.createQueryBuilder().where("version = :version", { version }).getMany()
     } catch (err) {
         logger.error(err, { message: ` - from findSpellData` })
     }
 }
 
 //챔피언 게임 수 합산해서 가져오기
-exports.spellTotalCnt = async (champId, version) => {
+exports.spellTotalCnt = async (champId, version, position) => {
     try {
         return await ChampSpell.createQueryBuilder()
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .select("SUM(sampleNum)", "total")
             .getRawOne()
     } catch (err) {
@@ -104,23 +96,21 @@ exports.spellTotalCnt = async (champId, version) => {
     }
 }
 
-exports.findSpellInfoData = async (champId, spell1, spell2, version) => {
+exports.findSpellInfoData = async (champId, spell1, spell2, version, position) => {
     try {
         return ChampSpellService.createQueryBuilder()
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("spell1 = :spell1", { spell1 })
                         .andWhere("spell2 = :spell2", { spell2 })
                         .orWhere(
                             new Brackets((qb2) => {
-                                qb2.where("spell1 = :spell2", { spell2 }).andWhere(
-                                    "spell2 = :spell1",
-                                    {
-                                        spell1,
-                                    }
-                                )
+                                qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                    spell1,
+                                })
                             })
                         )
                 })
@@ -131,7 +121,7 @@ exports.findSpellInfoData = async (champId, spell1, spell2, version) => {
     }
 }
 
-exports.saveSpellData = async (champId, spell1, spell2, pickRate, sampleNum, version) => {
+exports.saveSpellData = async (champId, spell1, spell2, pickRate, sampleNum, version, position) => {
     try {
         return ChampSpellService.createQueryBuilder()
             .insert()
@@ -142,6 +132,7 @@ exports.saveSpellData = async (champId, spell1, spell2, pickRate, sampleNum, ver
                 pick_rate: pickRate,
                 sample_num: sampleNum,
                 version,
+                position,
             })
             .execute()
     } catch (err) {
@@ -149,25 +140,23 @@ exports.saveSpellData = async (champId, spell1, spell2, pickRate, sampleNum, ver
     }
 }
 
-exports.updateChampSpellData = async (champId, spell1, spell2, pickRate, sampleNum, version) => {
+exports.updateChampSpellData = async (champId, spell1, spell2, pickRate, sampleNum, version, position) => {
     try {
         return ChampSpellService.createQueryBuilder()
             .update(ChampSpellService)
             .set({ pick_rate: pickRate, sample_num: sampleNum })
             .where("champId = :champId", { champId })
             .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("spell1 = :spell1", { spell1 })
                         .andWhere("spell2 = :spell2", { spell2 })
                         .orWhere(
                             new Brackets((qb2) => {
-                                qb2.where("spell1 = :spell2", { spell2 }).andWhere(
-                                    "spell2 = :spell1",
-                                    {
-                                        spell1,
-                                    }
-                                )
+                                qb2.where("spell1 = :spell2", { spell2 }).andWhere("spell2 = :spell1", {
+                                    spell1,
+                                })
                             })
                         )
                 })

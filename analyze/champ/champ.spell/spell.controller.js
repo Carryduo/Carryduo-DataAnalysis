@@ -12,11 +12,8 @@ const {
 const { successAnalyzed } = require("../champ.common.service")
 const logger = require("../../../log")
 
-exports.spell = async (data, key) => {
+exports.spell = async (data) => {
     try {
-        // console.log(
-        //     `============================================스펠 카운팅 ${key}번============================================`
-        // )
         let analyzedOption
 
         const matchId = data.metadata.matchId
@@ -28,13 +25,14 @@ exports.spell = async (data, key) => {
             const champId = v.championId
             const spell1 = v.summoner1Id
             const spell2 = v.summoner2Id
+            const position = v.teamPosition
 
-            const spellDataCheck = await findSpellInfo(champId, spell1, spell2, version)
+            const spellDataCheck = await findSpellInfo(champId, spell1, spell2, version, position)
 
             if (!spellDataCheck) {
-                await saveChampSpellInfo(champId, spell1, spell2, version)
+                await saveChampSpellInfo(champId, spell1, spell2, version, position)
             } else if (spellDataCheck) {
-                await updateChampSpellInfo(champId, spell1, spell2, version)
+                await updateChampSpellInfo(champId, spell1, spell2, version, position)
             }
         }
         analyzedOption = {
@@ -52,33 +50,27 @@ exports.spellCaculation = async () => {
         const spellAllVersion = await allSpellVersion()
 
         for (let sAV of spellAllVersion) {
-            let allVersion = sAV.version
-            if (allVersion === "old") {
+            const version = sAV.version
+
+            if (version === "old") {
                 continue
             }
-            const spellData = await findSpellData(allVersion)
+            const spellData = await findSpellData(version)
             for (let s of spellData) {
                 const spell1 = s.spell1
                 const spell2 = s.spell2
                 const champId = s.champId
                 const sampleNum = s.sampleNum
-                const version = s.version
-                const spellTotal = await spellTotalCnt(champId, version)
+                const position = s.position
+                const spellTotal = await spellTotalCnt(champId, version, position)
 
                 let pickRate = (sampleNum / spellTotal.total) * 100
                 pickRate = Number(pickRate.toFixed(2))
-                const spellData = await findSpellInfoData(champId, spell1, spell2, version)
+                const spellData = await findSpellInfoData(champId, spell1, spell2, version, position)
                 if (!spellData) {
-                    await saveSpellData(champId, spell1, spell2, pickRate, sampleNum, version)
+                    await saveSpellData(champId, spell1, spell2, pickRate, sampleNum, version, position)
                 } else if (spellData) {
-                    await updateChampSpellData(
-                        champId,
-                        spell1,
-                        spell2,
-                        pickRate,
-                        sampleNum,
-                        version
-                    )
+                    await updateChampSpellData(champId, spell1, spell2, pickRate, sampleNum, version, position)
                 }
             }
         }
