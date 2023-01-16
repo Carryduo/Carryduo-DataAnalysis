@@ -234,18 +234,16 @@ exports.getMainpageData_serviceDB = async (version) => {
                 .where('COMBINATION_STAT.category = :category', { category: 0 })
                 .andWhere('COMBINATION_STAT.version = :version', { version })
                 .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '(COMBINATION_STAT.sample_num) * 0.3 + (COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 100 * 0.7': 'DESC' })
-                .limit(30)
-                .getMany()
+                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
+                .getCount()
         const category1 =
             await combination_stat.createQueryBuilder()
                 .select()
                 .where('COMBINATION_STAT.category = :category', { category: 1 })
                 .andWhere('COMBINATION_STAT.version = :version', { version })
                 .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy('COMBINATION_STAT.win/COMBINATION_STAT.sample_num', 'DESC')
-                .limit(30)
-                .getMany()
+                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
+                .getCount()
 
         const category2 =
             await combination_stat.createQueryBuilder()
@@ -253,10 +251,9 @@ exports.getMainpageData_serviceDB = async (version) => {
                 .where('COMBINATION_STAT.category = :category', { category: 2 })
                 .andWhere('COMBINATION_STAT.version = :version', { version })
                 .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '(COMBINATION_STAT.sample_num) * 0.3 + (COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 100 * 0.7': 'DESC' })
-                .limit(30)
-                .getMany()
-        return { category0: category0.length, category1: category1.length, category2: category2.length }
+                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
+                .getCount()
+        return { category0: category0, category1: category1, category2: category2 }
     } catch (err) {
         console.log(err)
         return
