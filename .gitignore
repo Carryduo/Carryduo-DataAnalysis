@@ -1,9 +1,6 @@
 #test
 test.js
 
-#migration
-/migrations
-
 #text
 /text
 child.error.handler
