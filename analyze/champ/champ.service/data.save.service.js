@@ -1,22 +1,22 @@
-const { dataSource } = require('../../../orm')
-const ChampInfo = dataSource.getRepository('champ_service')
-const ChampSpell = dataSource.getRepository('champspell_service')
+const { dataSource } = require("../../../orm")
+const ChampInfo = dataSource.getRepository("champ_service")
+const ChampSpell = dataSource.getRepository("champspell_service")
 
-const Position = dataSource.getRepository('champ_position')
-const WinRate = dataSource.getRepository('champ_win_rate')
-const Ban = dataSource.getRepository('champban')
-const Spell = dataSource.getRepository('champspell')
+const Position = dataSource.getRepository("champ_position")
+const WinRate = dataSource.getRepository("champ_win_rate")
+const Ban = dataSource.getRepository("champban")
+const Spell = dataSource.getRepository("champspell")
 
-const { dataSource_service } = require('../../../service.orm')
-const ChampService = dataSource_service.getRepository('CHAMP')
-const ChampSpellService = dataSource_service.getRepository('CHAMPSPELL')
-const ChampRateService = dataSource_service.getRepository('CHAMPRATE')
+const { dataSource_service } = require("../../../service.orm")
+const ChampService = dataSource_service.getRepository("CHAMP")
+const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
+const ChampRateService = dataSource_service.getRepository("CHAMPRATE")
 
-const logger = require('../../../log')
+const logger = require("../../../log")
 
 exports.allRateVersion = async () => {
     try {
-        return ChampInfo.createQueryBuilder().select('distinct champ_service.version').getRawMany()
+        return ChampInfo.createQueryBuilder().select("distinct champ_service.version").getRawMany()
     } catch (err) {
         logger.error(err, { message: ` - from allRateVersion` })
     }
@@ -24,17 +24,18 @@ exports.allRateVersion = async () => {
 
 exports.rateInfo = async (version) => {
     try {
-        return ChampInfo.createQueryBuilder().where('version = :version', { version }).getMany()
+        return ChampInfo.createQueryBuilder().where("version = :version", { version }).getMany()
     } catch (err) {
         logger.error(err, { message: ` - from rateInfo` })
     }
 }
 
-exports.rateDataCheck = async (champId, version) => {
+exports.rateDataCheck = async (champId, version, position) => {
     try {
         return ChampRateService.createQueryBuilder()
-            .where('champId = :champId', { champId })
-            .andWhere('version = :version', { version })
+            .where("champId = :champId", { champId })
+            .andWhere("version = :version", { version })
+            .andWhere("version = :position", { position })
             .getOne()
     } catch (err) {
         logger.error(err, { message: ` - from rateDataCheck` })
@@ -51,7 +52,8 @@ exports.saveRateDataToService = async (
     mid_rate,
     ad_rate,
     support_rate,
-    version
+    version,
+    position
 ) => {
     try {
         await ChampRateService.createQueryBuilder()
@@ -67,6 +69,7 @@ exports.saveRateDataToService = async (
                 ad_rate,
                 support_rate,
                 version,
+                position,
             })
             .execute()
     } catch (err) {
@@ -83,7 +86,8 @@ exports.updateRateDataToService = async (
     mid_rate,
     ad_rate,
     support_rate,
-    version
+    version,
+    position
 ) => {
     try {
         await ChampRateService.createQueryBuilder()
@@ -98,8 +102,9 @@ exports.updateRateDataToService = async (
                 ad_rate,
                 support_rate,
             })
-            .where('champId = :champId', { champId })
-            .andWhere('version = :version', { version })
+            .where("champId = :champId", { champId })
+            .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from updateRateDataToService` })
@@ -108,9 +113,7 @@ exports.updateRateDataToService = async (
 
 exports.allSpellVersion = async () => {
     try {
-        return ChampSpell.createQueryBuilder()
-            .select('distinct champspell_service.version')
-            .getRawMany()
+        return ChampSpell.createQueryBuilder().select("distinct champspell_service.version").getRawMany()
     } catch (err) {
         logger.error(err, { message: ` - from allSpellVersion` })
     }
@@ -118,26 +121,20 @@ exports.allSpellVersion = async () => {
 
 exports.spellInfo = async (version) => {
     try {
-        return ChampSpell.createQueryBuilder().where('version = :version', { version }).getMany()
+        return ChampSpell.createQueryBuilder().where("version = :version", { version }).getMany()
     } catch (err) {
         logger.error(err, { message: ` - from spellInfo` })
     }
 }
 
-exports.saveSpellDataToService = async (
-    champId,
-    spell1,
-    spell2,
-    pick_rate,
-    sample_num,
-    version
-) => {
+exports.saveSpellDataToService = async (champId, spell1, spell2, pick_rate, sample_num, version, position) => {
     try {
         const check = await ChampSpellService.createQueryBuilder()
-            .where('champId = :champId', { champId })
-            .andWhere('version = :version', { version })
-            .andWhere('spell1 = :spell1', { spell1 })
-            .andWhere('spell2 = :spell2', { spell2 })
+            .where("champId = :champId", { champId })
+            .andWhere("version = :version", { version })
+            .andWhere("position = :position", { position })
+            .andWhere("spell1 = :spell1", { spell1 })
+            .andWhere("spell2 = :spell2", { spell2 })
             .getOne()
         if (!check) {
             await ChampSpellService.createQueryBuilder()
@@ -149,6 +146,7 @@ exports.saveSpellDataToService = async (
                     pick_rate,
                     sample_num,
                     version,
+                    position,
                 })
                 .execute()
         } else if (check) {
@@ -158,10 +156,10 @@ exports.saveSpellDataToService = async (
                     pick_rate,
                     sample_num,
                 })
-                .where('champId = :champId', { champId })
-                .andWhere('version = :version', { version })
-                .andWhere('spell1 = :spell1', { spell1 })
-                .andWhere('spell2 = :spell2', { spell2 })
+                .where("champId = :champId", { champId })
+                .andWhere("version = :version", { version })
+                .andWhere("spell1 = :spell1", { spell1 })
+                .andWhere("spell2 = :spell2", { spell2 })
                 .execute()
         }
     } catch (err) {
@@ -171,10 +169,7 @@ exports.saveSpellDataToService = async (
 
 exports.checkChamp = async (champId) => {
     try {
-        return await ChampService.createQueryBuilder()
-            .where('champId = :champId', { champId })
-            .select('champId')
-            .getRawOne()
+        return await ChampService.createQueryBuilder().where("champId = :champId", { champId }).select("champId").getRawOne()
     } catch (err) {
         logger.error(err, { message: ` - from checkChamp` })
     }
@@ -182,7 +177,7 @@ exports.checkChamp = async (champId) => {
 
 exports.champIdList = async () => {
     try {
-        const champIds = await ChampService.createQueryBuilder().select('champId').getRawMany()
+        const champIds = await ChampService.createQueryBuilder().select("champId").getRawMany()
         return champIds.map((v) => v[Object.keys(v)])
     } catch (err) {
         logger.error(err, { message: ` - from champIdList` })
@@ -192,26 +187,26 @@ exports.champIdList = async () => {
 exports.findNewChampId = async (champIds) => {
     try {
         const positionNewChamp = await Position.createQueryBuilder()
-            .select('DISTINCT champId')
-            .where('champId NOT IN (:champIds)', {
+            .select("DISTINCT champId")
+            .where("champId NOT IN (:champIds)", {
                 champIds,
             })
             .getRawMany()
         const winRateNewChamp = await WinRate.createQueryBuilder()
-            .select('DISTINCT champId')
-            .where('champId NOT IN (:champIds)', {
+            .select("DISTINCT champId")
+            .where("champId NOT IN (:champIds)", {
                 champIds,
             })
             .getRawMany()
         const banNewChamp = await Ban.createQueryBuilder()
-            .select('DISTINCT champId')
-            .where('champId NOT IN (:champIds)', {
+            .select("DISTINCT champId")
+            .where("champId NOT IN (:champIds)", {
                 champIds,
             })
             .getRawMany()
         const spellNewChamp = await Spell.createQueryBuilder()
-            .select('DISTINCT champId')
-            .where('champId NOT IN (:champIds)', {
+            .select("DISTINCT champId")
+            .where("champId NOT IN (:champIds)", {
                 champIds,
             })
             .getRawMany()
@@ -228,8 +223,8 @@ exports.createNewChamp = async (newChampId, champ_main_img, champ_img) => {
                 .insert()
                 .values({
                     champId: n,
-                    champ_name_en: 'Updating',
-                    champ_name_ko: '업데이트 중',
+                    champ_name_en: "Updating",
+                    champ_name_ko: "업데이트 중",
                     champ_main_img,
                     champ_img,
                 })
@@ -240,13 +235,7 @@ exports.createNewChamp = async (newChampId, champ_main_img, champ_img) => {
     }
 }
 
-exports.saveChampInfoService = async (
-    champId,
-    champ_name_en,
-    champ_name_ko,
-    champ_main_img,
-    champ_img
-) => {
+exports.saveChampInfoService = async (champId, champ_name_en, champ_name_ko, champ_main_img, champ_img) => {
     try {
         await ChampService.createQueryBuilder()
             .insert()
@@ -268,9 +257,9 @@ exports.updateChampInfoService = async (champId, champ_main_img, champ_img) => {
             .update(ChampService)
             .set({
                 champ_img,
-                champ_main_img
+                champ_main_img,
             })
-            .where('champId = :champId', { champId })
+            .where("champId = :champId", { champId })
             .execute()
     } catch (err) {
         logger.error(err, { message: ` - from updateChampInfoService` })
