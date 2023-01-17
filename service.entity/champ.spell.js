@@ -49,15 +49,18 @@ module.exports = new EntitySchema({
         version: {
             type: "varchar",
         },
+        position: {
+            type: "varchar",
+        },
     },
     relations: {
         champId: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champId', // 현재 entity에서 foreignKey
-                referencedColumnName: 'champId' //target에서 참조하는 column
-            }
-        }
-    }
+                name: "champId", // 현재 entity에서 foreignKey
+                referencedColumnName: "champId", //target에서 참조하는 column
+            },
+        },
+    },
 })
