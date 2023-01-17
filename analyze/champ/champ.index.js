@@ -3,12 +3,7 @@ const logger = require("../../log")
 const axios = require("axios")
 
 const { matchIdList, saveMatchIdVersion, dropAnalyzed } = require("./champ.common.service")
-const {
-    winRate,
-    banRate,
-    winPickRateCalculation,
-    banRateCalculation,
-} = require("./champ.rate/rate.controller")
+const { winRate, banRate, winPickRateCalculation, banRateCalculation } = require("./champ.rate/rate.controller")
 
 const { position, positionCalculation } = require("./champ.position/position.controller")
 const { spell, spellCaculation } = require("./champ.spell/spell.controller")

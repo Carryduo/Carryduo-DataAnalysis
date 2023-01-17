@@ -1,4 +1,3 @@
-
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
@@ -6,62 +5,66 @@ module.exports = new EntitySchema({
     tableName: "combination", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
-            type: 'varchar',
+            type: "varchar",
             primary: true,
-            generated: 'uuid',
+            generated: "uuid",
         },
         createdAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         updatedAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         matchId: {
             type: "varchar",
-            require: true
+            require: true,
         },
         mainChampId: {
             type: "varchar",
-            require: true
+            require: true,
         },
         mainChampName: {
             type: "varchar",
-            require: true
+            require: true,
         },
         subChampId: {
             type: "varchar",
-            require: true
+            require: true,
         },
         subChampName: {
             type: "varchar",
-            require: true
+            require: true,
         },
         win: {
             type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         lose: {
-            type: 'int',
+            type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         sampleNum: {
-            type: 'int',
+            type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         category: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         version: {
-            type: 'varchar',
-            required: true
-        }
+            type: "varchar",
+            required: true,
+        },
     },
 })

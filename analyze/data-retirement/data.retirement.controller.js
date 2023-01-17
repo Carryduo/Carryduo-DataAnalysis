@@ -114,8 +114,7 @@ exports.deleteOutdatedData = async (table) => {
 
         if (status.category0 === 30 && status.category1 === 30 && status.category2) {
             startPoint = 1
-        }
-        else {
+        } else {
             startPoint = 2
         }
         for (let i = startPoint; i < recentVersions.length; i++) {

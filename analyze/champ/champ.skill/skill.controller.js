@@ -1,9 +1,4 @@
-const {
-    targetChampionSkillInfoSave,
-    targetChampionSkillInfoUpdate,
-    getTooltip,
-    editToolTip,
-} = require("./skill.service")
+const { targetChampionSkillInfoSave, targetChampionSkillInfoUpdate, getTooltip, editToolTip } = require("./skill.service")
 const logger = require("../../../log")
 
 //챔피언 정보 및 스킬정보 서비스DB 저장 로직
@@ -49,14 +44,7 @@ exports.champSkillSave = async (detailChamp, champId, key, skillImg, passiveImg,
         if (status) {
             await targetChampionSkillInfoSave(champId, qSkill, wSkill, eSkill, rSkill, passiveSkill)
         } else if (!status) {
-            await targetChampionSkillInfoUpdate(
-                champId,
-                qSkill,
-                wSkill,
-                eSkill,
-                rSkill,
-                passiveSkill
-            )
+            await targetChampionSkillInfoUpdate(champId, qSkill, wSkill, eSkill, rSkill, passiveSkill)
         }
     } catch (err) {
         logger.error(err, { message: "- from champSkillSave" })
@@ -111,17 +99,12 @@ exports.validateToolTip = (value) => {
             replace(secondData)
         }
         function replace(value) {
-            secondData = value
-                .replace("{{", "!")
-                .replace("}}", "?")
-                .replace("!  ?", "?")
-                .replace("!", "")
-                .replace(".?", ".")
+            secondData = value.replace("{{", "!").replace("}}", "?").replace("!  ?", "?").replace("!", "").replace(".?", ".")
             return
         }
         return secondData
     } catch (err) {
-        logger.error(err, { message: '-from validateTooltip' })
+        logger.error(err, { message: "-from validateTooltip" })
         return err
     }
 }

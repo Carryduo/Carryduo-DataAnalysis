@@ -1,4 +1,3 @@
-
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
@@ -6,78 +5,82 @@ module.exports = new EntitySchema({
     tableName: "simulation", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
-            type: 'varchar',
+            type: "varchar",
             primary: true,
-            generated: 'uuid',
+            generated: "uuid",
         },
         createdAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         updatedAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         matchId: {
             type: "varchar",
-            require: true
+            require: true,
         },
         champ1Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ1Name: {
-            type: 'varchar',
-            require: true
+            type: "varchar",
+            require: true,
         },
         champ2Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ2Name: {
-            type: 'varchar',
-            require: true
+            type: "varchar",
+            require: true,
         },
         champ3Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ3Name: {
-            type: 'varchar',
-            require: true
+            type: "varchar",
+            require: true,
         },
         champ4Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ4Name: {
-            type: 'varchar',
-            require: true
+            type: "varchar",
+            require: true,
         },
         win: {
             type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         lose: {
-            type: 'int',
+            type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         sampleNum: {
-            type: 'int',
+            type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         category: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         version: {
-            type: 'varchar',
-            required: true
-        }
+            type: "varchar",
+            required: true,
+        },
     },
 })

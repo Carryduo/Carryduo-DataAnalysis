@@ -15,20 +15,13 @@ const rate_stat = dataSource_service.getRepository("CHAMPRATE")
 const spell_stat = dataSource_service.getRepository("CHAMPSPELL")
 
 exports.findVersion_combination = async () => {
-    return await combination
-        .createQueryBuilder()
-        .select(["DISTINCT combination.version"])
-        .getRawMany()
+    return await combination.createQueryBuilder().select(["DISTINCT combination.version"]).getRawMany()
 }
 
 exports.deleteOutdatedData_combination = async (version) => {
     try {
         // console.log(version)
-        await combination
-            .createQueryBuilder()
-            .delete()
-            .where("combination.version = :version", { version })
-            .execute()
+        await combination.createQueryBuilder().delete().where("combination.version = :version", { version }).execute()
 
         return
     } catch (err) {
@@ -37,20 +30,13 @@ exports.deleteOutdatedData_combination = async (version) => {
 }
 
 exports.findVersion_combination_service = async () => {
-    return await combination_stat
-        .createQueryBuilder()
-        .select(["DISTINCT COMBINATION_STAT.version"])
-        .getRawMany()
+    return await combination_stat.createQueryBuilder().select(["DISTINCT COMBINATION_STAT.version"]).getRawMany()
 }
 
 exports.deleteOutdatedData_combination_service = async (version) => {
     try {
         // console.log(version)
-        await combination_stat
-            .createQueryBuilder()
-            .delete()
-            .where("COMBINATION_STAT.version = :version", { version })
-            .execute()
+        await combination_stat.createQueryBuilder().delete().where("COMBINATION_STAT.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -58,25 +44,14 @@ exports.deleteOutdatedData_combination_service = async (version) => {
 }
 
 exports.findVersion_simulation = async () => {
-    return await simulation
-        .createQueryBuilder()
-        .select(["DISTINCT simulation.version"])
-        .getRawMany()
+    return await simulation.createQueryBuilder().select(["DISTINCT simulation.version"]).getRawMany()
 }
 
 exports.deleteOutdatedData_simulation = async (version) => {
     try {
         // console.log(version)
-        await simulation
-            .createQueryBuilder()
-            .delete()
-            .where("simulation.version = :version", { version })
-            .execute()
-        await simulation_service
-            .createQueryBuilder()
-            .delete()
-            .where("simulation_service.version = :version", { version })
-            .execute()
+        await simulation.createQueryBuilder().delete().where("simulation.version = :version", { version }).execute()
+        await simulation_service.createQueryBuilder().delete().where("simulation_service.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -89,11 +64,7 @@ exports.findVersion_winRate = async () => {
 exports.deleteOutdatedData_winRate = async (version) => {
     try {
         // console.log(version)
-        await winRate
-            .createQueryBuilder()
-            .delete()
-            .where("champ_win_rate.version = :version", { version })
-            .execute()
+        await winRate.createQueryBuilder().delete().where("champ_win_rate.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -106,11 +77,7 @@ exports.findVersion_banRate = async () => {
 exports.deleteOutdatedData_banRate = async (version) => {
     try {
         // console.log(version)
-        await banRate
-            .createQueryBuilder()
-            .delete()
-            .where("champban.version = :version", { version })
-            .execute()
+        await banRate.createQueryBuilder().delete().where("champban.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -118,19 +85,12 @@ exports.deleteOutdatedData_banRate = async (version) => {
 }
 
 exports.findVersion_position = async () => {
-    return await position
-        .createQueryBuilder("position")
-        .select(["DISTINCT position.version"])
-        .getRawMany()
+    return await position.createQueryBuilder("position").select(["DISTINCT position.version"]).getRawMany()
 }
 exports.deleteOutdatedData_position = async (version) => {
     try {
         // console.log(version)
-        await position
-            .createQueryBuilder()
-            .delete()
-            .where("champ_position.version = :version", { version })
-            .execute()
+        await position.createQueryBuilder().delete().where("champ_position.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -143,21 +103,9 @@ exports.findVersion_spell = async () => {
 exports.deleteOutdatedData_spell = async (version) => {
     try {
         // console.log(version)
-        await spell
-            .createQueryBuilder()
-            .delete()
-            .where("champspell.version = :version", { version })
-            .execute()
-        await spell_service
-            .createQueryBuilder()
-            .delete()
-            .where("champspell_service.version = :version", { version })
-            .execute()
-        await spell_stat
-            .createQueryBuilder()
-            .delete()
-            .where("CHAMPSPELL.version = :version", { version })
-            .execute()
+        await spell.createQueryBuilder().delete().where("champspell.version = :version", { version }).execute()
+        await spell_service.createQueryBuilder().delete().where("champspell_service.version = :version", { version }).execute()
+        await spell_stat.createQueryBuilder().delete().where("CHAMPSPELL.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -165,24 +113,13 @@ exports.deleteOutdatedData_spell = async (version) => {
 }
 
 exports.findVersion_champ_service = async () => {
-    return await champ_service
-        .createQueryBuilder("champ")
-        .select(["DISTINCT champ.version"])
-        .getRawMany()
+    return await champ_service.createQueryBuilder("champ").select(["DISTINCT champ.version"]).getRawMany()
 }
 exports.deleteOutdatedData_champ_service = async (version) => {
     try {
         // console.log(version)
-        await champ_service
-            .createQueryBuilder()
-            .delete()
-            .where("champ_service.version = :version", { version })
-            .execute()
-        await rate_stat
-            .createQueryBuilder()
-            .delete()
-            .where("CHAMPRATE.version = :version", { version })
-            .execute()
+        await champ_service.createQueryBuilder().delete().where("champ_service.version = :version", { version }).execute()
+        await rate_stat.createQueryBuilder().delete().where("CHAMPRATE.version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
@@ -191,34 +128,34 @@ exports.deleteOutdatedData_champ_service = async (version) => {
 
 exports.getMainpageData_analysisDB = async (version) => {
     try {
-        const category0 =
-            await combination.createQueryBuilder()
-                .select()
-                .where('combination.category = :category', { category: 0 })
-                .andWhere('combination.version = :version', { version })
-                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7': 'DESC' })
-                .limit(30)
-                .getMany()
-        const category1 =
-            await combination.createQueryBuilder()
-                .select()
-                .where('combination.category = :category', { category: 1 })
-                .andWhere('combination.version = :version', { version })
-                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7': 'DESC' })
-                .limit(30)
-                .getMany()
+        const category0 = await combination
+            .createQueryBuilder()
+            .select()
+            .where("combination.category = :category", { category: 0 })
+            .andWhere("combination.version = :version", { version })
+            .andWhere("combination.sampleNum >= :sampleNum", { sampleNum: 30 })
+            .orderBy({ "(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7": "DESC" })
+            .limit(30)
+            .getMany()
+        const category1 = await combination
+            .createQueryBuilder()
+            .select()
+            .where("combination.category = :category", { category: 1 })
+            .andWhere("combination.version = :version", { version })
+            .andWhere("combination.sampleNum >= :sampleNum", { sampleNum: 30 })
+            .orderBy({ "(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7": "DESC" })
+            .limit(30)
+            .getMany()
 
-        const category2 =
-            await combination.createQueryBuilder()
-                .select()
-                .where('combination.category = :category', { category: 2 })
-                .andWhere('combination.version = :version', { version })
-                .andWhere('combination.sampleNum >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7': 'DESC' })
-                .limit(30)
-                .getMany()
+        const category2 = await combination
+            .createQueryBuilder()
+            .select()
+            .where("combination.category = :category", { category: 2 })
+            .andWhere("combination.version = :version", { version })
+            .andWhere("combination.sampleNum >= :sampleNum", { sampleNum: 30 })
+            .orderBy({ "(combination.sampleNum) * 0.3 + (combination.win/combination.sampleNum) * 100 * 0.7": "DESC" })
+            .limit(30)
+            .getMany()
         return { category0: category0.length, category1: category1.length, category2: category2.length }
     } catch (err) {
         console.log(err)
@@ -228,31 +165,40 @@ exports.getMainpageData_analysisDB = async (version) => {
 
 exports.getMainpageData_serviceDB = async (version) => {
     try {
-        const category0 =
-            await combination_stat.createQueryBuilder()
-                .select()
-                .where('COMBINATION_STAT.category = :category', { category: 0 })
-                .andWhere('COMBINATION_STAT.version = :version', { version })
-                .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
-                .getCount()
-        const category1 =
-            await combination_stat.createQueryBuilder()
-                .select()
-                .where('COMBINATION_STAT.category = :category', { category: 1 })
-                .andWhere('COMBINATION_STAT.version = :version', { version })
-                .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
-                .getCount()
+        const category0 = await combination_stat
+            .createQueryBuilder()
+            .select()
+            .where("COMBINATION_STAT.category = :category", { category: 0 })
+            .andWhere("COMBINATION_STAT.version = :version", { version })
+            .andWhere("COMBINATION_STAT.sample_num >= :sampleNum", { sampleNum: 30 })
+            .orderBy({
+                "((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5":
+                    "DESC",
+            })
+            .getCount()
+        const category1 = await combination_stat
+            .createQueryBuilder()
+            .select()
+            .where("COMBINATION_STAT.category = :category", { category: 1 })
+            .andWhere("COMBINATION_STAT.version = :version", { version })
+            .andWhere("COMBINATION_STAT.sample_num >= :sampleNum", { sampleNum: 30 })
+            .orderBy({
+                "((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5":
+                    "DESC",
+            })
+            .getCount()
 
-        const category2 =
-            await combination_stat.createQueryBuilder()
-                .select()
-                .where('COMBINATION_STAT.category = :category', { category: 2 })
-                .andWhere('COMBINATION_STAT.version = :version', { version })
-                .andWhere('COMBINATION_STAT.sample_num >= :sampleNum', { sampleNum: 30 })
-                .orderBy({ '((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5': 'DESC' })
-                .getCount()
+        const category2 = await combination_stat
+            .createQueryBuilder()
+            .select()
+            .where("COMBINATION_STAT.category = :category", { category: 2 })
+            .andWhere("COMBINATION_STAT.version = :version", { version })
+            .andWhere("COMBINATION_STAT.sample_num >= :sampleNum", { sampleNum: 30 })
+            .orderBy({
+                "((COMBINATION_STAT.win/COMBINATION_STAT.sample_num) * 0.4 + ((COMBINATION_STAT.sample_num - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) / ((SELECT MAX(sample_num) FROM COMBINATION_STAT) - (SELECT MIN(sample_num) FROM COMBINATION_STAT)) * 0.6 )) * 5":
+                    "DESC",
+            })
+            .getCount()
         return { category0: category0, category1: category1, category2: category2 }
     } catch (err) {
         console.log(err)
