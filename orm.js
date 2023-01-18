@@ -23,8 +23,7 @@ const dataSource = new typeorm.DataSource({
         require("./entity/simulation.data"),
         //수정된 챔프 엔티티
         require("./entity/game.info"),
-        require("./entity/champ.score"),
-        require("./entity/champ.pick"),
+        require("./entity/champ.rate"),
         require("./entity/champ.ban"),
         require("./entity/champ.spell"),
     ],
