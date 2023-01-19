@@ -36,7 +36,7 @@ module.exports = new EntitySchema({
             type: "int",
             require: true,
         },
-        playCount: {
+        play_count: {
             type: "int",
             require: true,
             default: 0,

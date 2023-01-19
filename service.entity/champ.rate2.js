@@ -37,7 +37,7 @@ module.exports = new EntitySchema({
         position: {
             type: "varchar",
         },
-        pickCount: {
+        pick_count: {
             type: "int",
         },
         version: {

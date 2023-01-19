@@ -28,7 +28,7 @@ module.exports = new EntitySchema({
             require: false,
             default: null,
         },
-        banCount: {
+        ban_count: {
             type: "int",
             default: 0,
         },
