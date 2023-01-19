@@ -21,8 +21,6 @@ const {
     saveChampSpellDataToService,
 } = require("./champ.common.service")
 
-const { rateDataToService, spellDataToService } = require("./champ.service/data.save.controller")
-
 let key = 0
 let status
 exports.startChampDataSave = async () => {
@@ -121,19 +119,6 @@ async function requestRiotAPI(matchId) {
             status = err.response.status
             return "drop"
         }
-    }
-}
-
-exports.startChampCalculation = async () => {
-    try {
-        logger.info("champ 승/밴/포지션 픽/스펠 승률 변환 시작")
-        await positionCalculation()
-        await winPickRateCalculation()
-        await banRateCalculation()
-        await spellCaculation()
-        logger.info("champ 승/밴/포지션 픽/스펠 승률 변환 완료")
-    } catch (err) {
-        logger.error(err, { message: "- from startChampCalculation" })
     }
 }
 

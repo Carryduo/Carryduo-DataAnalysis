@@ -13,7 +13,7 @@ const combinationController = require("../analyze/combination/combination.contro
 const dataRetirementController = require("../analyze/data-retirement/data.retirement.controller")
 
 const { deleteOutdatedS3Bucket } = require("../analyze/champ/champ.service/data.save.s3.service")
-const { startChampDataSave, startChampCalculation, saveChampDataToServiceDB } = require("../analyze/champ/champ.index")
+const { startChampDataSave, saveChampDataToServiceDB } = require("../analyze/champ/champ.index")
 
 const logger = require("../log")
 
@@ -102,7 +102,6 @@ async function collectData() {
 async function analyzedData() {
     try {
         await updateNewChampDefaultImage()
-        await startChampCalculation()
     } catch (err) {
         logger.error(err, { message: "from analyedData" })
         return err
@@ -119,7 +118,7 @@ async function transferData() {
         await saveChampDataToServiceDB()
         await combinationController.transferCombinationStatToServiceDB()
         await dataRetirementController.deleteOutdatedData("combination_service")
-        await dataRetirementController.deleteOutdatedData("champ_service")
+        // await dataRetirementController.deleteOutdatedData("champ_service")
     } catch (err) {
         logger.error(err, { message: "from transferData" })
         return err
