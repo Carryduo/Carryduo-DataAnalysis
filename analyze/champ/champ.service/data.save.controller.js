@@ -3,7 +3,6 @@ const axios = require("axios")
 const logger = require("../../../log")
 const { champSkillSave, fixTooltip } = require("../champ.skill/skill.controller")
 const { createNewChampSkillData } = require("../champ.skill/skill.service")
-const { dataParsing } = require("../crawling/crawling")
 const {
     allRateVersion,
     rateInfo,
@@ -21,12 +20,14 @@ const {
     createNewChamp,
 } = require("./data.save.service")
 
-const { findVersion_combination, findVersion_combination_service } = require("../../data-retirement/data.retirement.service")
+const {
+    findVersion_combination,
+    findVersion_combination_service,
+} = require("../../data-retirement/data.retirement.service")
 
 const { uploadChampImgToS3, uploadPassiveImgToS3, uploadSkillImgToS3 } = require("./data.save.s3.service")
 const { validateToolTip } = require("../champ.skill/skill.controller")
 const { targetChampionSkillInfoSave, targetChampionSkillInfoUpdate } = require("../champ.skill/skill.service")
-const { LockNotSupportedOnGivenDriverError } = require("typeorm")
 
 exports.rateDataToService = async () => {
     try {
@@ -242,13 +243,17 @@ function getRecentDBversion(originData) {
 exports.updateNewVersionChampInfoFromRiot = async (version) => {
     try {
         // 라이엇에 챔피언 리스트 요청
-        const riotResponse = await axios(`https://ddragon.leagueoflegends.com/cdn/${version}.1/data/ko_KR/champion.json`)
+        const riotResponse = await axios(
+            `https://ddragon.leagueoflegends.com/cdn/${version}.1/data/ko_KR/champion.json`
+        )
         const riotChampList = Object.keys(riotResponse.data.data)
         //  챔피언 리스트별로 챔피언 정보 요청 및 이미지, 스킬 정보 업데이트
         for (let i = 0; i < riotChampList.length; i++) {
             // TODO: CHAMP 이미지 S3 업로드
             const champName = riotChampList[i]
-            const originData = await axios(`https://ddragon.leagueoflegends.com/cdn/${version}.1/data/ko_KR/champion/${champName}.json`)
+            const originData = await axios(
+                `https://ddragon.leagueoflegends.com/cdn/${version}.1/data/ko_KR/champion/${champName}.json`
+            )
             const champ_name_en = originData.data.data[`${champName}`].id
             const champ_name_ko = originData.data.data[`${champName}`].name
             const champId = originData.data.data[`${champName}`].key
@@ -312,7 +317,10 @@ exports.updateNewVersionChampInfoFromRiot = async (version) => {
             const passiveName = passive.name
             const passiveDesc = validateToolTip(passive.description)
             const image = await uploadPassiveImgToS3(version, passive, champName, passive_id)
-            ;(passiveInfo.id = passive_id), (passiveInfo.name = passiveName), (passiveInfo.desc = passiveDesc), (passiveInfo.image = image)
+            ;(passiveInfo.id = passive_id),
+                (passiveInfo.name = passiveName),
+                (passiveInfo.desc = passiveDesc),
+                (passiveInfo.image = image)
 
             // TODO: 이미지, 스킬 정보 DB에 업데이트 하기
             const existChamp = await checkChamp(champId)
@@ -323,7 +331,14 @@ exports.updateNewVersionChampInfoFromRiot = async (version) => {
             } else {
                 console.log("이미 있는 데이터입니다")
                 await updateChampInfoService(champId, champ_main_img, champ_img)
-                await targetChampionSkillInfoUpdate(champId, qSkillInfo, wSkillInfo, eSkillInfo, rSkillInfo, passiveInfo)
+                await targetChampionSkillInfoUpdate(
+                    champId,
+                    qSkillInfo,
+                    wSkillInfo,
+                    eSkillInfo,
+                    rSkillInfo,
+                    passiveInfo
+                )
             }
         }
     } catch (err) {
