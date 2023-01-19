@@ -7,7 +7,129 @@ const ChampRate = dataSource.getRepository("champ_rate")
 const ChampBan = dataSource.getRepository("champ_ban")
 const ChampSpell = dataSource.getRepository("champ_spell")
 
+const { dataSource_service } = require("../../service.orm")
+const GameInfoService = dataSource_service.getRepository("GAME_INFO")
+const ChampRateService = dataSource_service.getRepository("CHAMP_RATE")
+const ChampBanService = dataSource_service.getRepository("CHAMP_BAN")
+const ChampSpellService = dataSource_service.getRepository("CHAMP_SPELL")
 const logger = require("../../log")
+
+//spell
+exports.getSpellData = async () => {
+    try {
+        return await ChampSpell.createQueryBuilder().getMany()
+    } catch (err) {
+        logger.error(err, { message: ` - from getSpellData` })
+    }
+}
+exports.saveChampSpellDataToService = async (champId, spell1, spell2, play_count, position, version) => {
+    try {
+        const serviceSpellData = await ChampSpellService.createQueryBuilder()
+            .where("champId = :champId", { champId })
+            .andWhere("spell1 = :spell1", { spell1 })
+            .andWhere("spell2 = :spell2", { spell2 })
+            .andWhere("position = :position", { position })
+            .andWhere("version = :version", { version })
+            .getOne()
+        !serviceSpellData
+            ? await ChampSpellService.createQueryBuilder()
+                  .insert()
+                  .values({ champId, spell1, spell2, play_count, position, version })
+                  .execute()
+            : await ChampSpellService.createQueryBuilder()
+                  .update()
+                  .set({ play_count })
+                  .where("champId = :champId", { champId })
+                  .andWhere("spell1 = :spell1", { spell1 })
+                  .andWhere("spell2 = :spell2", { spell2 })
+                  .andWhere("position = :position", { position })
+                  .andWhere("version = :version", { version })
+                  .execute()
+    } catch (err) {
+        logger.error(err, { message: ` - from saveChampSpellDataToService` })
+    }
+}
+//ban
+exports.getBanData = async () => {
+    try {
+        return await ChampBan.createQueryBuilder().getMany()
+    } catch (err) {
+        logger.error(err, { message: ` - from getBanData` })
+    }
+}
+exports.saveChampBanDataToService = async (champId, ban_count, version) => {
+    try {
+        const serviceBanData = await ChampBanService.createQueryBuilder()
+            .where("champId = :champId", { champId })
+            .andWhere("version = :version", { version })
+            .getOne()
+        !serviceBanData
+            ? await ChampBanService.createQueryBuilder().insert().values({ champId, ban_count, version }).execute()
+            : await ChampBanService.createQueryBuilder()
+                  .update()
+                  .set({ ban_count })
+                  .where("champId = :champId", { champId })
+                  .andWhere("version = :version", { version })
+                  .execute()
+    } catch (err) {
+        logger.error(err, { message: ` - from saveChampBanDataToService` })
+    }
+}
+//rate
+exports.getRateData = async () => {
+    try {
+        return await ChampRate.createQueryBuilder().getMany()
+    } catch (err) {
+        logger.error(err, { message: ` - from getRateData` })
+    }
+}
+exports.saveChampRateDataToService = async (champId, win, lose, position, pick_count, version) => {
+    try {
+        const serviceRateData = await ChampRateService.createQueryBuilder()
+            .where("champId = :champId", { champId })
+            .andWhere("position = :position", { position })
+            .andWhere("version = :version", { version })
+            .getOne()
+        !serviceRateData
+            ? await ChampRateService.createQueryBuilder()
+                  .insert()
+                  .values({ champId, win, lose, position, pick_count, version })
+                  .execute()
+            : await ChampRateService.createQueryBuilder()
+                  .update()
+                  .set({ win, lose, pick_count })
+                  .where("champId = :champId", { champId })
+                  .andWhere("position = :position", { position })
+                  .andWhere("version = :version", { version })
+                  .execute()
+    } catch (err) {
+        logger.error(err, { message: ` - from saveChampRateDataToService` })
+    }
+}
+//game
+exports.getGameData = async () => {
+    try {
+        return await GameInfo.createQueryBuilder().getMany()
+    } catch (err) {
+        logger.error(err, { message: ` - from getGameData` })
+    }
+}
+exports.saveGameDataToService = async (game_count, version) => {
+    try {
+        const serviceGameData = await GameInfoService.createQueryBuilder()
+            .where("version = :version", { version })
+            .getOne()
+        !serviceGameData
+            ? await GameInfoService.createQueryBuilder().insert().values({ game_count, version }).execute()
+            : await GameInfoService.createQueryBuilder()
+                  .update()
+                  .set({ game_count })
+                  .where("version = :version", { version })
+                  .execute()
+    } catch (err) {
+        logger.error(err, { message: ` - from saveGameDataToService` })
+    }
+}
 
 async function gameTotal(version) {
     return await GameInfo.createQueryBuilder().where("version = :version", { version }).getOne()
@@ -257,7 +379,11 @@ exports.matchIdList = async () => {
 
 exports.successAnalyzed = async (matchId) => {
     try {
-        return await MatchId.createQueryBuilder().update().set({ champAnalyzed: 1 }).where("matchid.matchId = :matchId", { matchId }).execute()
+        return await MatchId.createQueryBuilder()
+            .update()
+            .set({ champAnalyzed: 1 })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
     } catch (err) {
         logger.error(err, { message: ` - from successAnalyzed` })
     }
@@ -265,7 +391,11 @@ exports.successAnalyzed = async (matchId) => {
 
 exports.dropAnalyzed = async (matchId) => {
     try {
-        return await MatchId.createQueryBuilder().update().set({ champAnalyzed: 2 }).where("matchid.matchId = :matchId", { matchId }).execute()
+        return await MatchId.createQueryBuilder()
+            .update()
+            .set({ champAnalyzed: 2 })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
     } catch (err) {
         logger.error(err, { message: ` - from dropAnalyzed` })
     }
@@ -273,7 +403,11 @@ exports.dropAnalyzed = async (matchId) => {
 
 exports.saveMatchIdVersion = async (matchId, version) => {
     try {
-        return await MatchId.createQueryBuilder().update().set({ version }).where("matchid.matchId = :matchId", { matchId }).execute()
+        return await MatchId.createQueryBuilder()
+            .update()
+            .set({ version })
+            .where("matchid.matchId = :matchId", { matchId })
+            .execute()
     } catch (err) {
         logger.error(err, { message: ` - from saveMatchIdVersion` })
     }

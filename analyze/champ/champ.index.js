@@ -11,6 +11,14 @@ const {
     createOrUpdateChampBan,
     createOrUpdateChampSpell,
     successAnalyzed,
+    saveGameDataToService,
+    getGameData,
+    getRateData,
+    saveChampRateDataToService,
+    getBanData,
+    saveChampBanDataToService,
+    getSpellData,
+    saveChampSpellDataToService,
 } = require("./champ.common.service")
 
 const { rateDataToService, spellDataToService } = require("./champ.service/data.save.controller")
@@ -131,8 +139,39 @@ exports.startChampCalculation = async () => {
 
 exports.saveChampDataToServiceDB = async () => {
     try {
-        await rateDataToService()
-        await spellDataToService()
+        const gameData = await getGameData()
+        for (let g of gameData) {
+            const { gameCount } = g
+            const { version } = g
+            await saveGameDataToService(gameCount, version)
+        }
+        const rateData = await getRateData()
+        for (let r of rateData) {
+            const { champId } = r
+            const { win } = r
+            const { lose } = r
+            const { position } = r
+            const { pickCount } = r
+            const { version } = r
+            await saveChampRateDataToService(champId, win, lose, position, pickCount, version)
+        }
+        const banData = await getBanData()
+        for (let b of banData) {
+            const { champId } = b
+            const { banCount } = b
+            const { version } = b
+            await saveChampBanDataToService(champId, banCount, version)
+        }
+        const spellData = await getSpellData()
+        for (let s of spellData) {
+            const { champId } = s
+            const { spell1 } = s
+            const { spell2 } = s
+            const { playCount } = s
+            const { position } = s
+            const { version } = s
+            await saveChampSpellDataToService(champId, spell1, spell2, playCount, position, version)
+        }
     } catch (err) {
         logger.error(err, { message: "- from saveToServiceDB" })
     }

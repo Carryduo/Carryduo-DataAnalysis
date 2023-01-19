@@ -1,7 +1,4 @@
 const { dataSource } = require("../../../orm")
-const ChampInfo = dataSource.getRepository("champ_service")
-const ChampSpell = dataSource.getRepository("champspell_service")
-
 const Position = dataSource.getRepository("champ_position")
 const WinRate = dataSource.getRepository("champ_win_rate")
 const Ban = dataSource.getRepository("champban")
@@ -9,167 +6,15 @@ const Spell = dataSource.getRepository("champspell")
 
 const { dataSource_service } = require("../../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
-const ChampSpellService = dataSource_service.getRepository("CHAMPSPELL")
-const ChampRateService = dataSource_service.getRepository("CHAMPRATE")
 
 const logger = require("../../../log")
 
-exports.allRateVersion = async () => {
-    try {
-        return ChampInfo.createQueryBuilder().select("distinct champ_service.version").getRawMany()
-    } catch (err) {
-        logger.error(err, { message: ` - from allRateVersion` })
-    }
-}
-
-exports.rateInfo = async (version) => {
-    try {
-        return ChampInfo.createQueryBuilder().where("version = :version", { version }).getMany()
-    } catch (err) {
-        logger.error(err, { message: ` - from rateInfo` })
-    }
-}
-
-exports.rateDataCheck = async (champId, version, position) => {
-    try {
-        return ChampRateService.createQueryBuilder()
-            .where("champId = :champId", { champId })
-            .andWhere("version = :version", { version })
-            .andWhere("version = :position", { position })
-            .getOne()
-    } catch (err) {
-        logger.error(err, { message: ` - from rateDataCheck` })
-    }
-}
-
-exports.saveRateDataToService = async (
-    champId,
-    win_rate,
-    ban_rate,
-    pick_rate,
-    top_rate,
-    jungle_rate,
-    mid_rate,
-    ad_rate,
-    support_rate,
-    version,
-    position
-) => {
-    try {
-        await ChampRateService.createQueryBuilder()
-            .insert()
-            .values({
-                champId,
-                win_rate,
-                ban_rate,
-                pick_rate,
-                top_rate,
-                jungle_rate,
-                mid_rate,
-                ad_rate,
-                support_rate,
-                version,
-                position,
-            })
-            .execute()
-    } catch (err) {
-        logger.error(err, { message: ` - from saveRateDataToService` })
-    }
-}
-exports.updateRateDataToService = async (
-    champId,
-    win_rate,
-    ban_rate,
-    pick_rate,
-    top_rate,
-    jungle_rate,
-    mid_rate,
-    ad_rate,
-    support_rate,
-    version,
-    position
-) => {
-    try {
-        await ChampRateService.createQueryBuilder()
-            .update(ChampRateService)
-            .set({
-                win_rate,
-                ban_rate,
-                pick_rate,
-                top_rate,
-                jungle_rate,
-                mid_rate,
-                ad_rate,
-                support_rate,
-            })
-            .where("champId = :champId", { champId })
-            .andWhere("version = :version", { version })
-            .andWhere("position = :position", { position })
-            .execute()
-    } catch (err) {
-        logger.error(err, { message: ` - from updateRateDataToService` })
-    }
-}
-
-exports.allSpellVersion = async () => {
-    try {
-        return ChampSpell.createQueryBuilder().select("distinct champspell_service.version").getRawMany()
-    } catch (err) {
-        logger.error(err, { message: ` - from allSpellVersion` })
-    }
-}
-
-exports.spellInfo = async (version) => {
-    try {
-        return ChampSpell.createQueryBuilder().where("version = :version", { version }).getMany()
-    } catch (err) {
-        logger.error(err, { message: ` - from spellInfo` })
-    }
-}
-
-exports.saveSpellDataToService = async (champId, spell1, spell2, pick_rate, sample_num, version, position) => {
-    try {
-        const check = await ChampSpellService.createQueryBuilder()
-            .where("champId = :champId", { champId })
-            .andWhere("version = :version", { version })
-            .andWhere("position = :position", { position })
-            .andWhere("spell1 = :spell1", { spell1 })
-            .andWhere("spell2 = :spell2", { spell2 })
-            .getOne()
-        if (!check) {
-            await ChampSpellService.createQueryBuilder()
-                .insert()
-                .values({
-                    champId,
-                    spell1,
-                    spell2,
-                    pick_rate,
-                    sample_num,
-                    version,
-                    position,
-                })
-                .execute()
-        } else if (check) {
-            await ChampSpellService.createQueryBuilder()
-                .update(ChampSpellService)
-                .set({
-                    pick_rate,
-                    sample_num,
-                })
-                .where("champId = :champId", { champId })
-                .andWhere("version = :version", { version })
-                .andWhere("spell1 = :spell1", { spell1 })
-                .andWhere("spell2 = :spell2", { spell2 })
-                .execute()
-        }
-    } catch (err) {
-        logger.error(err, { message: ` - from saveSpellDataToService` })
-    }
-}
-
 exports.checkChamp = async (champId) => {
     try {
-        return await ChampService.createQueryBuilder().where("champId = :champId", { champId }).select("champId").getRawOne()
+        return await ChampService.createQueryBuilder()
+            .where("champId = :champId", { champId })
+            .select("champId")
+            .getRawOne()
     } catch (err) {
         logger.error(err, { message: ` - from checkChamp` })
     }
