@@ -17,6 +17,11 @@ const dataSource_service = new typeorm.DataSource({
         require("./service.entity/champ.skill"),
         require("./service.entity/combination.stat"),
         require("./service.entity/simulation"),
+        //수정된 entity
+        require("./service.entity/game.info"),
+        require("./service.entity/champ.rate2"),
+        require("./service.entity/champ.ban"),
+        require("./service.entity/champ.spell2"),
     ],
 })
 module.exports = {

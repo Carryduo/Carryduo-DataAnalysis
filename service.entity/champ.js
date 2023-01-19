@@ -26,6 +26,26 @@ module.exports = new EntitySchema({
         },
     },
     relations: {
+        //수정
+        champ_rate: {
+            target: "CHAMP_RATE",
+            type: "one-to-many",
+            cascade: true,
+            eager: true,
+        },
+        champ_ban: {
+            target: "CHAMP_BAN",
+            type: "one-to-many",
+            cascade: true,
+            eager: true,
+        },
+        champ_spell: {
+            target: "CHAMP_SPELL",
+            type: "one-to-many",
+            cascade: true,
+            eager: true,
+        },
+        //기존
         champrate: {
             target: "CHAMPRATE",
             type: "one-to-many",
