@@ -3,7 +3,11 @@ const { performance } = require("perf_hooks")
 
 const { testRiotRequest } = require("../analyze/common.request")
 
-const { updateNewChampDefaultImage, checkVersion, updateNewVersionChampInfoFromRiot } = require("../analyze/champ/champ.service/data.save.controller")
+const {
+    updateNewChampDefaultImage,
+    checkVersion,
+    updateNewVersionChampInfoFromRiot,
+} = require("../analyze/champ/champ.service/data.save.controller")
 
 const combinationController = require("../analyze/combination/combination.controller")
 const dataRetirementController = require("../analyze/data-retirement/data.retirement.controller")
@@ -53,7 +57,9 @@ process.on("message", async function (m) {
             const runningTime = end - start
             const ConversionRunningTime = String(runningTime / (1000 * 60) / 60).split(".")[0]
             const ConversionRunningMinute = (runningTime / (1000 * 60)) % 60
-            logger.info(`===${m.parameter} 번째 작업:${done} ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요===`)
+            logger.info(
+                `===${m.parameter} 번째 작업:${done} ${ConversionRunningTime}시간 ${ConversionRunningMinute}분 소요===`
+            )
         } else {
             done = "API expiration"
         }
@@ -107,10 +113,8 @@ async function transferData() {
     // 오래된 데이터 삭제
     try {
         await dataRetirementController.deleteOutdatedData("combination")
-        await dataRetirementController.deleteOutdatedData("winRate")
-        await dataRetirementController.deleteOutdatedData("banRate")
-        await dataRetirementController.deleteOutdatedData("position")
-        await dataRetirementController.deleteOutdatedData("spell")
+        await dataRetirementController.deleteOutdatedData("champ")
+
         // // 서비스 DB 이관 및 서비스 DB에서 오래된 데이터 삭제
         await saveChampDataToServiceDB()
         await combinationController.transferCombinationStatToServiceDB()
