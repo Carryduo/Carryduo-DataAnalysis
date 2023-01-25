@@ -63,6 +63,9 @@ module.exports = new EntitySchema({
         version: {
             type: "varchar",
         },
+        position: {
+            type: "varchar",
+        },
     },
     relations: {
         champId: {

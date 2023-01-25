@@ -11,11 +11,7 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 })
 
 const logger = winston.createLogger({
-    format: combine(
-        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        label({ label: "Carryduo Data-Analysis" }),
-        logFormat
-    ),
+    format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), label({ label: "Carryduo Data-Analysis" }), logFormat),
 
     transports: [
         new winstonDaily({

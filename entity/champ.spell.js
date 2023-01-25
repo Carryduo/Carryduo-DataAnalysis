@@ -1,22 +1,22 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "CHAMPSPELL", // Will use table name `category` as default behaviour.
-    tableName: "CHAMPSPELL", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "champ_spell", // Will use table name `category` as default behaviour.
+    tableName: "champ_spell", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: "varchar",
             primary: true,
             generated: "uuid",
         },
-        created_at: {
+        createdAt: {
             type: "timestamp",
             require: true,
             default: () => {
                 return `NOW()`
             },
         },
-        updated_at: {
+        updatedAt: {
             type: "timestamp",
             require: true,
             default: () => {
@@ -35,13 +35,7 @@ module.exports = new EntitySchema({
             type: "int",
             require: true,
         },
-        pick_rate: {
-            type: "decimal",
-            precision: 5,
-            scale: 2,
-            require: true,
-        },
-        sample_num: {
+        playCount: {
             type: "int",
             require: true,
             default: 0,
@@ -51,16 +45,6 @@ module.exports = new EntitySchema({
         },
         position: {
             type: "varchar",
-        },
-    },
-    relations: {
-        champId: {
-            target: "CHAMP",
-            type: "many-to-one",
-            joinColumn: {
-                name: "champId", // 현재 entity에서 foreignKey
-                referencedColumnName: "champId", //target에서 참조하는 column
-            },
         },
     },
 })

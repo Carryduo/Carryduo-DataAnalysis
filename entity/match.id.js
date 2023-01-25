@@ -7,19 +7,23 @@ module.exports = new EntitySchema({
     tableName: "matchid", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
-            type: 'varchar',
+            type: "varchar",
             primary: true,
-            generated: 'uuid',
+            generated: "uuid",
         },
         createdAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         updatedAt: {
-            type: 'timestamp',
+            type: "timestamp",
             require: true,
-            default: () => { return `NOW()` }
+            default: () => {
+                return `NOW()`
+            },
         },
         summonerId: {
             type: "varchar",
@@ -28,7 +32,7 @@ module.exports = new EntitySchema({
         matchId: {
             type: "varchar",
             require: true,
-            unique: true
+            unique: true,
         },
         puuid: {
             type: "varchar",
@@ -40,12 +44,12 @@ module.exports = new EntitySchema({
         },
         division: {
             type: "varchar",
-            require: true
+            require: true,
         },
         analyzed: {
             type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         rateAnalyzed: {
             type: "int",
@@ -67,14 +71,19 @@ module.exports = new EntitySchema({
             require: true,
             default: 0,
         },
+        champAnalyzed: {
+            type: "int",
+            require: true,
+            default: 0,
+        },
         simulationAnalyzed: {
             type: "int",
             require: true,
             default: 0,
         },
         version: {
-            type: 'varchar',
-            required: true
-        }
+            type: "varchar",
+            required: true,
+        },
     },
 })

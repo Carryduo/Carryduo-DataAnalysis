@@ -1,17 +1,23 @@
-const axios = require('axios')
-const aws = require('aws-sdk')
-const logger = require('../../../log')
-require('dotenv').config()
+const axios = require("axios")
+const aws = require("aws-sdk")
+const logger = require("../../../log")
+require("dotenv").config()
 // const s3 = new aws.S3({ accessKeyId: process.env.ACCESS_ID, secretAccessKey: process.env.SECRET_KEY })
-aws.config.update({ region: 'ap-northeast-2' })
-const s3 = new aws.S3({ apiVersion: '2006-03-01' })
+aws.config.update({ region: "ap-northeast-2" })
+const s3 = new aws.S3({ apiVersion: "2006-03-01" })
 
 exports.uploadChampImgToS3 = async (version, champCommonImgKey, champMainImgKey, champId, champ_name_ko, champ_name_en) => {
     // 공통, 메인 이미지 get
     try {
         let champ_main_img, champ_img
-        const champCommonImgData = await axios({ url: `http://ddragon.leagueoflegends.com/cdn/${version}.1/img/champion/${champCommonImgKey}`, responseType: 'arraybuffer' })
-        const champMainImgData = await axios({ url: `http://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champMainImgKey}.jpg`, responseType: 'arraybuffer' })
+        const champCommonImgData = await axios({
+            url: `http://ddragon.leagueoflegends.com/cdn/${version}.1/img/champion/${champCommonImgKey}`,
+            responseType: "arraybuffer",
+        })
+        const champMainImgData = await axios({
+            url: `http://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champMainImgKey}.jpg`,
+            responseType: "arraybuffer",
+        })
         // s3에 common, main 폴더에 각각 넣기
         const champCommonImg = champCommonImgData.data
         const champMainImg = champMainImgData.data
@@ -19,15 +25,15 @@ exports.uploadChampImgToS3 = async (version, champCommonImgKey, champMainImgKey,
             Bucket: `${process.env.BUCKET}/${version}/champion/common`,
             Key: champCommonImgKey,
             Body: champCommonImg,
-            ACL: 'public-read',
-            ContentType: 'image/png',
+            ACL: "public-read",
+            ContentType: "image/png",
         }
         const mainParams = {
             Bucket: `${process.env.BUCKET}/${version}/champion/main`,
             Key: `${champMainImgKey}.jpg`,
             Body: champMainImg,
-            ACL: 'public-read',
-            ContentType: 'image/jpeg',
+            ACL: "public-read",
+            ContentType: "image/jpeg",
         }
 
         s3.upload(commonParams, (err, result) => {
@@ -53,18 +59,21 @@ exports.uploadSkillImgToS3 = async (version, skillParam, champName, i) => {
     try {
         let image
         let skill_id
-        if (i === 0) skill_id = 'q'
-        if (i === 1) skill_id = 'w'
-        if (i === 2) skill_id = 'e'
-        if (i === 3) skill_id = 'r'
-        const skillImgData = await axios({ url: `https://ddragon.leagueoflegends.com/cdn/${version}.1/img/spell/${skillParam}.png`, responseType: 'arraybuffer' })
+        if (i === 0) skill_id = "q"
+        if (i === 1) skill_id = "w"
+        if (i === 2) skill_id = "e"
+        if (i === 3) skill_id = "r"
+        const skillImgData = await axios({
+            url: `https://ddragon.leagueoflegends.com/cdn/${version}.1/img/spell/${skillParam}.png`,
+            responseType: "arraybuffer",
+        })
         const skillImg = skillImgData.data
         const params = {
             Bucket: `${process.env.BUCKET}/${version}/skill/spells`,
             Key: `${champName}_${skill_id}.png`,
             Body: skillImg,
-            ACL: 'public-read',
-            ContentType: 'image/png',
+            ACL: "public-read",
+            ContentType: "image/png",
         }
         s3.upload(params, (err, result) => {
             if (err) return err
@@ -83,15 +92,18 @@ exports.uploadSkillImgToS3 = async (version, skillParam, champName, i) => {
 exports.uploadPassiveImgToS3 = async (version, passive, champName, passive_id) => {
     try {
         let image
-        const passiveData = await axios({ url: `https://ddragon.leagueoflegends.com/cdn/${version}.1/img/passive/${passive.image.full}`, responseType: 'arraybuffer' })
+        const passiveData = await axios({
+            url: `https://ddragon.leagueoflegends.com/cdn/${version}.1/img/passive/${passive.image.full}`,
+            responseType: "arraybuffer",
+        })
         const passiveImg = passiveData.data
         // S3로 바로 업로드
         const params = {
             Bucket: `${process.env.BUCKET}/${version}/skill/passive`,
             Key: `${champName}_${passive_id}.png`,
             Body: passiveImg,
-            ACL: 'public-read',
-            ContentType: 'image/png',
+            ACL: "public-read",
+            ContentType: "image/png",
         }
         s3.upload(params, (err, result) => {
             if (err) return err
@@ -114,7 +126,7 @@ exports.deleteOutdatedS3Bucket = async (oldVersion) => {
         for (let i = 0; i < data.Contents.length; i++) {
             const params = {
                 Bucket: `${process.env.BUCKET}`,
-                Key: data.Contents[i].Key
+                Key: data.Contents[i].Key,
             }
             s3.deleteObject(params, (err, result) => {
                 if (err) return err
@@ -130,7 +142,7 @@ exports.deleteOutdatedS3Bucket = async (oldVersion) => {
             return
         }
     } catch (err) {
-        logger.error(err, { message: '- from deleteOutdatedS3Bucket' })
+        logger.error(err, { message: "- from deleteOutdatedS3Bucket" })
         return err
     }
 }

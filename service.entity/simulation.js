@@ -43,58 +43,58 @@ module.exports = new EntitySchema({
             require: true,
         },
         champ1Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ2Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ3Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         champ4Id: {
-            type: 'int',
-            require: true
+            type: "int",
+            require: true,
         },
         version: {
-            type: 'varchar',
-            require: true
-        }
+            type: "varchar",
+            require: true,
+        },
     },
     relations: {
         champ1Id: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champ1Id',
-                referencedColumnName: 'champId'
+                name: "champ1Id",
+                referencedColumnName: "champId",
             },
         },
         champ2Id: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champ2Id',
-                referencedColumnName: 'champId'
+                name: "champ2Id",
+                referencedColumnName: "champId",
             },
         },
         champ3Id: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champ3Id',
-                referencedColumnName: 'champId'
+                name: "champ3Id",
+                referencedColumnName: "champId",
             },
         },
         champ4Id: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'champ4Id',
-                referencedColumnName: 'champId'
+                name: "champ4Id",
+                referencedColumnName: "champId",
             },
         },
-    }
+    },
 })

@@ -28,22 +28,18 @@ exports.getMatchId = async () => {
         .andWhere("matchid.analyzed = :analyzed", {
             analyzed: 0,
         })
-        .orderBy('matchid.createdAt', 'DESC')
+        .orderBy("matchid.createdAt", "DESC")
         .limit(500)
         .getMany()
 }
 
 exports.updateWrongMatchDataAnalyzed = async (matchId) => {
     try {
-        await MatchId.createQueryBuilder()
-            .update()
-            .set({ analyzed: 2 })
-            .where("matchid.matchId = :matchId", { matchId })
-            .execute()
+        await MatchId.createQueryBuilder().update().set({ analyzed: 2 }).where("matchid.matchId = :matchId", { matchId }).execute()
         // console.log("무의미한 MatchData 처리 완료")
         return
     } catch (err) {
-        logger.error(err, { message: 'from matchId 예외처리' })
+        logger.error(err, { message: "from matchId 예외처리" })
     }
 }
 
@@ -52,8 +48,8 @@ exports.checkCombinationData = async (mainChamp, subChamp, category, version) =>
         .select()
         .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
         .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
-        .andWhere('combination.category = :category', { category })
-        .andWhere('combination.version = :version', { version })
+        .andWhere("combination.category = :category", { category })
+        .andWhere("combination.version = :version", { version })
         .getMany()
 }
 
@@ -72,8 +68,8 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
                 })
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
-                .andWhere('combination.category = :category', { category: type })
-                .andWhere('combination.version = :version', { version })
+                .andWhere("combination.category = :category", { category: type })
+                .andWhere("combination.version = :version", { version })
                 .execute()
             await MatchId.createQueryBuilder()
                 .update()
@@ -92,8 +88,8 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
                 })
                 .where("combination.mainChampId = :mainChampId", { mainChampId: mainChamp.champId })
                 .andWhere("combination.subChampId = :subChampId", { subChampId: subChamp.champId })
-                .andWhere('combination.category = :category', { category: type })
-                .andWhere('combination.version = :version', { version })
+                .andWhere("combination.category = :category", { category: type })
+                .andWhere("combination.version = :version", { version })
                 .execute()
 
             await MatchId.createQueryBuilder()
@@ -105,7 +101,6 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
                     dbupdate = { message: `${matchId} 분석 성공` }
                 })
         }
-
     } catch (err) {
         dbupdate = { message: `${matchId} 분석 실패` }
         logger.error(err, { message: `-from ${matchId} 챔피언 조합승률 분석(update)` })
@@ -115,7 +110,6 @@ exports.updateCombinationData = async (matchId, mainChamp, subChamp, category, t
 }
 
 exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, type, version) => {
-
     let dbupdate
     try {
         if (category === "win") {
@@ -131,7 +125,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     lose: 0,
                     sampleNum: 1,
                     category: type,
-                    version
+                    version,
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -155,7 +149,7 @@ exports.saveCombinationData = async (matchId, mainChamp, subChamp, category, typ
                     lose: 1,
                     sampleNum: 1,
                     category: type,
-                    version
+                    version,
                 })
                 .execute()
             await MatchId.createQueryBuilder()
@@ -184,19 +178,19 @@ exports.findRawCombinationData = async () => {
     }
 }
 
-
 exports.getCombinationData = async () => {
     try {
-        return Combination.createQueryBuilder().select([
-            'combination.sampleNum as sample_num',
-            'combination.version as version',
-            'combination.mainChampId as mainChampId',
-            'combination.subChampId as subChampId',
-            'combination.win as win',
-            'combination.lose as lose',
-            'combination.category as category',
-        ]).getRawMany()
-
+        return Combination.createQueryBuilder()
+            .select([
+                "combination.sampleNum as sample_num",
+                "combination.version as version",
+                "combination.mainChampId as mainChampId",
+                "combination.subChampId as subChampId",
+                "combination.win as win",
+                "combination.lose as lose",
+                "combination.category as category",
+            ])
+            .getRawMany()
     } catch (error) {
         logger.error(err, { message: `챔피언 조합승률 데이터 조회 실패(서비스DB 이관)` })
     }
@@ -211,7 +205,7 @@ exports.transferToService = async (data) => {
             .where("COMBINATION_STAT.mainChampId = :mainChampId", { mainChampId: data.mainChampId })
             .andWhere("COMBINATION_STAT.subChampId = :subChampId", { subChampId: data.subChampId })
             .andWhere("COMBINATION_STAT.category = :category", { category: data.category })
-            .andWhere('COMBINATION_STAT.version = :version', { version: data.version })
+            .andWhere("COMBINATION_STAT.version = :version", { version: data.version })
             .getMany()
         if (existData.length === 0) {
             result.type = "save"
@@ -240,7 +234,7 @@ exports.transferToService = async (data) => {
                     subChampId: data.subChampId,
                 })
                 .andWhere("COMBINATION_STAT.category = :category", { category: data.category })
-                .andWhere('COMBINATION_STAT.version = :version', { version: data.version })
+                .andWhere("COMBINATION_STAT.version = :version", { version: data.version })
                 .execute()
                 .then(() => {
                     return { success: true }
@@ -252,21 +246,17 @@ exports.transferToService = async (data) => {
         }
         return result
     } catch (err) {
-        logger.error(err, { message: '챔피언 조합 승률 서비스 DB 이관 실패' })
+        logger.error(err, { message: "챔피언 조합 승률 서비스 DB 이관 실패" })
     }
 }
 
 exports.findVersionAndMatchId = async () => {
-    return await Combination.createQueryBuilder().select(['combination.matchId', 'combination.version']).getMany()
+    return await Combination.createQueryBuilder().select(["combination.matchId", "combination.version"]).getMany()
 }
 
 exports.transferVersiontoMatchId = async (matchId, version) => {
     try {
-        await MatchId.createQueryBuilder()
-            .update()
-            .set({ version })
-            .where("matchid.matchId = :matchId", { matchId })
-            .execute()
+        await MatchId.createQueryBuilder().update().set({ version }).where("matchid.matchId = :matchId", { matchId }).execute()
     } catch (err) {
         console.log(err)
     }
@@ -276,14 +266,6 @@ exports.disconnect = async () => {
 }
 
 exports.deleteOldVersionData = async () => {
-    await Combination
-        .createQueryBuilder()
-        .delete()
-        .where("combination.version = :version", { version: 'old' })
-        .execute()
-    await combination_stat
-        .createQueryBuilder()
-        .delete()
-        .where("COMBINATION_STAT.version = :version", { version: 'old' })
-        .execute()
+    await Combination.createQueryBuilder().delete().where("combination.version = :version", { version: "old" }).execute()
+    await combination_stat.createQueryBuilder().delete().where("COMBINATION_STAT.version = :version", { version: "old" }).execute()
 }

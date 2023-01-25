@@ -6,17 +6,11 @@ const {
     deleteOutdatedData_combination_service,
     findVersion_simulation,
     deleteOutdatedData_simulation,
-    findVersion_winRate,
-    deleteOutdatedData_winRate,
-    findVersion_banRate,
-    deleteOutdatedData_banRate,
-    findVersion_position,
-    deleteOutdatedData_position,
-    findVersion_spell,
-    deleteOutdatedData_spell,
-    findVersion_champ_service,
     deleteOutdatedData_champ_service,
     getMainpageData_serviceDB,
+    //champ
+    findVersion_champ,
+    deleteOutdatedData_champ,
 } = require("./data.retirement.service")
 
 exports.deleteOutdatedData = async (table) => {
@@ -39,31 +33,15 @@ exports.deleteOutdatedData = async (table) => {
                 deleteOutdatedData = deleteOutdatedData_simulation
                 getMainPageData = getMainpageData_serviceDB
                 break
-            case "winRate":
-                findVersion = findVersion_winRate
-                deleteOutdatedData = deleteOutdatedData_winRate
+            case "champ":
+                findVersion = findVersion_champ
+                deleteOutdatedData = deleteOutdatedData_champ
                 getMainPageData = getMainpageData_serviceDB
                 break
-            case "banRate":
-                findVersion = findVersion_banRate
-                deleteOutdatedData = deleteOutdatedData_banRate
-                getMainPageData = getMainpageData_serviceDB
-                break
-            case "position":
-                findVersion = findVersion_position
-                deleteOutdatedData = deleteOutdatedData_position
-                getMainPageData = getMainpageData_serviceDB
-                break
-            case "spell":
-                findVersion = findVersion_spell
-                deleteOutdatedData = deleteOutdatedData_spell
-                getMainPageData = getMainpageData_serviceDB
-                break
-            case "champ_service":
-                findVersion = findVersion_champ_service
-                deleteOutdatedData = deleteOutdatedData_champ_service
-                getMainPageData = getMainpageData_serviceDB
-                break
+            // case "champ_service":
+            //     findVersion = findVersion_champ_service
+            //     deleteOutdatedData = deleteOutdatedData_champ_service
+            //     break
             case "matchId":
                 findVersion = findVersion_matchId
                 deleteOutdatedData = deleteOutdatedData_matchId
@@ -114,8 +92,7 @@ exports.deleteOutdatedData = async (table) => {
 
         if (status.category0 === 30 && status.category1 === 30 && status.category2) {
             startPoint = 1
-        }
-        else {
+        } else {
             startPoint = 2
         }
         for (let i = startPoint; i < recentVersions.length; i++) {

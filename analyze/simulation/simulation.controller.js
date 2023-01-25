@@ -17,9 +17,8 @@ let key = 0
 let status
 exports.saveSimulation = async () => {
     try {
-
         const matchIdList = await getMatchId()
-        logger.info(matchIdList.length, { message: '매치데이터 조회 및 시뮬레이션 데이터 분석 matchId 개수' })
+        logger.info(matchIdList.length, { message: "매치데이터 조회 및 시뮬레이션 데이터 분석 matchId 개수" })
         while (key !== matchIdList.length) {
             if (status !== undefined) {
                 status = undefined
@@ -27,18 +26,17 @@ exports.saveSimulation = async () => {
             }
             await getMatchDataAndSaveSimulation(matchIdList)
         }
-        logger.info('매치데이터 조회 및 시뮬레이션 데이터 분석')
+        logger.info("매치데이터 조회 및 시뮬레이션 데이터 분석")
         key = 0
         return
     } catch (err) {
-        logger.error(err, { message: '-from 매치데이터 조회 및 시뮬레이션 데이터 분석' })
+        logger.error(err, { message: "-from 매치데이터 조회 및 시뮬레이션 데이터 분석" })
         return
     }
 }
 
 async function getMatchDataAndSaveSimulation(matchIdList) {
     try {
-
         const matchId = matchIdList[key].matchId
         const tier = matchIdList[key].tier
         const division = matchIdList[key].division
@@ -173,27 +171,9 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             return key++
         }
         // 탑 정글 넣기
-        const existTopJungleSimulation = await checkSimulationData(
-            team1top,
-            team1jungle,
-            team2top,
-            team2jungle,
-            version
-        )
-        const existMidJungleSimulation = await checkSimulationData(
-            team1middle,
-            team1jungle,
-            team2middle,
-            team2jungle,
-            version
-        )
-        const existBottomDuoSimulation = await checkSimulationData(
-            team1bottom,
-            team1utility,
-            team2bottom,
-            team2utility,
-            version
-        )
+        const existTopJungleSimulation = await checkSimulationData(team1top, team1jungle, team2top, team2jungle, version)
+        const existMidJungleSimulation = await checkSimulationData(team1middle, team1jungle, team2middle, team2jungle, version)
+        const existBottomDuoSimulation = await checkSimulationData(team1bottom, team1utility, team2bottom, team2utility, version)
         if (existTopJungleSimulation.length === 0) {
             await saveSimulationData(matchId, team1top, team1jungle, team2top, team2jungle, 0, version)
         } else {
@@ -205,22 +185,9 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
             await updateSimulationData(matchId, team1middle, team1jungle, team2middle, team2jungle, 1, version)
         }
         if (existBottomDuoSimulation.length === 0) {
-            await saveSimulationData(
-                matchId,
-                team1bottom,
-                team1utility,
-                team2bottom,
-                team2utility,
-                2, version
-            )
+            await saveSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility, 2, version)
         } else {
-            await updateSimulationData(
-                matchId,
-                team1bottom,
-                team1utility,
-                team2bottom,
-                team2utility, 2, version
-            )
+            await updateSimulationData(matchId, team1bottom, team1utility, team2bottom, team2utility, 2, version)
         }
     } catch (err) {
         if (!err.response) {
@@ -247,10 +214,9 @@ async function getMatchDataAndSaveSimulation(matchIdList) {
 }
 
 exports.uploadSimulationWinRate = async () => {
-
     try {
         let data = await findRawSimulationData()
-        logger.info(data.length, { message: '대전 시뮬레이션 로우데이터 승률로 변환' })
+        logger.info(data.length, { message: "대전 시뮬레이션 로우데이터 승률로 변환" })
         data = data.map((value) => {
             value = {
                 winrate: value.win / value.sampleNum,
@@ -264,7 +230,7 @@ exports.uploadSimulationWinRate = async () => {
                 champ4Name: value.champ4Name,
                 category: value.category,
                 sample_num: value.sampleNum,
-                version: value.version
+                version: value.version,
             }
             return value
         })
@@ -272,24 +238,24 @@ exports.uploadSimulationWinRate = async () => {
             const result = await updateSimulationWinRate(data[i])
             console.log(`${i}번째 대전 시뮬레이션 로우데이터 승률로 변환 완료`)
         }
-        logger.info('대전 시뮬레이션 로우데이터 승률로 변환 완료')
+        logger.info("대전 시뮬레이션 로우데이터 승률로 변환 완료")
     } catch (err) {
-        logger.error(err, { message: '-from 대전 시뮬레이션 로우데이터 승률로 변환' })
+        logger.error(err, { message: "-from 대전 시뮬레이션 로우데이터 승률로 변환" })
     }
 }
 
 exports.transferSimulationToServiceDB = async () => {
     try {
         const dataList = await getSimulationData()
-        logger.info(dataList.length, { message: '대전 시뮬레이션 서비스 DB로 이관' })
+        logger.info(dataList.length, { message: "대전 시뮬레이션 서비스 DB로 이관" })
         let result
         for (let i = 0; i < dataList.length; i++) {
             await transferToService_Simulation(dataList[i])
             console.log(`${i}번째 시뮬레이션 데이터 서비스 DB로 이관`)
         }
-        logger.info('대전 시뮬레이션 서비스 DB로 이관 완료')
+        logger.info("대전 시뮬레이션 서비스 DB로 이관 완료")
         return
     } catch (err) {
-        logger.error(err, { message: '-from 대전 시뮬레이션 서비스 DB로 이관' })
+        logger.error(err, { message: "-from 대전 시뮬레이션 서비스 DB로 이관" })
     }
 }

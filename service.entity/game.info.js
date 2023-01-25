@@ -1,48 +1,38 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "champ_win_rate", // Will use table name `category` as default behaviour.
-    tableName: "champ_win_rate", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "GAME_INFO", // Will use table name `category` as default behaviour.
+    tableName: "GAME_INFO", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: "varchar",
             primary: true,
             generated: "uuid",
         },
-        createdAt: {
+        created_at: {
             type: "timestamp",
             require: true,
             default: () => {
                 return `NOW()`
             },
         },
-        updatedAt: {
+        updated_at: {
             type: "timestamp",
             require: true,
             default: () => {
                 return `NOW()`
             },
         },
-        champId: {
+        deleted_at: {
+            type: "timestamp",
+            require: false,
+            default: null,
+        },
+        game_count: {
             type: "int",
             require: true,
-        },
-        win: {
-            type: "int",
-            default: 0,
-        },
-        lose: {
-            type: "int",
-            default: 0,
-        },
-        sampleNum: {
-            type: "int",
-            default: 0,
         },
         version: {
-            type: "varchar",
-        },
-        position: {
             type: "varchar",
         },
     },

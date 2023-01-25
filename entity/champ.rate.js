@@ -1,8 +1,8 @@
 var EntitySchema = require("typeorm").EntitySchema
 
 module.exports = new EntitySchema({
-    name: "champ_win_rate", // Will use table name `category` as default behaviour.
-    tableName: "champ_win_rate", // Optional: Provide `tableName` property to override the default behaviour for table name.
+    name: "champ_rate", // Will use table name `category` as default behaviour.
+    tableName: "champ_rate", // Optional: Provide `tableName` property to override the default behaviour for table name.
     columns: {
         id: {
             type: "varchar",
@@ -35,14 +35,14 @@ module.exports = new EntitySchema({
             type: "int",
             default: 0,
         },
-        sampleNum: {
+        position: {
+            type: "varchar",
+        },
+        pickCount: {
             type: "int",
             default: 0,
         },
         version: {
-            type: "varchar",
-        },
-        position: {
             type: "varchar",
         },
     },

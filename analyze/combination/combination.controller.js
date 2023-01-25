@@ -18,26 +18,24 @@ const {
     findVersionAndMatchId,
     transferVersiontoMatchId,
     checkRank,
-    updateNotRankedData
+    updateNotRankedData,
 } = require("./combination.service")
 
 let key = 0
 let status
 
-
 exports.transferCombinationStatToServiceDB = async (req, res, next) => {
     try {
-        logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
+        logger.info("챔피언 조합 승률 데이터 서비스 DB로 이관")
         const dataList = await getCombinationData()
         for (let i = 0; i < dataList.length; i++) {
             const data = await transferToService(dataList[i])
             console.log(data)
             //     // console.log(`${i}번째 챔피언 조합 승률 데이터 서비스 DB로 이관 완료`)
         }
-        logger.info('챔피언 조합 승률 데이터 서비스 DB로 이관')
-    }
-    catch (err) {
-        logger.error(err, { message: '챔피언 조합 승률 데이터 서비스 DB로 이관' })
+        logger.info("챔피언 조합 승률 데이터 서비스 DB로 이관")
+    } catch (err) {
+        logger.error(err, { message: "챔피언 조합 승률 데이터 서비스 DB로 이관" })
     }
 }
 
@@ -53,11 +51,11 @@ exports.saveCombination = async (req, res, next) => {
             }
             await getMatchDataAndSaveCombination(matchIdList)
         }
-        logger.info('매치데이터 조회 및 챔피언 조합 승률 분석 완료')
+        logger.info("매치데이터 조회 및 챔피언 조합 승률 분석 완료")
         key = 0
         return
     } catch (err) {
-        logger.error(err, { message: '-from saveCombination' })
+        logger.error(err, { message: "-from saveCombination" })
         return
     }
 }

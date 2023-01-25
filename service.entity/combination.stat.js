@@ -35,12 +35,12 @@ module.exports = new EntitySchema({
         win: {
             type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         lose: {
-            type: 'int',
+            type: "int",
             require: true,
-            default: 0
+            default: 0,
         },
         sample_num: {
             type: "int",
@@ -55,26 +55,26 @@ module.exports = new EntitySchema({
             require: true,
         },
         version: {
-            type: 'varchar',
-            require: true
-        }
+            type: "varchar",
+            require: true,
+        },
     },
     relations: {
         mainChampId: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'mainChampId',
-                referencedColumnName: 'champId'
+                name: "mainChampId",
+                referencedColumnName: "champId",
             },
         },
         subChampId: {
-            target: 'CHAMP',
-            type: 'many-to-one',
+            target: "CHAMP",
+            type: "many-to-one",
             joinColumn: {
-                name: 'subChampId',
-                referencedColumnName: 'champId'
+                name: "subChampId",
+                referencedColumnName: "champId",
             },
-        }
-    }
+        },
+    },
 })
