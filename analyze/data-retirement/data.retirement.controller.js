@@ -90,14 +90,16 @@ exports.deleteOutdatedData = async (table) => {
         const status = await getMainPageData(recentVersions[0])
         let startPoint
 
-        if (status.category0 === 30 && status.category1 === 30 && status.category2) {
+        console.log(status)
+        if (status.category0 >= 30 && status.category1 >= 30 && status.category2 >= 30) {
             startPoint = 1
         } else {
             startPoint = 2
         }
+        console.log(startPoint)
         for (let i = startPoint; i < recentVersions.length; i++) {
             let version = recentVersions[i]
-            await deleteOutdatedData(version)
+            // await deleteOutdatedData(version)
         }
         logger.info(`outdated한 패치버전 ${table} 데이터 제거 완료`)
     } catch (err) {
