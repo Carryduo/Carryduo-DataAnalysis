@@ -52,6 +52,7 @@ exports.startChampDataSave = async () => {
                 const spell1 = v.summoner1Id
                 const spell2 = v.summoner2Id
                 const position = v.teamPosition
+                if (!position) continue
 
                 await createOrUpdateChampRate(champId, win, position, version)
                 await createOrUpdateChampSpell(champId, spell1, spell2, position, version)
