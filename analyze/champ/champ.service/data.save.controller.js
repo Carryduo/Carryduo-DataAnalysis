@@ -17,7 +17,7 @@ const {
     findVersion_combination_service,
 } = require("../../data-retirement/data.retirement.service")
 
-const { uploadChampImgToS3, uploadPassiveImgToS3, uploadSkillImgToS3 } = require("./data.save.s3.service")
+const { uploadChampImgToS3, uploadPassiveImgToS3, uploadSkillImgToS3, getS3BucketVersion } = require("./data.save.s3.service")
 const { validateToolTip } = require("../champ.skill/skill.controller")
 const { targetChampionSkillInfoSave, targetChampionSkillInfoUpdate } = require("../champ.skill/skill.service")
 
@@ -55,38 +55,34 @@ exports.checkVersion = async () => {
         let param, version, oldVersion
         const riotVersion = await axios("https://ddragon.leagueoflegends.com/api/versions.json")
         const recentRiotVersion = riotVersion.data[0].slice(0, 5)
-        const originData = await findVersion_combination_service()
-        const dbVersionList = getRecentDBversion(originData)
-
-        const dbVersion = dbVersionList[0]
-
+        const s3Version = await getS3BucketVersion()
         // 패치버전 크기 비교
         const recentRiotVersion_year = Number(recentRiotVersion.split(".")[0])
-        const dbVrsion_year = Number(dbVersion.split(".")[0])
+        const dbVrsion_year = Number(s3Version.split(".")[0])
         if (recentRiotVersion_year > dbVrsion_year) {
             param = 1
             version = recentRiotVersion
-            oldVersion = dbVersion
+            oldVersion = s3Version
         } else if (recentRiotVersion_year === dbVrsion_year) {
             const recentRiotVersion_week = Number(recentRiotVersion.split(".")[1])
-            const dbVersion_week = Number(dbVersion.split(".")[1])
+            const dbVersion_week = Number(s3Version.split(".")[1])
             if (recentRiotVersion_week > dbVersion_week) {
                 param = 1
                 version = recentRiotVersion
-                oldVersion = dbVersion
+                oldVersion = s3Version
             } else if (recentRiotVersion_week === dbVersion_week) {
                 param = 0
                 version = recentRiotVersion
-                oldVersion = dbVersion
+                oldVersion = s3Version
             } else {
                 param = 2
                 version = recentRiotVersion
-                oldVersion = dbVersion
+                oldVersion = s3Version
             }
         } else {
             param = 2
             version = recentRiotVersion
-            oldVersion = dbVersion
+            oldVersion = s3Version
         }
         if (version[version.length - 1] === ".") {
             version = version.slice(0, -1)
@@ -217,10 +213,10 @@ exports.updateNewVersionChampInfoFromRiot = async (version) => {
             const passiveName = passive.name
             const passiveDesc = validateToolTip(passive.description)
             const image = await uploadPassiveImgToS3(version, passive, champName, passive_id)
-            ;(passiveInfo.id = passive_id),
-                (passiveInfo.name = passiveName),
-                (passiveInfo.desc = passiveDesc),
-                (passiveInfo.image = image)
+                ; (passiveInfo.id = passive_id),
+                    (passiveInfo.name = passiveName),
+                    (passiveInfo.desc = passiveDesc),
+                    (passiveInfo.image = image)
 
             // TODO: 이미지, 스킬 정보 DB에 업데이트 하기
             const existChamp = await checkChamp(champId)

@@ -150,3 +150,13 @@ exports.deleteOutdatedS3Bucket = async (oldVersion) => {
 async function getObjectsFromS3Bucket(oldVersion) {
     return await s3.listObjectsV2({ Bucket: `${process.env.BUCKET}`, Prefix: `${oldVersion}/` }).promise()
 }
+
+exports.getS3BucketVersion = async () => {
+    try {
+        const data = await s3.listObjectsV2({ Bucket: `${process.env.BUCKET}` }).promise()
+        return data.Contents[0].Key.split('/')[0]
+    } catch (err) {
+        logger.error(err, { message: '-from getS3BucketVersion' })
+        return
+    }
+}
