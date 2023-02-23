@@ -1,8 +1,8 @@
 const { dataSource } = require("../../../orm")
-const Position = dataSource.getRepository("champ_position")
-const WinRate = dataSource.getRepository("champ_win_rate")
-const Ban = dataSource.getRepository("champban")
-const Spell = dataSource.getRepository("champspell")
+
+const Rate = dataSource.getRepository("champ_rate")
+const Ban = dataSource.getRepository("champ_ban")
+const Spell = dataSource.getRepository("champ_spell")
 
 const { dataSource_service } = require("../../../service.orm")
 const ChampService = dataSource_service.getRepository("CHAMP")
@@ -31,13 +31,7 @@ exports.champIdList = async () => {
 
 exports.findNewChampId = async (champIds) => {
     try {
-        const positionNewChamp = await Position.createQueryBuilder()
-            .select("DISTINCT champId")
-            .where("champId NOT IN (:champIds)", {
-                champIds,
-            })
-            .getRawMany()
-        const winRateNewChamp = await WinRate.createQueryBuilder()
+        const rateNewChamp = await Rate.createQueryBuilder()
             .select("DISTINCT champId")
             .where("champId NOT IN (:champIds)", {
                 champIds,
@@ -55,7 +49,7 @@ exports.findNewChampId = async (champIds) => {
                 champIds,
             })
             .getRawMany()
-        return { positionNewChamp, winRateNewChamp, banNewChamp, spellNewChamp }
+        return { rateNewChamp, banNewChamp, spellNewChamp }
     } catch (err) {
         logger.error(err, { message: ` - from findNewChampId` })
     }
