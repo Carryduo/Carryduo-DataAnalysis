@@ -38,10 +38,6 @@ exports.deleteOutdatedData = async (table) => {
                 deleteOutdatedData = deleteOutdatedData_champ
                 getMainPageData = getMainpageData_serviceDB
                 break
-            // case "champ_service":
-            //     findVersion = findVersion_champ_service
-            //     deleteOutdatedData = deleteOutdatedData_champ_service
-            //     break
             case "matchId":
                 findVersion = findVersion_matchId
                 deleteOutdatedData = deleteOutdatedData_matchId

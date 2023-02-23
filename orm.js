@@ -11,14 +11,8 @@ const dataSource = new typeorm.DataSource({
     synchronize: false,
     logging: false,
     entities: [
-        require("./entity/champ.spell.service.data"),
-        require("./entity/champ.service.data"),
-        require("./entity/champ.win.rate.data"),
-        require("./entity/champ.position.data"),
-        require("./entity/champ.ban.data"),
         require("./entity/match.id"),
         require("./entity/combination.data"),
-        require("./entity/champ.spell.data"),
         require("./entity/simulation.service.data"),
         require("./entity/simulation.data"),
         //수정된 챔프 엔티티

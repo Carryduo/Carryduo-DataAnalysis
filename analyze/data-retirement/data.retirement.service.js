@@ -3,6 +3,7 @@ const combination = dataSource.getRepository("combination")
 const simulation = dataSource.getRepository("simulation")
 const simulation_service = dataSource.getRepository("simulation_service")
 
+const gameInfo = dataSource.getRepository("game_info")
 const champRate = dataSource.getRepository("champ_rate")
 const champBan = dataSource.getRepository("champ_ban")
 const champSpell = dataSource.getRepository("champ_spell")
@@ -64,14 +65,14 @@ exports.deleteOutdatedData_simulation = async (version) => {
 
 //champ
 exports.findVersion_champ = async () => {
-    return await champRate.createQueryBuilder().select(["DISTINCT champ_rate.version"]).getRawMany()
+    return await gameInfo.createQueryBuilder().select(["DISTINCT version"]).getRawMany()
 }
 exports.deleteOutdatedData_champ = async (version) => {
     try {
-        // console.log(version)
-        await champRate.createQueryBuilder().delete().where("champ_rate.version = :version", { version }).execute()
-        await champBan.createQueryBuilder().delete().where("champ_ban.version = :version", { version }).execute()
-        await champSpell.createQueryBuilder().delete().where("champ_spell.version = :version", { version }).execute()
+        await gameInfo.createQueryBuilder().delete().where("version = :version", { version }).execute()
+        await champRate.createQueryBuilder().delete().where("version = :version", { version }).execute()
+        await champBan.createQueryBuilder().delete().where("version = :version", { version }).execute()
+        await champSpell.createQueryBuilder().delete().where("version = :version", { version }).execute()
         return
     } catch (err) {
         console.log(err)
