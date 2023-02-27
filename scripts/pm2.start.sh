@@ -1,2 +1,2 @@
 cd /home/ubuntu/build
-pm2 restart handler
+pm2 start handler.js
