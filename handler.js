@@ -1,7 +1,11 @@
 const childProcess = require("child_process")
 const logger = require("./log")
+const { pm2Schedule } = require("./timer/schedule")
 
 require("dotenv").config()
+
+//pm2 스케줄
+pm2Schedule()
 
 // 프로세스 PORK
 let taskProcess
