@@ -2,6 +2,7 @@ const childProcess = require("child_process")
 const logger = require("./log")
 
 require("dotenv").config()
+
 // 프로세스 PORK
 let taskProcess
 if (process.env.LOCAL_DIRECTORY) {
@@ -13,6 +14,16 @@ if (process.env.LOCAL_DIRECTORY) {
 // taskPorcess에게 업무 전달
 taskProcess.on("message", function (m) {
     try {
+        //종료 시간 계산
+        const now = new Date()
+        const targetTime = new Date().setHours(21, 45, 0)
+
+        if (now >= targetTime) {
+            console.log(`현재 시간 ${now}가 종료시간 ${new Date(targetTime)}이 되어 프로세스를 종료 합니다.`)
+            process.kill(taskProcess.pid)
+            process.exit()
+        }
+
         const cpuUsage = process.cpuUsage()
         if (m.done === "connect") {
             setTimeout(function () {
