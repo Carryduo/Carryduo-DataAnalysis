@@ -1,11 +1,7 @@
 const childProcess = require("child_process")
 const logger = require("./log")
-const { pm2Schedule } = require("./timer/schedule")
 
 require("dotenv").config()
-
-//pm2 스케줄
-pm2Schedule()
 
 // 프로세스 PORK
 let taskProcess
@@ -24,8 +20,7 @@ taskProcess.on("message", function (m) {
 
         if (now >= targetTime) {
             console.log(`현재 시간 ${now}가 종료시간 ${new Date(targetTime)}이 되어 프로세스를 종료 합니다.`)
-            process.kill(taskProcess.pid)
-            process.exit()
+            childProcess.exec("pm2 stop handler.js")
         }
 
         const cpuUsage = process.cpuUsage()
