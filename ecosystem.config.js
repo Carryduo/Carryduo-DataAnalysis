@@ -3,7 +3,7 @@ module.exports = {
         {
             name: "handler",
             script: "./handler.js",
-            cron_restart: "* 13 * * *",
+            cron_restart: "10 13 * * *",
         },
     ],
 }
